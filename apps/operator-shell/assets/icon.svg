@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Placeholder app icon. Replace with the real mark, then run the "icon" script. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="224" fill="#2F4858"/>
+  <circle cx="512" cy="512" r="300" fill="#FFFFFF"/>
+  <circle cx="512" cy="512" r="210" fill="#2F4858"/>
+</svg>

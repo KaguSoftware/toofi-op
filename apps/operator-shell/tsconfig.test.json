@@ -1,0 +1,11 @@
+{
+  // Typecheck-only project for tests and vitest.config.ts (the build project's
+  // rootDir is src, and `import.meta.url` needs an ESM module setting).
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["src", "vitest.config.ts"]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@rop/operator-shell",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Electron shell for the restaurant operator app: kiosk, printing, auto-update.",
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "dev": "node esbuild.config.mjs && electron .",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "dist": "pnpm --filter @rop/operator build && node esbuild.config.mjs && electron-builder --win --config electron-builder.config.cjs --publish never",
+    "dist:dir": "pnpm --filter @rop/operator build && node esbuild.config.mjs && electron-builder --dir --config electron-builder.config.cjs --publish never",
+    "dist:mac": "pnpm --filter @rop/operator build && node esbuild.config.mjs && electron-builder --mac --config electron-builder.config.cjs --publish never",
+    "check:electron": "node scripts/check-electron.mjs",
+    "icon": "node scripts/make-icon.mjs"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "@types/node": "^22.10.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^26.15.3",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.15.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^2.1.8"
+  },
+  "x-notes": [
+    "CommonJS on purpose (no \"type\": \"module\"): Electron main/preload compile to CJS.",
+    "Names come from the repo-root brand.config.json: esbuild bakes it into the bundle as __BRAND__, electron-builder.config.cjs requires it.",
+    "Build-time env: SUPABASE_URL (or VITE_SUPABASE_URL) is baked into the CSP connect-src by esbuild.config.mjs; dev adds the local stack."
+  ]
+}

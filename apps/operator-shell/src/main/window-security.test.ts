@@ -1,0 +1,319 @@
+import { describe, it, expect } from 'vitest';
+import {
+  mayNavigateTo,
+  mayOpenExternally,
+  shouldRecoverToRenderer,
+  shouldShowTrafficLights,
+  clampWindowMinimum,
+  LAYOUT_MIN_HEIGHT,
+  LAYOUT_MIN_WIDTH,
+  openingWindowSize,
+  kioskHardening,
+  shouldRefocusOnBlur,
+  buildCsp,
+  hardenSession,
+  type NavigationPolicy,
+} from './window-security';
+
+// The window had no will-navigate handler at all, so nothing stopped the
+// renderer moving the top-level frame to remote content with the preload — and
+// therefore window.rop: quit, kiosk exit, the printer
+// — still attached. And setWindowOpenHandler passed any string straight to
+// shell.openExternal, which hands it to the OS protocol handler.
+
+const prod: NavigationPolicy = { isDev: false };
+const dev: NavigationPolicy = { isDev: true, devServerUrl: 'http://localhost:5174' };
+
+describe('mayNavigateTo', () => {
+  it('allows the packaged renderer on file:', () => {
+    expect(mayNavigateTo('file:///C:/app/resources/renderer/index.html', prod)).toBe(true);
+  });
+
+  it('allows the dev server origin in development', () => {
+    expect(mayNavigateTo('http://localhost:5174/till', dev)).toBe(true);
+  });
+
+  it('refuses the dev server origin in a packaged build', () => {
+    expect(mayNavigateTo('http://localhost:5174/till', prod)).toBe(false);
+  });
+
+  it('refuses a different port on the same host', () => {
+    // Origin comparison, not a host prefix: another local server is not us.
+    expect(mayNavigateTo('http://localhost:3000/', dev)).toBe(false);
+  });
+
+  it.each([
+    'https://evil.example/phish',
+    'http://evil.example/',
+    'data:text/html,<script>1</script>',
+    'javascript:alert(1)',
+    'about:blank',
+  ])('refuses %s', (url) => {
+    expect(mayNavigateTo(url, dev)).toBe(false);
+    expect(mayNavigateTo(url, prod)).toBe(false);
+  });
+
+  it('refuses a string that is not a URL at all', () => {
+    expect(mayNavigateTo('not a url', prod)).toBe(false);
+    expect(mayNavigateTo('', prod)).toBe(false);
+  });
+});
+
+describe('mayOpenExternally', () => {
+  it('allows https in a shipped build', () => {
+    expect(mayOpenExternally('https://core.telegram.org/bots', prod)).toBe(true);
+  });
+
+  it('refuses plain http in a shipped build', () => {
+    expect(mayOpenExternally('http://example.com', prod)).toBe(false);
+  });
+
+  it('allows plain http in development', () => {
+    // Supabase Studio and local docs.
+    expect(mayOpenExternally('http://127.0.0.1:54323', dev)).toBe(true);
+  });
+
+  it.each([
+    'file:///C:/Windows/System32/calc.exe',
+    'smb://attacker/share',
+    'ms-msdt:/id',
+    'javascript:alert(1)',
+    'vscode://file/etc/passwd',
+  ])('refuses the OS-handler scheme in %s', (url) => {
+    // shell.openExternal hands these to Windows, which will happily act on them.
+    expect(mayOpenExternally(url, prod)).toBe(false);
+    expect(mayOpenExternally(url, dev)).toBe(false);
+  });
+
+  it('refuses junk', () => {
+    expect(mayOpenExternally('', prod)).toBe(false);
+    expect(mayOpenExternally('https:// broken', prod)).toBe(false);
+  });
+});
+
+describe('shouldRecoverToRenderer', () => {
+  const renderer = 'file:///C:/Program%20Files/Restaurant%20Operator/resources/renderer/index.html';
+  const failed = (url: string, errorCode = -6, isMainFrame = true) => ({ url, errorCode, isMainFrame });
+
+  it('recovers a reload of a stale history path (the Windows white screen)', () => {
+    expect(shouldRecoverToRenderer(failed('file:///C:/till'), renderer)).toBe(true);
+  });
+
+  it('recovers the macOS spelling of the same path', () => {
+    expect(
+      shouldRecoverToRenderer(failed('file:///till'), 'file:///Applications/Operator.app/Contents/Resources/renderer/index.html'),
+    ).toBe(true);
+  });
+
+  it('does not reload index.html into itself when the renderer is missing', () => {
+    expect(shouldRecoverToRenderer(failed(renderer), renderer)).toBe(false);
+    expect(shouldRecoverToRenderer(failed(`${renderer}#/till`), renderer)).toBe(false);
+  });
+
+  it('ignores superseded loads, subframes and non-file URLs', () => {
+    expect(shouldRecoverToRenderer(failed('file:///C:/till', -3), renderer)).toBe(false);
+    expect(shouldRecoverToRenderer(failed('file:///C:/till', -6, false), renderer)).toBe(false);
+    expect(shouldRecoverToRenderer(failed('http://localhost:5174/till', -102), renderer)).toBe(false);
+  });
+});
+
+// Every macOS window gets the real buttons now, kiosk modes included: dev and
+// production used to disagree on the same machine, which read as a bug. The red
+// button is not an unaudited exit — createWindow routes 'close' through the
+// renderer's "Quit to desktop?" confirmation — and the buttons still hide
+// themselves whenever the window is actually full screen or kiosk.
+describe('shouldShowTrafficLights', () => {
+  const mac = { platform: 'darwin' as NodeJS.Platform, isDev: false, configured: true };
+
+  it('shows them on a till, the same as dev does', () => {
+    expect(shouldShowTrafficLights({ ...mac, mode: 'till' })).toBe(true);
+    expect(shouldShowTrafficLights({ ...mac, isDev: true, mode: 'till' })).toBe(true);
+  });
+
+  it('shows them on an unconfigured station, whatever the default mode', () => {
+    expect(shouldShowTrafficLights({ ...mac, configured: false, mode: 'till' })).toBe(true);
+  });
+
+  it('never claims them on Windows, which draws none', () => {
+    expect(shouldShowTrafficLights({ ...mac, platform: 'win32', mode: 'till' })).toBe(false);
+    expect(shouldShowTrafficLights({ ...mac, platform: 'win32', isDev: true, mode: 'till' })).toBe(false);
+    expect(shouldShowTrafficLights({ ...mac, platform: 'win32', mode: 'till' })).toBe(false);
+  });
+});
+
+
+describe('clampWindowMinimum', () => {
+  const floor = { width: LAYOUT_MIN_WIDTH, height: LAYOUT_MIN_HEIGHT };
+
+  it('keeps the floor on a display that can hold it', () => {
+    expect(clampWindowMinimum(floor, { width: 1920, height: 1080 })).toEqual(floor);
+  });
+
+  // The floor is meant to fit every Mac the app runs on, so on real laptop
+  // work areas it should survive untouched — 13" Air, then an 11" Air.
+  it('keeps the floor on a 13-inch laptop work area', () => {
+    expect(clampWindowMinimum(floor, { width: 1440, height: 845 })).toEqual(floor);
+  });
+
+  it('keeps the floor on an 11-inch laptop work area', () => {
+    expect(clampWindowMinimum(floor, { width: 1366, height: 768 })).toEqual(floor);
+  });
+
+  // The failure this exists to prevent: a minimum taller than the screen makes
+  // the bottom of the app unreachable, with no way to shrink the window.
+  it('never demands more height than the work area has', () => {
+    expect(clampWindowMinimum(floor, { width: 1280, height: 600 }).height).toBe(600);
+  });
+
+  it('never demands more width than the work area has', () => {
+    expect(clampWindowMinimum(floor, { width: 900, height: 900 }).width).toBe(900);
+  });
+
+  it('clamps both axes on a display smaller than the floor all round', () => {
+    expect(clampWindowMinimum(floor, { width: 800, height: 600 })).toEqual({ width: 800, height: 600 });
+  });
+});
+
+describe('the derived layout floor', () => {
+  // The till is the widest screen: rail 208 + main padding 48 + gaps 32 +
+  // its three columns (11+17+16 = 44rem = 704 at the 16px root) = 992. If a
+  // column grows, this should fail and the floor should be re-derived.
+  it('clears what the till actually needs', () => {
+    const RAIL = 208;
+    const MAIN_PADDING = 48;
+    const COLUMN_GAPS = 32;
+    const TILL_COLUMNS = (11 + 17 + 16) * 16;
+    expect(LAYOUT_MIN_WIDTH).toBeGreaterThanOrEqual(RAIL + MAIN_PADDING + COLUMN_GAPS + TILL_COLUMNS);
+  });
+
+  // A floor no Mac can honour would be silently clamped away on every station,
+  // which is the same as having none. 1366x768 is the smallest we expect.
+  it('fits the smallest work area we ship to', () => {
+    expect(LAYOUT_MIN_WIDTH).toBeLessThanOrEqual(1366);
+    expect(LAYOUT_MIN_HEIGHT).toBeLessThanOrEqual(768);
+  });
+});
+
+describe('openingWindowSize', () => {
+  const floor = { width: LAYOUT_MIN_WIDTH, height: LAYOUT_MIN_HEIGHT };
+
+  // The bug: Electron's 800x600 default is under the floor, so the window
+  // opened small and macOS snapped it up on the first drag.
+  it('never opens below the floor, which is what caused the jump', () => {
+    const open = openingWindowSize(floor, { width: 1024, height: 700 });
+    expect(open.width).toBeGreaterThanOrEqual(floor.width);
+    expect(open.height).toBeGreaterThanOrEqual(floor.height);
+  });
+
+  it('opens at a share of a large screen rather than at the floor', () => {
+    const open = openingWindowSize(floor, { width: 2560, height: 1440 });
+    expect(open).toEqual({ width: 2304, height: 1296 });
+  });
+
+  it('opens within a 13-inch laptop work area', () => {
+    const work = { width: 1440, height: 845 };
+    const open = openingWindowSize(floor, work);
+    expect(open.width).toBeLessThanOrEqual(work.width);
+    expect(open.height).toBeLessThanOrEqual(work.height);
+    expect(open.height).toBeGreaterThanOrEqual(floor.height);
+  });
+
+  // A window bigger than the desktop cannot be dragged back into view, so the
+  // work area beats the floor when the two genuinely conflict.
+  it('never opens larger than the work area, even under the floor', () => {
+    const work = { width: 900, height: 600 };
+    expect(openingWindowSize(floor, work)).toEqual(work);
+  });
+
+  it('returns whole pixels', () => {
+    const open = openingWindowSize(floor, { width: 1333, height: 777 });
+    expect(Number.isInteger(open.width)).toBe(true);
+    expect(Number.isInteger(open.height)).toBe(true);
+  });
+});
+
+// F-44: a locked station keeps Alt+Tab and the Windows key as far as Electron
+// allows; the full block is the OS kiosk policy (station setup runbook).
+describe('kioskHardening', () => {
+  it('takes Alt+Tab, Alt+Esc, Ctrl+Esc and the Windows-key combos on Windows', () => {
+    const w = kioskHardening('win32');
+    expect(w.alwaysOnTop).toBe(true);
+    expect(w.refocus).toBe(true);
+    for (const combo of ['Alt+Tab', 'Alt+Shift+Tab', 'Alt+Esc', 'Ctrl+Esc', 'Super+D', 'Super+Tab', 'Super+R']) {
+      expect(w.shortcuts).toContain(combo);
+    }
+    // Every entry is a key WITH a modifier: Electron has no bare-modifier accelerator.
+    for (const combo of w.shortcuts) expect(combo).toMatch(/^(Alt|Ctrl|Super)(\+(Shift|Ctrl|Alt))*\+[A-Za-z0-9]+$/);
+    expect(new Set(w.shortcuts).size).toBe(w.shortcuts.length);
+  });
+
+  it('leaves macOS to the kiosk presentation options', () => {
+    expect(kioskHardening('darwin')).toEqual({ alwaysOnTop: false, refocus: false, shortcuts: [] });
+  });
+});
+
+describe('shouldRefocusOnBlur', () => {
+  const base = { platform: 'win32' as NodeJS.Platform, locked: true, released: false, destroyed: false };
+  it('takes focus back on a locked Windows station', () => {
+    expect(shouldRefocusOnBlur(base)).toBe(true);
+  });
+  it('never on a released, unlocked or destroyed window, or on macOS', () => {
+    expect(shouldRefocusOnBlur({ ...base, released: true })).toBe(false);
+    expect(shouldRefocusOnBlur({ ...base, locked: false })).toBe(false);
+    expect(shouldRefocusOnBlur({ ...base, destroyed: true })).toBe(false);
+    expect(shouldRefocusOnBlur({ ...base, platform: 'darwin' })).toBe(false);
+  });
+});
+
+describe('buildCsp', () => {
+  const supabaseUrl = 'https://abc.supabase.co';
+
+  it('is closed by default and allows only the one Supabase project in a packaged build', () => {
+    const csp = buildCsp({ supabaseUrl, isDev: false });
+    expect(csp).toBe(
+      [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self' data:",
+        "connect-src 'self' https://abc.supabase.co wss://abc.supabase.co",
+      ].join('; '),
+    );
+  });
+
+  it('adds the local Supabase stack and the dev server in dev only', () => {
+    const csp = buildCsp({ supabaseUrl, isDev: true, devServerUrl: 'http://localhost:5174' });
+    expect(csp).toContain('http://127.0.0.1:55421 ws://127.0.0.1:55421');
+    expect(csp).toContain('http://localhost:5174 ws://localhost:5174');
+    expect(buildCsp({ supabaseUrl, isDev: false })).not.toContain('127.0.0.1');
+  });
+
+  it('ignores a Supabase URL that is not https', () => {
+    expect(buildCsp({ supabaseUrl: 'http://evil.test', isDev: false })).toContain("connect-src 'self'");
+    expect(buildCsp({ supabaseUrl: 'http://evil.test', isDev: false })).not.toContain('evil');
+  });
+});
+
+describe('hardenSession', () => {
+  it('sets the CSP header on every response and denies every permission', () => {
+    let onHeaders!: (d: { responseHeaders: Record<string, string[]> }, cb: (r: unknown) => void) => void;
+    let onRequest!: (w: unknown, p: string, cb: (ok: boolean) => void) => void;
+    let onCheck!: () => boolean;
+    const ses = {
+      webRequest: { onHeadersReceived: (fn: typeof onHeaders) => (onHeaders = fn) },
+      setPermissionRequestHandler: (fn: typeof onRequest) => (onRequest = fn),
+      setPermissionCheckHandler: (fn: typeof onCheck) => (onCheck = fn),
+    };
+    hardenSession(ses as unknown as Parameters<typeof hardenSession>[0], "default-src 'self'");
+
+    let sent: unknown;
+    onHeaders({ responseHeaders: { 'X-A': ['1'] } }, (r) => (sent = r));
+    expect(sent).toEqual({ responseHeaders: { 'X-A': ['1'], 'Content-Security-Policy': ["default-src 'self'"] } });
+
+    const answers: boolean[] = [];
+    for (const p of ['media', 'geolocation', 'notifications']) onRequest({}, p, (ok) => answers.push(ok));
+    expect(answers).toEqual([false, false, false]);
+    expect(onCheck()).toBe(false);
+  });
+});

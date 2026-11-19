@@ -1,0 +1,9 @@
+{
+  "productName": "Restaurant Operator",
+  "appId": "com.kagu.restaurant.operator",
+  "packageScope": "@rop",
+  "releasesOwner": "KaguSoftware",
+  "releasesRepo": "restaurant-operator-releases",
+  "installerName": "Restaurant-Operator-Setup",
+  "protocolPrefix": "rop"
+}
