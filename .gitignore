@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Env & secrets: never commit
+.env
+.env.*
+!.env.example
+station.json
+*.pem
+*.p12
+*.pfx
+*.keystore
+
+# Build output
+dist/
+build/
+out/
+release/
+.turbo/
+*.tsbuildinfo
+
+# Supabase local state
+**/supabase/.branches/
+**/supabase/.temp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Logs & coverage
+*.log
+coverage/
+playwright-report/
+test-results/
+
+# Agent scratch (local issue tracker lives in .scratch/ and IS committed)
+.claude/worktrees/
+.claude/settings.local.json

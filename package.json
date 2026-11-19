@@ -1,0 +1,41 @@
+{
+  "name": "rop",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "format": "prettier --write .",
+    "db:start": "pnpm --filter @rop/db db:start",
+    "db:stop": "pnpm --filter @rop/db db:stop",
+    "db:reset": "pnpm --filter @rop/db db:reset",
+    "db:types": "pnpm --filter @rop/db db:types",
+    "security": "pnpm --filter @rop/operator-shell check:electron && pnpm --filter @rop/db check:error-codes && pnpm --filter @rop/db check:rpc-registry",
+    "e2e": "playwright test -c e2e/playwright.config.ts",
+    "e2e:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@supabase/supabase-js": "^2.47.0",
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.10",
+    "pg": "^8.13.1",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.3.0",
+      "react-dom": "19.3.0",
+      "@types/react": "19.3.0",
+      "@types/react-dom": "19.3.0"
+    }
+  }
+}
