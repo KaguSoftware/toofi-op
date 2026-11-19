@@ -1,0 +1,8 @@
+{
+  "_readme": "app.* functions granted to `authenticated` that are NOT in tests/rls-matrix.ts, each with the reason (at least 10 characters). check:rpc-registry fails on a granted function listed in neither place, and on an entry here that is no longer granted.",
+  "allowlist": {
+    "current_venue": "Read-only helper: returns the caller's own venue id. Granted because column defaults and RLS policies run as the calling role.",
+    "staff_role": "Read-only helper: returns the caller's own role or NULL. Granted because RLS policies run as the calling role.",
+    "is_staff": "Read-only helper: whether the caller holds one of the given roles. Granted because RLS policies run as the calling role."
+  }
+}
