@@ -1,0 +1,25 @@
+{
+  "name": "@rop/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "EN/AR catalogs, typed t(), Intl formatting (IQD, Asia/Baghdad), bidi/RTL helpers, error-code text.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@rop/config": "workspace:*",
+    "eslint": "^9.15.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
