@@ -176,6 +176,9 @@ export type Database = {
 "receive_delivery":
 { Args: { "p_idempotency_key": string,"p_lines": Json,"p_note": string,"p_supplier_id": string }; Returns: Json
                            },
+"record_cash_movement":
+{ Args: { "p_amount": number,"p_idempotency_key": string,"p_kind": Database["public"]['Enums']["cash_movement_kind"],"p_reason": string }; Returns: Json
+                           },
 "record_drawer_open":
 { Args: { "p_reason": string }; Returns: Json
                            },
@@ -344,6 +347,50 @@ export type Database = {
                   Relationships: [
                     {
       foreignKeyName: "audit_log_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"cash_movements": {
+                  Row: {
+                    "amount": number,"authorized_by": string | null,"created_at": string,"day_session_id": string | null,"id": string,"idempotency_key": string,"kind": Database["public"]['Enums']["cash_movement_kind"],"reason": string,"staff_id": string,"till_shift_id": string,"venue_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount": number,"authorized_by"?: string | null,"created_at"?: string,"day_session_id"?: string | null,"id"?: string,"idempotency_key": string,"kind": Database["public"]['Enums']["cash_movement_kind"],"reason": string,"staff_id": string,"till_shift_id": string,"venue_id"?: string
+                  }
+                  Update: {
+                    "amount"?: number,"authorized_by"?: string | null,"created_at"?: string,"day_session_id"?: string | null,"id"?: string,"idempotency_key"?: string,"kind"?: Database["public"]['Enums']["cash_movement_kind"],"reason"?: string,"staff_id"?: string,"till_shift_id"?: string,"venue_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cash_movements_authorized_by_fkey"
+      columns: ["authorized_by"]
+isOneToOne: false
+      referencedRelation: "staff"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cash_movements_day_session_id_fkey"
+      columns: ["day_session_id"]
+isOneToOne: false
+      referencedRelation: "day_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cash_movements_staff_id_fkey"
+      columns: ["staff_id"]
+isOneToOne: false
+      referencedRelation: "staff"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cash_movements_till_shift_id_fkey"
+      columns: ["till_shift_id"]
+isOneToOne: false
+      referencedRelation: "till_shifts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cash_movements_venue_id_fkey"
       columns: ["venue_id"]
 isOneToOne: false
       referencedRelation: "venues"
@@ -1459,7 +1506,7 @@ isOneToOne: false
             [_ in never]: never
           }
           Enums: {
-            "adjustment_kind": "discount_percent"|"discount_amount","movement_kind": "delivery"|"sale"|"void_return"|"waste"|"count_adjust","payment_method": "cash"|"card","staff_role": "waiter"|"cashier"|"manager"|"owner","stock_unit": "g"|"ml"|"pc","tab_status": "open"|"settled"|"void"
+            "adjustment_kind": "discount_percent"|"discount_amount","cash_movement_kind": "paid_out"|"pay_in"|"drop","movement_kind": "delivery"|"sale"|"void_return"|"waste"|"count_adjust","payment_method": "cash"|"card","staff_role": "waiter"|"cashier"|"manager"|"owner","stock_unit": "g"|"ml"|"pc","tab_status": "open"|"settled"|"void"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1579,7 +1626,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "adjustment_kind": ["discount_percent", "discount_amount"],"movement_kind": ["delivery", "sale", "void_return", "waste", "count_adjust"],"payment_method": ["cash", "card"],"staff_role": ["waiter", "cashier", "manager", "owner"],"stock_unit": ["g", "ml", "pc"],"tab_status": ["open", "settled", "void"]
+            "adjustment_kind": ["discount_percent", "discount_amount"],"cash_movement_kind": ["paid_out", "pay_in", "drop"],"movement_kind": ["delivery", "sale", "void_return", "waste", "count_adjust"],"payment_method": ["cash", "card"],"staff_role": ["waiter", "cashier", "manager", "owner"],"stock_unit": ["g", "ml", "pc"],"tab_status": ["open", "settled", "void"]
           }
         }
 } as const

@@ -81,6 +81,7 @@ describe('can / needsManagerPin (SPEC role table)', () => {
     ['refund', ['manager', 'owner'], ['cashier']],
     ['cancelTab', ['manager', 'owner'], ['cashier']],
     ['closeOthersShift', ['manager', 'owner'], ['cashier']],
+    ['cashMovement', ['manager', 'owner'], ['cashier']],
     ['manageDay', ['manager', 'owner'], []],
     ['viewAnalytics', ['manager', 'owner'], []],
     ['manageStock', ['manager', 'owner'], []],

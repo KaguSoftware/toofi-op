@@ -54,6 +54,8 @@ export const CAPABILITY_ROLES = {
   cancelTab: MANAGER_UP,
   /** Close another person's till shift. */
   closeOthersShift: MANAGER_UP,
+  /** Record cash put in or taken out of the drawer without a sale (paid-out, pay-in, drop). */
+  cashMovement: MANAGER_UP,
   /** Open and close the business day. */
   manageDay: MANAGER_UP,
   viewAnalytics: MANAGER_UP,
@@ -75,6 +77,7 @@ export const PIN_CAPABILITY_ROLES: Readonly<Partial<Record<Capability, readonly 
   refund: ['cashier'],
   cancelTab: ['cashier'],
   closeOthersShift: ['cashier'],
+  cashMovement: ['cashier'],
 };
 
 /** Strip query/hash and trailing slashes so '/till/?x' matches '/till'. */

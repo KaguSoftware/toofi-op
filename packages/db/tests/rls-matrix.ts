@@ -203,4 +203,12 @@ export const RPC_MATRIX: readonly RpcRule[] = [
 
   // --- backend-final ---
   { fn: 'shift_variances', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+
+  // --- cash movements (0130) ---
+  {
+    fn: 'record_cash_movement',
+    args: { p_kind: 'paid_out', p_amount: 0, p_reason: 'rls matrix', p_idempotency_key: 'rls-matrix:cash_movement' },
+    allow: CASHIER_UP,
+    note: 'INVALID_AMOUNT; a cashier further needs a PIN',
+  },
 ];
