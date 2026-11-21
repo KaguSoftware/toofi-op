@@ -25,13 +25,13 @@ export function SplitPanel({ tabId, due, lines, state, onState, onUse }: SplitPa
   const { tr } = useLocale();
   const [mode, setMode] = useState<'even' | 'items'>('even');
   return (
-    <section aria-labelledby="till-split-title">
+    <section className="rop-till-split" aria-labelledby="till-split-title">
       <h2 id="till-split-title">{tr('till.split.title')}</h2>
-      <div role="group" aria-label={tr('till.split.title')}>
-        <Button variant={mode === 'even' ? 'primary' : 'secondary'} aria-pressed={mode === 'even'} onClick={() => setMode('even')}>
+      <div className="rop-segmented" role="group" aria-label={tr('till.split.title')}>
+        <Button aria-pressed={mode === 'even'} onClick={() => setMode('even')}>
           {tr('till.split.evenly')}
         </Button>
-        <Button variant={mode === 'items' ? 'primary' : 'secondary'} aria-pressed={mode === 'items'} onClick={() => setMode('items')}>
+        <Button aria-pressed={mode === 'items'} onClick={() => setMode('items')}>
           {tr('till.split.byItem')}
         </Button>
       </div>
@@ -83,7 +83,7 @@ function EvenSplit({ tabId, due, state, onState, onUse }: Omit<SplitPanelProps, 
           </ol>
           {next !== undefined && next > 0 && (
             <Button
-              variant="primary"
+              className="rop-till-split__use"
               onClick={() => onUse({ amount: next, even: true })}
             >
               {tr('till.split.share', { n: Math.min(state.paid + 1, state.people), total: state.people })}
@@ -132,7 +132,6 @@ function ItemSplit({ tabId, due, lines, state, onUse }: Omit<SplitPanelProps, 'o
         <p>
           {tr('till.split.selected')}: <Money amount={q.data.amount} />{' '}
           <Button
-            variant="primary"
             disabled={q.data.amount <= 0}
             onClick={() => {
               onUse({ amount: q.data.amount, lineIds: ids });

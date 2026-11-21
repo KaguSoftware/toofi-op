@@ -1,4 +1,4 @@
-# Restaurant Operator (placeholder name)
+# Kagu Restaurant (placeholder name)
 
 A restaurant's operator system. Waiters take orders on tabs, a cashier settles them at the till, managers read analytics, and stock is deducted by recipe. **The name is a placeholder.** Every brand string lives in `brand.config.json` at the repo root; the package scope is `@rop/*`.
 
@@ -34,7 +34,8 @@ Read `docs/SPEC.md` (what we build, the schema contract, and who owns which file
     - Run `pnpm db:types` after changing a migration, and commit the regenerated types in the same commit.
 
 ## Frontend rules
-- **Deliberately plain UI.** Use semantic HTML, the small kit in `apps/operator/src/components/`, and CSS variables from `apps/operator/src/styles/base.css`. No design-system work: a design team restyles this later, so keep structure clean and class names meaningful.
+- **Designed UI, small system.** Use semantic HTML, the kit in `apps/operator/src/components/`, and the tokens in `apps/operator/src/styles/base.css`. The direction is "ink and paper, colour only for state": read `PRODUCT.md` and `DESIGN.md` before changing how anything looks. New screens reuse the existing tokens and kit; do not add a second visual vocabulary.
+- `base.css` is imported first in `main.tsx`, before any feature CSS, so feature files can override it. Keep that order.
 - Use CSS logical properties only (`margin-inline-start`, not `margin-left`), because the app is RTL-safe for Arabic. No raw hex outside `base.css`.
 - Every user-visible string goes through `tr()` with keys in both the `en` and `ar` catalogs. The AR catalog is typed against EN, so a missing key fails typecheck.
 - Each feature is split in two: `features/<x>/XScreen.tsx` holds the UI, and `features/<x>/xLogic.ts` holds pure logic with `xLogic.test.ts` next to it. Put logic in the logic file, not in components.

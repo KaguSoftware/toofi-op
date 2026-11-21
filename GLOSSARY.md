@@ -17,6 +17,7 @@
 | **Split** | Dividing a tab's due amount evenly or by line into shares, each paid separately. | |
 | **Refund** | Money returned against a payment, recorded as a new row. | reversal |
 | **Till shift** | One cashier's drawer session: opening float → blind count at close → variance. | session, day |
+| **Cash movement** | Cash that enters or leaves the drawer without a sale, recorded on the till shift. Three kinds: **paid-out** (cash taken out to pay for something), **pay-in** (cash put in that is not a sale) and **drop** (cash moved to the safe). The shift's expected cash counts them. | petty cash, expense (an expense is a later, separate thing) |
 | **Manager PIN** | A short numeric code that authorizes a sensitive action through a short-lived grant. | password |
 | **Ingredient** | A stock item measured in g, ml or pc. | product, SKU |
 | **Recipe line** | How much of an ingredient one unit of a menu item uses. | BOM |

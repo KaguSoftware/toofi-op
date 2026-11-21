@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import brand from '../../brand.config.json' with { type: 'json' };
 
 const LOCAL_STACK = 'http://127.0.0.1:55421 ws://127.0.0.1:55421';
 
@@ -31,10 +32,20 @@ function cspPlugin(supabaseUrl: string | undefined): Plugin {
   };
 }
 
+/** Puts the product name from brand.config.json in the document title. */
+function titlePlugin(): Plugin {
+  return {
+    name: 'rop:title',
+    transformIndexHtml: (html) => html.replace('<title>Operator</title>', `<title>${brand.productName}</title>`),
+  };
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   return {
-    plugins: [react(), cspPlugin(env.VITE_SUPABASE_URL)],
+    plugins: [react(), cspPlugin(env.VITE_SUPABASE_URL), titlePlugin()],
+    // The product name is a placeholder kept in brand.config.json; nothing else spells it out.
+    define: { __PRODUCT_NAME__: JSON.stringify(brand.productName) },
     // The built SPA is loaded from file:// inside the Electron shell.
     base: './',
     server: { port: 5174, strictPort: true },

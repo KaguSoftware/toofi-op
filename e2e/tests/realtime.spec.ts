@@ -24,9 +24,10 @@ test('a waiter sending an order updates the cashier till without a reload', asyn
   const waiter = await waiterCtx.newPage();
   await signIn(waiter, 'waiter');
   await waiter.goto(`/tab/${tab}`);
+  // Hummus has no modifiers, so one tap puts it in the basket with no sheet.
   await waiter.locator('.tab__item', { hasText: 'Hummus' }).click();
-  await waiter.locator('dialog[open] .rop-modal__footer button').last().click();
-  await waiter.locator('.basket').getByRole('button').last().click();
+  await expect(waiter.locator('.tab__item-qty')).toHaveText('1');
+  await waiter.locator('.basket__send').click();
   await expect(waiter.locator('.tab__order')).toHaveCount(1);
 
   await expect(row).toContainText('4,000', { timeout: 10_000 });

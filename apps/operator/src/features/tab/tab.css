@@ -1,31 +1,111 @@
-/* Tab screen: structure only. Colours come from base.css variables. */
-.tab__header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-3); margin-block-end: var(--rop-space-3); }
-.tab__header h1, .tab__header p { margin: 0; }
-.tab__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--rop-space-4); align-items: start; }
-.tab__side { display: grid; gap: var(--rop-space-4); }
-.tab__categories { display: flex; flex-wrap: wrap; gap: var(--rop-space-2); margin-block-end: var(--rop-space-3); }
-.tab__category[aria-selected='true'] { background: var(--rop-accent); border-color: var(--rop-accent); color: var(--rop-accent-text); }
-.tab__items { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: var(--rop-space-2); }
+/* Order screen. Three zones: categories, items, and the ticket. The ticket holds the
+   basket first and keeps Send in view; sent lines sit below it as quiet history. */
+.tab__header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2) var(--rop-space-3); margin-block-end: var(--rop-space-3); }
+.tab__header h1 { margin: 0; margin-inline-end: var(--rop-space-2); }
+.tab__header p { margin: 0; color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
+
+.tab__body { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--rop-space-4); align-items: start; }
+.tab__menu { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--rop-space-3); align-content: start; min-inline-size: 0; }
+.tab__menu > .rop-state { grid-column: 1 / -1; }
+.tab__categories { display: flex; gap: var(--rop-space-1); overflow-x: auto; padding-block-end: 2px; }
+.tab__category { flex: none; }
+.tab__items { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr)); gap: var(--rop-space-2); align-content: start; }
 .tab__item {
-  display: flex; flex-direction: column; justify-content: space-between; gap: var(--rop-space-1);
-  min-block-size: 5rem; padding: var(--rop-space-2) var(--rop-space-3);
+  position: relative;
+  display: flex; flex-direction: column; justify-content: space-between; gap: var(--rop-space-2);
+  min-block-size: 5.75rem; padding: var(--rop-space-3);
   border: 1px solid var(--rop-border); border-radius: var(--rop-radius);
-  background: var(--rop-surface); color: var(--rop-text); font: inherit; text-align: start; cursor: pointer;
+  background: var(--rop-raised); color: var(--rop-text); font: inherit; text-align: start; cursor: pointer;
+  transition: background-color var(--rop-fast) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease);
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
-.tab__order ul, .basket__lines { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--rop-space-2); }
-.tab__order h3 { font-size: var(--rop-font); margin-block: var(--rop-space-2) var(--rop-space-1); color: var(--rop-text-muted); }
-.tab__sent-head, .basket__head { display: flex; justify-content: space-between; gap: var(--rop-space-2); }
+.tab__item:hover { border-color: var(--rop-border-hover); }
+.tab__item:active { background: var(--rop-surface); }
+.tab__item:disabled { opacity: 0.45; cursor: not-allowed; }
+.tab__item[data-in-basket='true'] { border-color: var(--rop-ink); }
+.tab__item-name {
+  font-weight: 500; line-height: 1.3; padding-inline-end: var(--rop-space-4);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.tab__item .rop-money { color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
+.tab__item-qty {
+  position: absolute; inset-block-start: var(--rop-space-2); inset-inline-end: var(--rop-space-2);
+  min-inline-size: 1.625rem; block-size: 1.625rem; padding-inline: 0.375rem; border-radius: 1rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--rop-ink); color: var(--rop-ink-text); font-size: var(--rop-font-sm); font-weight: 600; line-height: 1;
+}
+
+/* The ticket */
+.tab__side { display: flex; flex-direction: column; min-inline-size: 0; border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised); overflow: hidden; }
+.basket { display: grid; gap: var(--rop-space-2); padding: var(--rop-space-3); }
+.basket h2, .tab__sent h2, .tab__actions h2 { font-size: var(--rop-font-sm); font-weight: 500; color: var(--rop-text-muted); margin: 0; }
+.basket__empty { margin: 0; padding-block: var(--rop-space-2); color: var(--rop-text-muted); }
+.tab__order ul, .basket__lines { list-style: none; margin: 0; padding: 0; display: grid; }
+.basket__lines { max-block-size: 42dvh; overflow-y: auto; }
+.basket__line { display: grid; gap: var(--rop-space-1); padding-block: var(--rop-space-2); border-block-end: 1px solid var(--rop-border); }
+.basket__head { display: flex; align-items: center; gap: var(--rop-space-2); }
+.basket__head strong { flex: 1; min-inline-size: 0; line-height: 1.3; }
+.basket__remove { border-color: transparent; color: var(--rop-text-muted); font-size: var(--rop-font-lg); padding: 0; }
+.basket__remove:hover { color: var(--rop-danger); border-color: transparent; background: var(--rop-danger-tint); }
+.basket__mods, .tab__sub { margin: 0; font-size: var(--rop-font-sm); color: var(--rop-text-muted); }
+/* Quantity stepper and the kitchen note share one row. */
+.basket__line { grid-template-columns: auto minmax(0, 1fr); column-gap: var(--rop-space-2); }
+.basket__head, .basket__mods { grid-column: 1 / -1; }
+.basket__controls, .item-sheet__qty { display: flex; align-items: center; gap: var(--rop-space-1); }
+.basket__controls output { min-inline-size: 2rem; text-align: center; font-weight: 600; }
+.basket__controls .rop-btn { font-size: var(--rop-font-lg); padding: 0; }
+.basket__line .rop-field label { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.basket__line .rop-field input { border-color: var(--rop-border); font-size: var(--rop-font-sm); padding-inline: var(--rop-space-2); }
+.basket__total { display: flex; justify-content: space-between; align-items: baseline; gap: var(--rop-space-2); margin: 0; padding-block-start: var(--rop-space-1); font-size: var(--rop-font-lg); font-weight: 600; }
+.basket__send { inline-size: 100%; min-block-size: 3.5rem; font-size: var(--rop-font-lg); }
+.basket > [role='status'] { margin: 0; padding: var(--rop-space-2) var(--rop-space-3); border-radius: var(--rop-radius); background: var(--rop-warning-tint); border: 1px solid var(--rop-warning-border); font-weight: 500; }
+
+.tab__sent { padding: var(--rop-space-3); background: var(--rop-surface); border-block-start: 1px solid var(--rop-border); min-block-size: 0; }
+.tab__sent > p { margin: 0; padding-block: var(--rop-space-1); color: var(--rop-text-muted); }
+.tab__order h3 { font-size: var(--rop-font-xs); font-weight: 500; margin-block: var(--rop-space-2) 0; color: var(--rop-text-muted); }
+.tab__sent-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--rop-space-2); align-items: center; padding-block: var(--rop-space-1); border-block-end: 1px solid var(--rop-border); }
+.tab__sent-line > * { grid-column: 1; }
+.tab__sent-line .tab__sub { margin-block-start: -0.125rem; }
+.tab__sent-head { display: flex; justify-content: space-between; gap: var(--rop-space-2); }
 .tab__struck { text-decoration: line-through; color: var(--rop-text-muted); }
-.tab__sub, .basket__mods { margin: 0; font-size: var(--rop-font-sm); color: var(--rop-text-muted); }
-.tab__totals { display: grid; grid-template-columns: 1fr auto; gap: var(--rop-space-1) var(--rop-space-3); margin-block: var(--rop-space-3); }
-.tab__totals dt { font-weight: 600; }
+.tab__sent-line[data-voided='true'] strong { color: var(--rop-danger); }
+.tab__void { grid-column: 2; grid-row: 1 / span 3; align-self: center; border-color: transparent; background: transparent; color: var(--rop-text-muted); font-size: var(--rop-font-sm); padding-inline: var(--rop-space-2); }
+.tab__void:hover { color: var(--rop-danger); background: var(--rop-danger-tint); border-color: transparent; }
+.tab__totals { display: grid; grid-template-columns: 1fr auto; gap: var(--rop-space-1) 0; margin-block: var(--rop-space-3) 0; }
+.tab__totals dt { color: var(--rop-text-muted); }
 .tab__totals dd { margin: 0; text-align: end; }
-.basket__line { display: grid; gap: var(--rop-space-1); padding-block-end: var(--rop-space-2); border-block-end: 1px solid var(--rop-border); }
-.basket__controls, .item-sheet__qty { display: flex; align-items: center; gap: var(--rop-space-2); }
-.item-sheet__qty output { min-inline-size: 3rem; text-align: center; font-size: var(--rop-font-lg); }
-.item-sheet__group { border: 1px solid var(--rop-border); border-radius: var(--rop-radius); padding: var(--rop-space-2) var(--rop-space-3); }
+/* The amount due stays pinned to the bottom of the sent list, whatever its length. */
+.tab__totals dt:last-of-type, .tab__totals dd:last-of-type {
+  position: sticky; inset-block-end: calc(-1 * var(--rop-space-3)); background: var(--rop-surface);
+  padding-block: var(--rop-space-2) var(--rop-space-3); margin-block-end: calc(-1 * var(--rop-space-3));
+  border-block-start: 1px solid var(--rop-border-hover); color: var(--rop-text); font-size: var(--rop-font-lg); font-weight: 600;
+}
+
+.tab__actions { display: flex; gap: var(--rop-space-2); align-items: stretch; padding: var(--rop-space-2) var(--rop-space-3); border-block-start: 1px solid var(--rop-border); }
+.tab__actions h2 { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.tab__actions .rop-btn { flex: 1 1 0; font-size: var(--rop-font-sm); padding-inline: var(--rop-space-2); text-align: center; }
+
+/* Item sheet */
+.item-sheet__qty output { min-inline-size: 3rem; text-align: center; font-size: var(--rop-font-lg); font-weight: 600; }
+.item-sheet__group { border: 1px solid var(--rop-border); border-radius: var(--rop-radius); padding: var(--rop-space-2) var(--rop-space-3); background: var(--rop-bg); }
 .item-sheet__option { display: flex; align-items: center; gap: var(--rop-space-2); min-block-size: var(--rop-target); }
-.item-sheet__option input { inline-size: auto; min-block-size: 0; }
-.item-sheet__rule, .item-sheet__delta { color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
-.tab__actions { display: flex; flex-wrap: wrap; gap: var(--rop-space-2); align-items: center; }
-.tab__actions h2 { inline-size: 100%; }
+.item-sheet__option input { inline-size: 1.25rem; min-block-size: 0; }
+.item-sheet__rule, .item-sheet__delta { color: var(--rop-text-muted); font-size: var(--rop-font-sm); font-weight: 400; }
+
+/* Landscape tablets and the till: categories become a column and the ticket stays in view. */
+/* The screen fills the viewport and never scrolls as a page: items and sent lines scroll inside their zones. */
+@media (min-width: 56rem) {
+  .tab { display: grid; grid-template-rows: auto minmax(0, 1fr); block-size: calc(100dvh - var(--rop-chrome)); min-block-size: 30rem; }
+  .tab__body { grid-template-columns: minmax(0, 1fr) minmax(19rem, 23rem); min-block-size: 0; align-items: stretch; }
+  .tab__menu { grid-template-rows: auto minmax(0, 1fr); min-block-size: 0; }
+  .tab__items { overflow-y: auto; padding-block-end: var(--rop-space-2); }
+  .tab__side { min-block-size: 0; }
+  .tab__sent { flex: 1 1 auto; overflow-y: auto; }
+  .basket, .tab__actions { flex: none; }
+  .basket__lines { max-block-size: 30dvh; }
+}
+@media (min-width: 72rem) {
+  .tab__menu { grid-template-columns: 10rem minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }
+  .tab__categories { flex-direction: column; overflow-y: auto; }
+  .tab__category { justify-content: flex-start; text-align: start; }
+}

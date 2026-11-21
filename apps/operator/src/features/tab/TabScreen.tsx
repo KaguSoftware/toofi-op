@@ -16,6 +16,8 @@ import { supabase } from '../../lib/supabase';
 import { BasketPanel } from './BasketPanel';
 import {
   addLine,
+  addsInOneTap,
+  qtyByItem,
   emptyBasket,
   ensureSendKey,
   loadBasket,
@@ -288,6 +290,13 @@ function TabView({ tabId }: { tabId: string }) {
   const currentCategory = categories.find((c) => c.id === categoryId) ?? categories[0];
   const items = (menu.data?.items ?? []).filter((i) => i.category_id === currentCategory?.id);
   const orders = groupSentLines(sent);
+  const inBasket = qtyByItem(basket);
+
+  /** One tap adds an item that has nothing to choose; anything with modifiers opens the sheet. */
+  function pickItem(i: MenuItem) {
+    if (!addsInOneTap(menuItemGroups(i.menu_item_modifier_groups))) return setSheetItem(i);
+    commit(addLine(basket, { menuItemId: i.id, nameEn: i.name_en, nameAr: i.name_ar, basePrice: i.price, modifiers: [], qty: 1, note: '' }));
+  }
 
   return (
     <section className="tab">
@@ -303,7 +312,9 @@ function TabView({ tabId }: { tabId: string }) {
 
       <div className="tab__body">
         <section className="tab__menu" aria-labelledby="menu-title">
-          <h2 id="menu-title">{tr('tab.menu')}</h2>
+          <h2 id="menu-title" className="rop-sr-only">
+            {tr('tab.menu')}
+          </h2>
           {menu.isPending && <Loading />}
           {menu.error && <ErrorState error={menu.error} onRetry={() => void menu.refetch()} />}
           {menu.data && categories.length === 0 && <EmptyState message={tr('tab.noMenu')} />}
@@ -323,17 +334,44 @@ function TabView({ tabId }: { tabId: string }) {
           </div>
           {currentCategory && items.length === 0 && <EmptyState message={tr('tab.noItems')} />}
           <div className="tab__items" role="tabpanel">
-            {items.map((i) => (
-              <button key={i.id} type="button" className="tab__item" disabled={sendCheck !== null} onClick={() => setSheetItem(i)}>
-                <span>{localName(locale, i)}</span>
-                <Money amount={i.price} />
-              </button>
-            ))}
+            {items.map((i) => {
+              const qty = inBasket.get(i.id) ?? 0;
+              return (
+                <button
+                  key={i.id}
+                  type="button"
+                  className="tab__item"
+                  data-in-basket={qty > 0 ? 'true' : undefined}
+                  disabled={sendCheck !== null}
+                  onClick={() => pickItem(i)}
+                >
+                  <span className="tab__item-name">{localName(locale, i)}</span>
+                  <Money amount={i.price} />
+                  {qty > 0 && (
+                    <span className="tab__item-qty" aria-label={`${tr('tab.qty')}: ${qty}`}>
+                      {qty}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
 
         <div className="tab__side">
-          <section aria-labelledby="sent-title">
+          <BasketPanel
+            basket={basket}
+            sending={sending}
+            check={sendCheck}
+            onRecheck={() => void checkSend()}
+            error={sendError}
+            onQty={(id, q) => commit(setQty(basket, id, q))}
+            onRemove={(id) => commit(removeLine(basket, id))}
+            onNote={(id, n) => commit(setNote(basket, id, n))}
+            onSend={() => void send()}
+          />
+
+          <section className="tab__sent" aria-labelledby="sent-title">
             <h2 id="sent-title">{tr('tab.sent')}</h2>
             {orders.length === 0 && <p>{tr('tab.noneSent')}</p>}
             {orders.map((o) => (
@@ -363,7 +401,9 @@ function TabView({ tabId }: { tabId: string }) {
                           {l.void_reason ? ` · ${tr('tab.voidReason', { reason: l.void_reason })}` : ''}
                         </p>
                       ) : (
-                        <Button onClick={() => setVoidLine(l)}>{tr('tab.voidLine')}</Button>
+                        <Button className="tab__void" onClick={() => setVoidLine(l)}>
+                          {tr('tab.voidLine')}
+                        </Button>
                       )}
                     </li>
                   ))}
@@ -414,18 +454,6 @@ function TabView({ tabId }: { tabId: string }) {
               )}
             </dl>
           </section>
-
-          <BasketPanel
-            basket={basket}
-            sending={sending}
-            check={sendCheck}
-            onRecheck={() => void checkSend()}
-            error={sendError}
-            onQty={(id, q) => commit(setQty(basket, id, q))}
-            onRemove={(id) => commit(removeLine(basket, id))}
-            onNote={(id, n) => commit(setNote(basket, id, n))}
-            onSend={() => void send()}
-          />
 
           <section className="tab__actions" aria-labelledby="actions-title">
             <h2 id="actions-title">{tr('tab.actions')}</h2>

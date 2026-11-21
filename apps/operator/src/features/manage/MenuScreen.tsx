@@ -36,9 +36,9 @@ export function MenuScreen() {
   return (
     <section className="manage">
       <h1>{tr('manage.menuTitle')}</h1>
-      <div className="manage__tabs" role="group" aria-label={tr('manage.menu.sections')}>
+      <div className="rop-segmented manage__tabs" role="group" aria-label={tr('manage.menu.sections')}>
         {(['items', 'modifiers', 'tax'] as const).map((t) => (
-          <Button key={t} variant={tab === t ? 'primary' : 'secondary'} aria-pressed={tab === t} onClick={() => setTab(t)}>
+          <Button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>
             {tr(t === 'items' ? 'manage.menu.tabItems' : t === 'modifiers' ? 'manage.menu.tabModifiers' : 'manage.menu.tabTax')}
           </Button>
         ))}

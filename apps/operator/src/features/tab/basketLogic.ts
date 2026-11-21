@@ -77,6 +77,19 @@ export function addLine(b: Basket, line: NewLine): Basket {
   return edited([...b.lines, { ...line, qty, note: line.note.trim(), id: localId() }]);
 }
 
+/** How many of each menu item are in the basket, across all its lines (any modifiers or note). */
+export function qtyByItem(b: Basket): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const l of b.lines) out.set(l.menuItemId, (out.get(l.menuItemId) ?? 0) + l.qty);
+  return out;
+}
+
+/**
+ * An item with no modifier groups has nothing to choose, so one tap adds one.
+ * Any group, even an optional one, opens the sheet: the basket cannot edit modifiers later.
+ */
+export const addsInOneTap = (groups: readonly ModifierGroup[]): boolean => groups.length === 0;
+
 export function setQty(b: Basket, id: string, qty: number): Basket {
   const q = clampQty(qty);
   return edited(q < 1 ? b.lines.filter((l) => l.id !== id) : b.lines.map((l) => (l.id === id ? { ...l, qty: q } : l)));

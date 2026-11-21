@@ -17,6 +17,7 @@ export const QK = {
   tillBill: (tabId: string) => ['till', 'bill', tabId] as const,
   tillShiftStatus: (device: string) => ['till', 'shiftStatus', device] as const,
   tillOpenShifts: () => ['till', 'openShifts'] as const,
+  tillCashMovements: (shiftId: string) => ['till', 'cashMovements', shiftId] as const,
   tillSettings: () => ['till', 'settings'] as const,
   // --- manage ---
   manage: (...parts: readonly (string | number)[]) => ['manage', ...parts] as const,

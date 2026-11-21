@@ -11,6 +11,7 @@ import { useBroadcast } from '../../lib/realtime';
 import { BillPanel } from './BillPanel';
 import { fetchOpenTabs, fetchSettledToday, fetchShiftStatus } from './tillData';
 import { filterByLabel } from './tillLogic';
+import './till.css';
 
 type View = 'open' | 'settled';
 
@@ -60,11 +61,11 @@ export function TillScreen() {
       )}
       <div className="rop-till-layout">
         <div className="rop-till-list">
-          <div role="group" aria-label={tr('till.title')}>
-            <Button variant={view === 'open' ? 'primary' : 'secondary'} aria-pressed={view === 'open'} onClick={() => switchView('open')}>
+          <div className="rop-segmented" role="group" aria-label={tr('till.title')}>
+            <Button aria-pressed={view === 'open'} onClick={() => switchView('open')}>
               {tr('till.openTabs')}
             </Button>
-            <Button variant={view === 'settled' ? 'primary' : 'secondary'} aria-pressed={view === 'settled'} onClick={() => switchView('settled')}>
+            <Button aria-pressed={view === 'settled'} onClick={() => switchView('settled')}>
               {tr('till.settledToday')}
             </Button>
           </div>

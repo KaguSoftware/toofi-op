@@ -147,6 +147,10 @@ export interface ShiftClose {
   counted: number;
   expected: number;
   variance: number;
+  /** Cash movements on the shift, which explain the expected figure. */
+  payIns: number;
+  paidOuts: number;
+  drops: number;
 }
 
 export function parseShiftClose(raw: unknown): ShiftClose {
@@ -157,6 +161,9 @@ export function parseShiftClose(raw: unknown): ShiftClose {
     counted: num(o.counted_cash),
     expected: num(o.expected_cash),
     variance: num(o.variance),
+    payIns: num(o.pay_ins),
+    paidOuts: num(o.paid_outs),
+    drops: num(o.drops),
   };
 }
 
@@ -200,3 +207,45 @@ export const paymentSig = (tabId: string, method: Method, amount: number, genera
 
 /** After an unclear payment: did the bill's due amount move? Then the payment landed. */
 export const paymentLanded = (dueBefore: number, dueNow: number): boolean => dueNow < dueBefore;
+
+// --- cash movements: cash in or out of the drawer without a sale ---
+
+export type CashKind = 'paid_out' | 'pay_in' | 'drop';
+export const CASH_KINDS: readonly CashKind[] = ['paid_out', 'pay_in', 'drop'];
+
+export type CashMoveBlock = 'amount' | 'reason';
+
+/**
+ * Why a cash movement cannot be sent yet, or null. With a manager PIN the PIN dialog
+ * asks for the reason, so the form's own reason is only needed without one.
+ */
+export function cashMoveBlock(amount: number, reason: string, pinAsksReason: boolean): CashMoveBlock | null {
+  if (!Number.isSafeInteger(amount) || amount <= 0) return 'amount';
+  if (!pinAsksReason && reason.trim() === '') return 'reason';
+  return null;
+}
+
+export interface CashMovement {
+  id: string;
+  kind: CashKind;
+  amount: number;
+  reason: string;
+  createdAt: string;
+}
+
+const isCashKind = (v: unknown): v is CashKind => CASH_KINDS.includes(v as CashKind);
+
+/** Rows of cash_movements, newest first; a row with an unknown kind is dropped. */
+export function parseCashMovements(raw: unknown): CashMovement[] {
+  if (!Array.isArray(raw)) return [];
+  const out: CashMovement[] = [];
+  for (const r of raw) {
+    const o = rec(r);
+    if (!isCashKind(o.kind)) continue;
+    out.push({ id: String(o.id ?? ''), kind: o.kind, amount: num(o.amount), reason: String(o.reason ?? ''), createdAt: String(o.created_at ?? '') });
+  }
+  return out.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+/** One signature per distinct movement, so a retry reuses its idempotency key and a new entry gets a new one. */
+export const cashMoveSig = (kind: CashKind, amount: number, generation: number): string => `${kind}|${amount}|${generation}`;

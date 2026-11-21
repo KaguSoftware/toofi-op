@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guardRedirect, navFor } from './navLogic';
+import { guardRedirect, navFor, navGroupsFor, navLayoutFor } from './navLogic';
 
 const tos = (role: Parameters<typeof navFor>[0]) => navFor(role).map((i) => i.to);
 
@@ -13,6 +13,31 @@ describe('navFor', () => {
   });
   it('owner sees everything', () => expect(tos('owner')).toContain('/manage/staff'));
   it('nobody signed in sees nothing', () => expect(tos(null)).toEqual([]));
+});
+
+describe('navGroupsFor', () => {
+  const shape = (role: Parameters<typeof navGroupsFor>[0]) => navGroupsFor(role).map((g) => [g.id, g.items.map((i) => i.to)]);
+  it('waiter gets one group with the floor', () => expect(shape('waiter')).toEqual([['service', ['/floor']]]));
+  it('cashier stays inside service', () => expect(shape('cashier')).toEqual([['service', ['/floor', '/till', '/till/shift']]]));
+  it('manager gets service, business and setup without staff', () =>
+    expect(shape('manager')).toEqual([
+      ['service', ['/floor', '/till', '/till/shift']],
+      ['business', ['/manage', '/manage/day', '/stock']],
+      ['setup', ['/manage/menu', '/manage/floor']],
+    ]));
+  it('owner also gets staff under setup', () => expect(shape('owner')[2]).toEqual(['setup', ['/manage/menu', '/manage/floor', '/manage/staff']]));
+  it('every link of the role appears exactly once', () =>
+    expect(navGroupsFor('owner').flatMap((g) => g.items)).toEqual(navFor('owner')));
+  it('nobody signed in gets no groups', () => expect(navGroupsFor(null)).toEqual([]));
+});
+
+describe('navLayoutFor', () => {
+  it('a single destination uses the bar', () => expect(navLayoutFor('waiter')).toBe('bar'));
+  it('several destinations use the rail', () => {
+    expect(navLayoutFor('cashier')).toBe('rail');
+    expect(navLayoutFor('owner')).toBe('rail');
+  });
+  it('nobody signed in uses the bar', () => expect(navLayoutFor(null)).toBe('bar'));
 });
 
 describe('guardRedirect', () => {

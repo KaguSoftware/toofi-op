@@ -11,6 +11,9 @@ import {
   parseAmount,
   parseSettleResult,
   parseShiftClose,
+  cashMoveBlock,
+  cashMoveSig,
+  parseCashMovements,
   percentToBps,
   quickTenders,
   refundable,
@@ -137,7 +140,43 @@ describe('server result parsing', () => {
   it('reads close_till_shift', () => {
     expect(
       parseShiftClose({ shift_id: 's', opening_float: 1000, counted_cash: 9000, expected_cash: 10000, variance: -1000 }),
-    ).toEqual({ shiftId: 's', openingFloat: 1000, counted: 9000, expected: 10000, variance: -1000 });
+    ).toEqual({ shiftId: 's', openingFloat: 1000, counted: 9000, expected: 10000, variance: -1000, payIns: 0, paidOuts: 0, drops: 0 });
+  });
+  it('reads the cash movements that explain the expected figure', () => {
+    expect(
+      parseShiftClose({ shift_id: 's', opening_float: 1000, counted_cash: 0, expected_cash: 0, variance: 0, pay_ins: 500, paid_outs: 700, drops: 800 }),
+    ).toMatchObject({ payIns: 500, paidOuts: 700, drops: 800 });
+  });
+});
+
+describe('cash movements', () => {
+  it('blocks an amount that is not a whole number above 0', () => {
+    expect(cashMoveBlock(0, 'ice', false)).toBe('amount');
+    expect(cashMoveBlock(-5, 'ice', false)).toBe('amount');
+    expect(cashMoveBlock(1.5, 'ice', false)).toBe('amount');
+  });
+  it('needs a reason, unless the PIN dialog will ask for it', () => {
+    expect(cashMoveBlock(5000, '   ', false)).toBe('reason');
+    expect(cashMoveBlock(5000, '', true)).toBeNull();
+    expect(cashMoveBlock(5000, 'ice', false)).toBeNull();
+  });
+  it('reads rows newest first and drops unknown kinds', () => {
+    expect(
+      parseCashMovements([
+        { id: 'a', kind: 'paid_out', amount: 2000, reason: 'ice', created_at: '2026-11-21T10:00:00Z' },
+        { id: 'b', kind: 'mystery', amount: 1, reason: 'x', created_at: '2026-11-21T11:00:00Z' },
+        { id: 'c', kind: 'drop', amount: '30000', reason: 'safe', created_at: '2026-11-21T12:00:00Z' },
+      ]),
+    ).toEqual([
+      { id: 'c', kind: 'drop', amount: 30000, reason: 'safe', createdAt: '2026-11-21T12:00:00Z' },
+      { id: 'a', kind: 'paid_out', amount: 2000, reason: 'ice', createdAt: '2026-11-21T10:00:00Z' },
+    ]);
+    expect(parseCashMovements(null)).toEqual([]);
+  });
+  it('keys a retry the same and a new entry differently', () => {
+    expect(cashMoveSig('paid_out', 5000, 0)).toBe(cashMoveSig('paid_out', 5000, 0));
+    expect(cashMoveSig('paid_out', 5000, 1)).not.toBe(cashMoveSig('paid_out', 5000, 0));
+    expect(cashMoveSig('drop', 5000, 0)).not.toBe(cashMoveSig('paid_out', 5000, 0));
   });
 });
 

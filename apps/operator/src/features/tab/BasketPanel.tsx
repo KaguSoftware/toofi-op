@@ -34,6 +34,9 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
                 <div className="basket__head">
                   <strong>{name}</strong>
                   <Money amount={basketLinePrice(l)} />
+                  <Button className="basket__remove" aria-label={`${tr('tab.remove')}: ${name}`} disabled={sending} onClick={() => onRemove(l.id)}>
+                    <span aria-hidden="true">×</span>
+                  </Button>
                 </div>
                 {l.modifiers.length > 0 && (
                   <p className="basket__mods">{l.modifiers.map((m) => (locale === 'ar' ? m.nameAr : m.nameEn)).join(', ')}</p>
@@ -46,9 +49,6 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
                   <Button aria-label={`${tr('tab.increase')}: ${name}`} disabled={sending} onClick={() => onQty(l.id, l.qty + 1)}>
                     +
                   </Button>
-                  <Button variant="danger" disabled={sending} onClick={() => onRemove(l.id)}>
-                    {tr('tab.remove')}
-                  </Button>
                 </div>
                 <Field label={`${tr('tab.noteLabel')}: ${name}`}>
                   {(p) => (
@@ -56,6 +56,7 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
                       {...p}
                       type="text"
                       autoComplete="off"
+                      placeholder={tr('tab.noteLabel')}
                       disabled={sending}
                       defaultValue={l.note}
                       onBlur={(e) => e.target.value.trim() !== l.note && onNote(l.id, e.target.value)}
@@ -81,7 +82,7 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
       <p className="basket__total">
         {tr('tab.total')}: <Money amount={basketTotal(basket)} />
       </p>
-      <Button variant="primary" disabled={empty || sending} busy={sendingNow} onClick={onSend}>
+      <Button className="basket__send" variant="primary" disabled={empty || sending} busy={sendingNow} onClick={onSend}>
         {sendingNow ? tr('tab.sending') : tr('tab.send')}
       </Button>
     </section>

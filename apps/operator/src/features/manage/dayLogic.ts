@@ -12,6 +12,10 @@ export interface DaySummary {
   voids_value: number;
   covers: number;
   tabs: number;
+  /** Cash movements made during the day. Missing on days closed before they existed. */
+  paid_outs?: number;
+  pay_ins?: number;
+  drops?: number;
 }
 
 export interface SummaryLabels {
@@ -24,6 +28,9 @@ export interface SummaryLabels {
   voids: string;
   covers: string;
   tabs: string;
+  paidOuts: string;
+  payIns: string;
+  drops: string;
 }
 
 const esc = (s: string): string =>
@@ -46,6 +53,9 @@ export function summaryHtml(
     [o.labels.voids, `${formatNumber(s.voids_count, o.locale)} (${money(s.voids_value)})`],
     [o.labels.covers, formatNumber(s.covers, o.locale)],
     [o.labels.tabs, formatNumber(s.tabs, o.locale)],
+    [o.labels.paidOuts, money(s.paid_outs ?? 0)],
+    [o.labels.payIns, money(s.pay_ins ?? 0)],
+    [o.labels.drops, money(s.drops ?? 0)],
   ];
   const dir = o.locale === 'ar' ? 'rtl' : 'ltr';
   return (

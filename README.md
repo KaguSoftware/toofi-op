@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🍽️ Restaurant Operator
+# 🍽️ Kagu Restaurant
 
 *Working name. Every brand string lives in [`brand.config.json`](brand.config.json).*
 
@@ -24,7 +24,7 @@
 
 ## 📖 What it is
 
-Restaurant Operator is a point-of-sale and back-of-house system for a single venue. Waiters take orders on tabs from tablets, a cashier settles them at the till, managers read analytics, and stock is deducted automatically from recipes. It runs in English and Arabic (RTL), prices in Iraqi dinar (IQD) and keeps time in `Asia/Baghdad`.
+Kagu Restaurant is a point-of-sale and back-of-house system for a single venue. Waiters take orders on tabs from tablets, a cashier settles them at the till, managers read analytics, and stock is deducted automatically from recipes. It runs in English and Arabic (RTL), prices in Iraqi dinar (IQD) and keeps time in `Asia/Baghdad`.
 
 The server owns every number. The client sends item IDs and quantities, and Postgres functions do the pricing, tax, stock and authorization.
 
@@ -120,7 +120,7 @@ The server owns every number. The client sends item IDs and quantities, and Post
 </details>
 <!-- SCREENSHOTS:END -->
 
-> The UI is **deliberately unstyled** while the design pass is pending. Structure and class names are kept clean so it can be restyled without touching logic.
+> The design direction is "ink and paper, colour only for state" (see [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md)). Shell, floor, order screen, till and reports are styled; the remaining screens inherit the tokens and kit.
 
 ## 🔄 How a service works
 

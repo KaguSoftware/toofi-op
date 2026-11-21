@@ -54,6 +54,10 @@ function useAnalytics<T>(fn: string, range: DateRange, enabled: boolean, extra: 
 }
 
 const COUNT_KEYS: readonly HeadlineKey[] = ['covers', 'tabs'];
+// Chart styling reads the CSS tokens, so a theme change recolours charts with no JS.
+const TICK = { fill: 'var(--rop-text-muted)', fontSize: 12 };
+const CURSOR = { fill: 'var(--rop-surface-2)' };
+const BAR_RADIUS: [number, number, number, number] = [3, 3, 0, 0];
 
 function fmtChange(pct: number | null, locale: Locale, tr: (k: MessageKey) => string): string {
   if (pct === null) return tr('manage.panel.noPrevious');
@@ -76,7 +80,8 @@ function Section({ title, children, actions }: { title: string; children: ReactN
 /** A chart with a text summary for assistive tech; the table next to it is the full alternative. */
 function ChartBox({ summary, children }: { summary: string; children: ReactElement }) {
   return (
-    <div className="manage__chart" role="img" aria-label={summary}>
+    // Time and value axes read left to right in both languages (docs/DESIGN-RESEARCH.md), so the plot is LTR.
+    <div className="manage__chart" role="img" aria-label={summary} dir="ltr">
       <ResponsiveContainer width="100%" height="100%">
         {children}
       </ResponsiveContainer>
@@ -205,10 +210,10 @@ export function ManageScreen() {
                 <ChartBox summary={tr('manage.panel.dailySummary', { days: daily.data?.days.length ?? 0, total: num(dailyTotal) })}>
                   <BarChart data={daily.data?.days ?? []}>
                     <CartesianGrid stroke="var(--rop-border)" vertical={false} />
-                    <XAxis dataKey="date" stroke="var(--rop-text-muted)" />
-                    <YAxis stroke="var(--rop-text-muted)" width={72} />
-                    <Tooltip />
-                    <Bar dataKey="net" name={tr('manage.panel.net')} fill="var(--rop-accent)" />
+                    <XAxis dataKey="date" stroke="var(--rop-border)" tickLine={false} tick={TICK} />
+                    <YAxis axisLine={false} tickLine={false} tick={TICK} width={72} tickFormatter={(v: number) => num(v)} />
+                    <Tooltip cursor={CURSOR} />
+                    <Bar dataKey="net" name={tr('manage.panel.net')} fill="var(--rop-chart)" radius={BAR_RADIUS} maxBarSize={44} />
                   </BarChart>
                 </ChartBox>
                 <details>
@@ -227,10 +232,10 @@ export function ManageScreen() {
                 <ChartBox summary={tr('manage.panel.hourlySummary', { hour: peak?.hour ?? 0, net: num(peak?.net ?? 0) })}>
                   <BarChart data={hourly.data?.hours ?? []}>
                     <CartesianGrid stroke="var(--rop-border)" vertical={false} />
-                    <XAxis dataKey="hour" stroke="var(--rop-text-muted)" />
-                    <YAxis stroke="var(--rop-text-muted)" width={72} />
-                    <Tooltip />
-                    <Bar dataKey="net" name={tr('manage.panel.net')} fill="var(--rop-accent)" />
+                    <XAxis dataKey="hour" stroke="var(--rop-border)" tickLine={false} tick={TICK} />
+                    <YAxis axisLine={false} tickLine={false} tick={TICK} width={72} tickFormatter={(v: number) => num(v)} />
+                    <Tooltip cursor={CURSOR} />
+                    <Bar dataKey="net" name={tr('manage.panel.net')} fill="var(--rop-chart)" radius={BAR_RADIUS} maxBarSize={44} />
                   </BarChart>
                 </ChartBox>
                 <details>
@@ -249,10 +254,10 @@ export function ManageScreen() {
                 <ChartBox summary={tr('manage.panel.bestSummary', { count: best.data?.items.length ?? 0 })}>
                   <BarChart data={(best.data?.items ?? []).map((i) => ({ name: name(i), qty: i.qty }))}>
                     <CartesianGrid stroke="var(--rop-border)" vertical={false} />
-                    <XAxis dataKey="name" stroke="var(--rop-text-muted)" interval={0} />
-                    <YAxis stroke="var(--rop-text-muted)" allowDecimals={false} />
-                    <Tooltip />
-                    <Bar dataKey="qty" name={tr('manage.panel.qty')} fill="var(--rop-accent)" />
+                    <XAxis dataKey="name" stroke="var(--rop-border)" tickLine={false} tick={TICK} interval={0} />
+                    <YAxis axisLine={false} tickLine={false} tick={TICK} allowDecimals={false} />
+                    <Tooltip cursor={CURSOR} />
+                    <Bar dataKey="qty" name={tr('manage.panel.qty')} fill="var(--rop-chart)" radius={BAR_RADIUS} maxBarSize={44} />
                   </BarChart>
                 </ChartBox>
                 <DataTable columns={bestCols} rows={best.data?.items} rowKey={(r) => r.menu_item_id} caption={tr('manage.panel.bestSellers')} />
@@ -278,10 +283,10 @@ export function ManageScreen() {
                 <ChartBox summary={(mix.data?.methods ?? []).map((m) => `${method(m.method)}: ${num(m.net)}`).join(', ')}>
                   <BarChart data={(mix.data?.methods ?? []).map((m) => ({ method: method(m.method), net: m.net }))}>
                     <CartesianGrid stroke="var(--rop-border)" vertical={false} />
-                    <XAxis dataKey="method" stroke="var(--rop-text-muted)" />
-                    <YAxis stroke="var(--rop-text-muted)" width={72} />
-                    <Tooltip />
-                    <Bar dataKey="net" name={tr('manage.panel.net')} fill="var(--rop-accent)" />
+                    <XAxis dataKey="method" stroke="var(--rop-border)" tickLine={false} tick={TICK} />
+                    <YAxis axisLine={false} tickLine={false} tick={TICK} width={72} tickFormatter={(v: number) => num(v)} />
+                    <Tooltip cursor={CURSOR} />
+                    <Bar dataKey="net" name={tr('manage.panel.net')} fill="var(--rop-chart)" radius={BAR_RADIUS} maxBarSize={44} />
                   </BarChart>
                 </ChartBox>
                 <DataTable columns={mixCols} rows={mix.data?.methods} rowKey={(r) => r.method} caption={tr('manage.panel.paymentMix')} />

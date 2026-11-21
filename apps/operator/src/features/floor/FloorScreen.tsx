@@ -124,7 +124,7 @@ export function FloorScreen() {
         </div>
       )}
 
-      <div className="floor__areas" role="tablist" aria-label={tr('floor.areasLabel')}>
+      <div className="rop-segmented floor__areas" role="tablist" aria-label={tr('floor.areasLabel')}>
         {groups.map((g) => (
           <button
             key={g.area.id}
@@ -159,14 +159,14 @@ export function FloorScreen() {
               onClick={() => pick(row)}
             >
               <span className="floor__label">{row.label}</span>
-              <span className="floor__meta">{tr('floor.seats', { count: row.seats })}</span>
+              <span className="floor__meta floor__meta--seats">{tr('floor.seats', { count: row.seats })}</span>
               {free ? (
                 <span className="floor__state">{tr('floor.free')}</span>
               ) : (
                 <>
                   <span className="floor__meta">{tr('floor.guests', { count: row.covers ?? 0 })}</span>
                   {row.waiter_name && <span className="floor__meta">{tr('floor.waiter', { name: row.waiter_name })}</span>}
-                  <span className="floor__meta">
+                  <span className="floor__meta floor__meta--time">
                     {hours > 0 ? tr('floor.openHours', { hours, minutes }) : tr('floor.openMinutes', { minutes })}
                   </span>
                   <span className="floor__due">{tr('floor.due', { amount: formatIQD(row.due ?? 0, locale) })}</span>

@@ -1,15 +1,15 @@
-# DESIGN.md: restyling the restaurant operator app
+# DESIGN.md: the Kagu Restaurant interface
 
-For the frontend design team. Everything here is derived from the code as it is now. The brand name is a placeholder (strings live in `brand.config.json`).
+For anyone changing how the app looks. The direction is **ink and paper, colour only for state**: warm near-white surfaces, near-black ink for the one primary action on a screen, soft tints for selection, and colour reserved for what is true about a thing (free, waiting, danger). `PRODUCT.md` holds the why; `docs/DESIGN-RESEARCH.md` holds the research. The brand name is a placeholder (strings live in `brand.config.json`).
 
 ## 1. Purpose and ground rules
 
-The UI is deliberately plain: semantic HTML, a small component kit, and CSS variables. Logic and UI are separated, so a restyle should touch only these places:
+The UI is semantic HTML, a small component kit, and CSS variables. Logic and UI are separated, so visual work should touch only these places:
 
 | Touch | Path |
 |---|---|
 | Tokens and global styles | `apps/operator/src/styles/base.css` |
-| Per-feature styles | `apps/operator/src/features/floor/floor.css`, `tab/tab.css`, `manage/manage.css` |
+| Per-feature styles | `apps/operator/src/features/floor/floor.css`, `tab/tab.css`, `till/till.css`, `manage/manage.css` |
 | Kit markup | `apps/operator/src/components/*.tsx` (not `padLogic.ts`) |
 | Screen markup | `apps/operator/src/features/*/*Screen.tsx` and sibling panels (`BasketPanel`, `BillPanel`, `PaymentPane`, ...) |
 | Shell markup | `apps/operator/src/shell/RootLayout.tsx` (markup only) |
@@ -24,10 +24,10 @@ Do not touch:
 
 Where things live today:
 
-- Only 4 CSS files exist (about 190 lines in total). No CSS framework, no CSS modules, no CSS-in-JS.
+- Five CSS files: `base.css` plus one per feature area. No CSS framework, no CSS modules, no CSS-in-JS. `base.css` is imported first in `main.tsx` so feature files can override it at equal specificity; keep that order.
 - Classes are BEM-like: `rop-*` for the kit and shell, `floor__*`, `tab__*`, `basket__*`, `item-sheet__*`, `manage__*` per feature.
 - State is exposed through ARIA and data attributes (`aria-selected`, `aria-pressed`, `aria-current`, `aria-busy`, `data-state`, `data-inactive`, `data-voided`, `data-align`). Style those; do not replace them with new class toggles.
-- Gap to know about: the `rop-till-*` and `rop-shift*` classes exist in markup but have **no CSS at all**. The till and shift screens render as an unstyled single column (see the till screenshot: radios, pad and split panel all stack). The till is the largest design job.
+- The shift screen (`rop-shift*`) and the stock and setup screens are only lightly styled: they inherit the tokens and kit and still need their own pass.
 
 ## 2. Tokens
 
@@ -35,41 +35,45 @@ All tokens are defined once on `:root` in `base.css`, with `color-scheme: light`
 
 | Token | Value | Used by |
 |---|---|---|
-| `--rop-space-1` | 0.25rem | tight gaps (field, card text) |
-| `--rop-space-2` | 0.5rem | default gap, small padding, toolbar rows |
-| `--rop-space-3` | 1rem | form gap, card padding, topbar, table cell padding |
-| `--rop-space-4` | 1.5rem | main padding, modal body, section margin |
-| `--rop-radius` | 0.5rem | buttons, inputs, cards, tiles, modals, toasts |
-| `--rop-target` | 3rem (48px) | min size of buttons, inputs, nav links, radio and checkbox rows |
-| `--rop-font-sm` | 0.875rem | hints, meta text, deltas, notes |
-| `--rop-font` | 1rem | body |
-| `--rop-font-lg` | 1.25rem | h2, figures, pad keys |
-| `--rop-font-xl` | 1.75rem | h1, pad display |
-| `--rop-bg` | #ffffff | page, info toast text |
-| `--rop-surface` | #f5f5f4 | buttons, topbar, cards, floor tables, menu items, pad display |
-| `--rop-border` | #d6d3d1 | all borders, chart grid |
-| `--rop-text` | #1c1917 | body text, info toast background |
-| `--rop-text-muted` | #57534e | hints, meta, struck text, chart axes |
-| `--rop-accent` | #1d4ed8 | primary button, focus ring, selected tab/area/category, active nav, occupied table border, chart bars |
-| `--rop-accent-text` | #ffffff | text on accent |
-| `--rop-danger` | #b91c1c | danger button, field errors, error states, notices, alert rows, error toast |
-| `--rop-danger-text` | #ffffff | text on danger |
-| `--rop-success` | #15803d | "free" table label, success toast |
-| `--rop-success-text` | #ffffff | text on success (success toast) |
+| `--rop-space-1` to `--rop-space-6` | 0.25, 0.5, 1, 1.5, 2, 3rem | gaps and padding |
+| `--rop-radius-sm`, `--rop-radius`, `--rop-radius-lg` | 0.375, 0.5, 0.75rem | pills; buttons, inputs, tiles; panels, tables on the floor, dialogs |
+| `--rop-target` | 3rem (48px) | minimum size of every control |
+| `--rop-font-xs` to `--rop-font-display` | 0.8125, 0.875, 1, 1.25, 1.625, 2, 2.75rem | fixed scale; the display step is only for amount due, change and pad totals |
+| `--rop-font-family` | IBM Plex Sans, IBM Plex Sans Arabic, system | everything; tabular figures are on globally |
+| `--rop-leading` | 1.5, and 1.7 under `:lang(ar)` | body line height |
+| `--rop-bg`, `--rop-raised` | `oklch(0.975 0.005 85)`, `oklch(0.995 0.002 85)` | page; tiles, buttons, inputs, panels and dialogs sit one step above it |
+| `--rop-surface`, `--rop-surface-2` | `0.958 0.007`, `0.935 0.009` | rail and bar, quiet fills; recessed tracks, hover, disabled primary |
+| `--rop-selected` | `oklch(0.905 0.013 85)` | current nav link, selected category, pressed toggle (with weight 600) |
+| `--rop-occupied`, `--rop-occupied-hover` | `oklch(0.915 0.016 80)`, `0.895 0.018 80` | occupied table fill |
+| `--rop-border`, `--rop-border-hover`, `--rop-border-strong` | `oklch(0.9 0.007 85)`, `0.8 0.01`, `0.66 0.012` | hairlines; hover and dividers that must read; input boundary (3:1 on raised) |
+| `--rop-text`, `--rop-text-muted` | `oklch(0.25 0.012 85)`, `oklch(0.48 0.012 85)` | body; meta, hints and unselected tabs (4.5:1 or better on every surface up to `--rop-selected`) |
+| `--rop-ink`, `--rop-ink-hover`, `--rop-ink-text`, `--rop-ink-text-muted` | `oklch(0.27 0.012 85)`, `0.35`, raised, `0.82` | primary buttons, the in-basket border and badge, toasts |
+| `--rop-accent`, `--rop-accent-text`, `--rop-accent-tint` | `oklch(0.48 0.16 264)` | information blue: focus ring and links. Not for buttons. |
+| `--rop-chart` | `oklch(0.6 0.11 258)` | the one chart series (3:1 on the page) |
+| `--rop-success`, `--rop-success-text`, `--rop-success-tint`, `--rop-success-border`, `--rop-success-on-ink` | `oklch(0.48 0.12 150)` | free, paid, in range; the mark on a success toast |
+| `--rop-warning`, `--rop-warning-ink`, `--rop-warning-tint`, `--rop-warning-border` | `oklch(0.8 0.15 80)`, `oklch(0.45 0.09 75)` | waiting, low, needs attention. Amber is a fill or border, never text; use `--rop-warning-ink` for text. |
+| `--rop-danger`, `--rop-danger-text`, `--rop-danger-tint`, `--rop-danger-border` | `oklch(0.5 0.19 27)` | void, shortage, destructive action, errors |
+| `--rop-scrim`, `--rop-shadow` | ink at 40%; one soft shadow | dialog backdrop; dialogs and toasts only |
+| `--rop-ease`, `--rop-fast` | ease-out curve, 150ms | state transitions |
+| `--rop-rail`, `--rop-chrome` | 13rem; block space the shell takes | rail width; full-height screens subtract `--rop-chrome` from the viewport |
 
-Token gaps to consider during the restyle:
+Rules that come with the tokens:
 
-- `rgb(0 0 0 / 0.5)` is the modal backdrop; consider a `--rop-scrim` token.
-- No tokens yet for font family (currently `system-ui, sans-serif`), shadows, z-index (toasts use a literal `10`), warning or info colours, or motion.
+- **Ink is the action colour, used once per screen.** Only the primary action (Send, Take payment, Save, Open the day) is ink. A button that only prepares that action, such as "Pay this share", is secondary. A disabled primary drops to a recessed `--rop-surface-2` slot.
+- **Selection is a tint plus weight, never ink.** The current nav link, selected category and pressed toggles use `--rop-selected` and weight 600. Horizontal option sets (floor areas, report ranges, menu and stock sections, open or settled, split mode, cash or card) use the `.rop-segmented` track: a recessed `--rop-surface-2` track where the chosen option is raised paper with a hairline.
+- **State borders are tinted.** Banners, notices, the paid box and the variance pill use the `*-tint` fill with the matching `*-border`, not the saturated state colour. Danger buttons are outlined in `--rop-danger-border` with red text, and solid red only in a dialog footer where they confirm.
+- **Row actions in tables are ghost buttons**: full 3rem targets with no box until hovered or pressed.
+- **Colour means state.** Do not use a state colour as decoration, and never as the only signal: pair it with fill, a label or an icon.
+- **No new shadows, gradients or blurs.** Depth comes from tone: the page, raised paper and the recessed surfaces. Hairlines are light; only inputs carry a 3:1 edge.
 
 How to theme:
 
 - Change values on `:root`; every component follows. Add new tokens beside the existing ones, prefixed `--rop-`.
-- **Dark mode is not implemented.** `color-scheme: light` is hard-set and nothing switches themes. To add it, define a second token set (for example under `:root[data-theme='dark']` or `prefers-color-scheme`), switch `color-scheme`, and recheck contrast. Screens already use tokens only, so no markup change is needed.
+- **Dark mode is not implemented, by decision: light ships first** (the till and daylight terraces force light). It is planned as a per-device setting. `color-scheme: light` is hard-set and nothing switches themes. To add it, define a second token set (for example under `:root[data-theme='dark']` or `prefers-color-scheme`), switch `color-scheme`, and recheck contrast. Screens already use tokens only, so no markup change is needed.
 - **No raw colours outside `base.css`** (project rule). Feature CSS and TSX must use `var(--rop-*)`.
 - Exception: the receipt and day-report HTML (section 5) are standalone documents and cannot read tokens.
 
-Charts read the CSS variables directly. `ManageScreen.tsx` uses Recharts `BarChart` and passes strings as SVG attributes: `stroke="var(--rop-border)"` (grid), `stroke="var(--rop-text-muted)"` (axes), `fill="var(--rop-accent)"` (bars). The browser resolves them, so a theme change recolours charts with no JS. There is one series colour today. Each chart sits in `.manage__chart` (16rem high) with `role="img"` and an `aria-label` summary, and a table alternative next to it.
+Charts read the CSS variables directly. `ManageScreen.tsx` uses Recharts `BarChart` and passes strings as SVG attributes: `stroke="var(--rop-border)"` (grid and the category axis line), tick labels in `--rop-text-muted` at 12px with no tick marks and no value-axis line, `fill="var(--rop-chart)"` (bars, 44px at most, 3px top radius), and a `--rop-surface-2` hover cursor. The browser resolves them, so a theme change recolours charts with no JS. There is one series colour today, the information blue. Each chart container is `dir="ltr"`: time and value axes read left to right in both languages, which is the one intentional `dir` outside `LocaleProvider` and the bilingual inputs. Each chart sits in `.manage__chart` (13rem high) with `role="img"` and an `aria-label` summary, and a table alternative next to it.
 
 ## 3. Component inventory
 
@@ -77,7 +81,8 @@ All in `apps/operator/src/components/`, exported from `index.ts`.
 
 | Component | Props | Classes | States and behaviour to preserve |
 |---|---|---|---|
-| `Button` | `variant` (`primary`, `secondary` default, `danger`), `busy`, native button props | `rop-btn rop-btn--{variant}` | `busy` sets `aria-busy="true"` and drops `onClick`. `disabled` and busy render at 0.6 opacity, `not-allowed`. Default `type="button"`. Min 3rem square. Toggles use `aria-pressed` (till view, split mode). |
+| `Button` | `variant` (`primary`, `secondary` default, `danger`), `busy`, native button props | `rop-btn rop-btn--{variant}` | `busy` sets `aria-busy="true"`, drops `onClick` and shows a spinner. `disabled` renders at 0.45 opacity, `not-allowed`; a disabled primary is a recessed slot instead. Default `type="button"`. Min 3rem square. Toggles use `aria-pressed` and stay `secondary`: never switch the variant to `primary` to show a pressed state. |
+| `.rop-segmented` | class on a `role="group"`, `role="tablist"` or `nav` wrapper | `rop-segmented` | Children are `.rop-btn` (with `aria-pressed` or `aria-selected`) or links (with `aria-current="page"`). Do not give the wrapper its own `display` or `gap` in feature CSS. |
 | `Field` | `label`, `hint?`, `error?`, `children(p)` render prop | `rop-field`, `rop-field__hint`, `rop-field__error` | Wires `label for`, `aria-describedby` (hint, error) and `aria-invalid` via the render prop; the error is `role="alert"`. Always spread `{...p}` on the control. |
 | `Modal` | `open`, `title`, `onClose`, `dismissible` (default true), `footer?` | `rop-modal`, `rop-modal__body`, `rop-modal__header`, `rop-modal__footer` | Native `<dialog>` opened with `showModal()`: browser traps focus, gives `::backdrop`, Esc calls `onClose` only when dismissible. `aria-labelledby` on the h2. Close button has `aria-label` and a "x" glyph. Content renders only while open. Width `min(32rem, 94vw)`. Do not replace with a div overlay. |
 | `ConfirmDialog` | `open`, `title`, `message?`, `confirmLabel?`, `danger?`, `busy?`, `onConfirm`, `onCancel` | built on Modal | Cancel (secondary) then Confirm (primary or danger). Danger must stay visually distinct. |
@@ -105,9 +110,10 @@ Global form styling (`base.css`): `input, select, textarea` are 3rem high, full 
 
 | Region | Markup and classes | Notes |
 |---|---|---|
+| Shell | `div.rop-shell[data-nav=rail\|bar]` | `navLayoutFor(role)` picks the layout: a rail when the role has several destinations, one bar when it has one (waiters). Under 64rem the rail also becomes a bar with a scrolling nav. |
 | Skip link | `a.rop-skip.rop-btn` to `#main` | Off-screen until focused. Keep it first in tab order. |
-| Top bar | `header.rop-topbar`, `p.rop-topbar__user` | User name and role, language toggle (shows the other language), kiosk buttons (desktop only), sign out. |
-| Nav | `nav.rop-nav`, `a[aria-current=page]` | Links per role from `navFor`; active link filled with accent. Up to 9 links for an owner: must wrap or scroll on tablets. |
+| Side | `div.rop-side` containing `p.rop-brand`, `nav.rop-nav`, `header.rop-topbar` | Product name from `brand.config.json`, then nav, then the account block (name, role, language toggle, kiosk buttons on desktop, sign out). |
+| Nav | `nav.rop-nav` > `div.rop-nav__group[role=group]` > `p.rop-nav__heading` + `a[aria-current=page]` | Links per role from `navGroupsFor`, grouped as Service, Business and Setup. Headings show only in the rail. The current link is ink. |
 | Main | `main#main.rop-main[tabindex=-1]` | Focus target of the skip link. |
 | Idle lock | non-dismissible `Modal` | After N idle minutes (saved in `localStorage`) a PIN prompt covers the app: PIN, "Switch user", "Unlock". Esc and close are disabled. A reload keeps the lock, so it can be present on first paint. |
 | Kiosk controls | `Button`s plus `PinReasonModal` | Leave full screen or quit, each behind a manager PIN and reason. Rendered only under Electron (`isDesktop()`). |
@@ -121,7 +127,7 @@ Roles come from `ROUTE_ROLES` in `@rop/core`: `/floor` and `/tab` are open to ev
 | `/login` | public | Sign in | `rop-login`, `rop-form`, `Field` | [en](docs/screenshots/en/login.png) / [ar](docs/screenshots/ar/login.png) |
 | `/floor` | all | Table grid by area; tap a table to open or resume its tab | `floor`, `floor__areas` (tablist of `floor__area`), `floor__grid` with `floor__table[data-state=free\|occupied]`, `floor__label`, `floor__meta`, `floor__state`, `floor__due`, `floor__notice`; open-tab dialog | [en](docs/screenshots/en/floor.png) / [ar](docs/screenshots/ar/floor.png) |
 | `/tab/$tabId` | all | Waiter order screen: menu, basket, sent orders, totals, actions | `tab`, `tab__header`, `tab__body` (2 columns), `tab__menu`, `tab__categories` (tablist), `tab__items`, `tab__item`, `tab__side`, `tab__order`, `tab__sent-line[data-voided]`, `tab__struck`, `tab__totals`, `tab__actions`, `basket__*`, `item-sheet__*` | [en](docs/screenshots/en/tab.png), [item sheet](docs/screenshots/en/tab-item-sheet.png) / [ar](docs/screenshots/ar/tab.png), [item sheet](docs/screenshots/ar/tab-item-sheet.png) |
-| `/till` | cashier+ | Open and settled tab list, then bill, discount, payment, split, refund | `rop-till`, `rop-till-banner`, `rop-till-layout`, `rop-till-list`, `rop-till-tabs`, `rop-till-detail`, `rop-till-bill` (`__head`), `rop-till-totals`, `rop-till-paid` (`__change`), `rop-till-pay`, `rop-till-method`, `rop-till-cash`, `rop-till-quick`, `rop-till-change`, `rop-till-picklist`, `rop-till-payments`, kit `rop-pad` | [en](docs/screenshots/en/till.png), [settled](docs/screenshots/en/till-settled.png) / [ar](docs/screenshots/ar/till.png), [settled](docs/screenshots/ar/till-settled.png) |
+| `/till` | cashier+ | Open and settled tab list, then bill, discount, payment, split, refund | `rop-till`, `rop-till-banner`, `rop-till-layout`, `rop-till-list`, `rop-till-tabs`, `rop-till-detail`, `rop-till-bill` (`__head`, `__cols`, `__main`, `__side`), `rop-till-split`, `rop-till-totals`, `rop-till-paid` (`__change`), `rop-till-pay`, `rop-till-method`, `rop-till-cash`, `rop-till-quick`, `rop-till-change`, `rop-till-picklist`, `rop-till-payments`, kit `rop-pad` | [en](docs/screenshots/en/till.png), [settled](docs/screenshots/en/till-settled.png) / [ar](docs/screenshots/ar/till.png), [settled](docs/screenshots/ar/till-settled.png) |
 | `/till/shift` | cashier+ | Open and close the cash-drawer shift, drawer count, close others (manager) | `rop-shift`, `rop-shift-result`, `rop-form`, `AmountPad` | [en](docs/screenshots/en/till-shift.png) / [ar](docs/screenshots/ar/till-shift.png) |
 | `/manage` | manager+ | Analytics: range picker, headline cards, daily, hourly, best sellers, by waiter, payment mix, CSV export | `manage__range`, `manage__custom`, `manage__period`, `manage__cards`, `manage__card` (`dt`, `dd`, `manage__figure`, `manage__delta`), `manage__section`, `manage__section-head`, `manage__chart`, tables | [en](docs/screenshots/en/manage.png) / [ar](docs/screenshots/ar/manage.png) |
 | `/manage/day` | manager+ | Open and close the business day, shifts, variance, printable report | `manage__summary`, `manage__alert`, `manage__row-alert`, `manage__notice` | [en](docs/screenshots/en/manage-day.png) / [ar](docs/screenshots/ar/manage-day.png) |
@@ -136,11 +142,12 @@ Roles come from `ROUTE_ROLES` in `@rop/core`: `/floor` and `/tab` are open to ev
 | `/stock/margins` | manager+ | Item margins | `rop-table` | [en](docs/screenshots/en/stock-margins.png) / [ar](docs/screenshots/ar/stock-margins.png) |
 | `/stock/admin` | manager+ | Ingredient and supplier admin | `rop-table`, `rop-form` | [en](docs/screenshots/en/stock-admin.png) / [ar](docs/screenshots/ar/stock-admin.png) |
 
-What the screenshots show today (AR is the same CSS mirrored by `dir`, not separate styles):
+What the screens do (AR is the same CSS mirrored by `dir`, not separate styles):
 
-- Floor: a card grid of tables. Free tables show a green "Free" label; occupied tables get an accent border plus guests, waiter, time open and the amount due in bold.
-- Till: no layout. List, bill, payment (radios, pad, quick-tender buttons, change line) and split panel stack in one column. `rop-till-layout`, `rop-till-list` and `rop-till-detail` are ready hooks for a two-pane design.
-- Manage: report page with a row of figure cards, single-colour bar charts, and tables.
+- **Floor:** a free table is a raised tile with seats and a green "Free" dot and label. An occupied table is a deeper warm fill (`--rop-occupied`) and shows guests, waiter, time open (top corner) and the amount due.
+- **Order screen (`/tab`):** three zones on a wide screen: categories as a column, the item grid, and the ticket. The screen fills the viewport and does not scroll as a page; items and sent lines scroll inside their zones. An item with no modifier groups adds in one tap and its tile shows the quantity in the basket; an item with any modifier group opens the sheet. The ticket shows the basket first with Send directly under it, then sent lines with the amount due pinned at the bottom.
+- **Till:** three panes on a wide screen: tab list, bill, payment. Payment stays in view; the amount due and the change are display-size figures. Two-option controls (open or settled, cash or card, split mode) are joined switches.
+- **Reports (`/manage`):** a strip of figures divided by hairlines, then single-colour bar charts with a table alternative.
 
 ## 5. Hard constraints
 
@@ -156,7 +163,7 @@ What the screenshots show today (AR is the same CSS mirrored by `dir`, not separ
 ### Touch targets (tablets)
 
 - `--rop-target` is 3rem (48px): minimum for buttons, inputs, selects, nav links and radio or checkbox rows.
-- Other current minimums: pad keys 4rem tall; menu item tiles 5rem; floor tables 8rem; item-sheet options 3rem. `manage__tabs` links have no min height (about 2.5rem) and should be raised to the target.
+- Other current minimums: pad keys 3.5rem tall; menu item tiles 5.75rem; floor tables 8.5rem; item-sheet options 3rem; Send and Take payment 3.5rem.
 - Keep at least `--rop-space-2` between adjacent targets. Do not shrink below 3rem for density.
 
 ### Till station kiosk (Electron)
@@ -176,7 +183,7 @@ What the screenshots show today (AR is the same CSS mirrored by `dir`, not separ
 `apps/operator/index.html` (filled by the Vite plugin) sets: `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src <supabase>`.
 
 - **No Google Fonts, CDN fonts, external stylesheets or external scripts.** Bundle fonts locally (`@font-face` with files in the build, or `data:`).
-- The font today is `system-ui`. A brand font needs Latin and Arabic coverage, subsetting and `font-display: swap`.
+- The fonts are IBM Plex Sans and IBM Plex Sans Arabic from the `@fontsource` packages, imported at the top of `main.tsx` and emitted into the build as local `woff2` files (weights 400, 500, 600; about 205 KB in total; `font-display: swap`).
 - Images must be same-origin or `data:`.
 
 ### Performance (low-end Android tablets for waiters)
@@ -185,7 +192,7 @@ What the screenshots show today (AR is the same CSS mirrored by `dir`, not separ
 - Fonts: one or two weights, subset, local only. Use inline SVG, not icon fonts.
 - Recharts is only used on `/manage`; keep chart code out of waiter screens.
 - Floor and menu grids can hold dozens of tiles: keep tile CSS cheap (flat colours, border only).
-- No breakpoints exist yet: `tab__body` is a fixed two-column grid and needs a portrait or narrow rule.
+- Breakpoints in use: 48rem (till bill and payment side by side), 56rem (order screen becomes full-height with the ticket beside the menu), 64rem (rail), 72rem (category column), 80rem (till tab list as a third pane). Below them the screens stack.
 
 ## 6. States to design
 
@@ -208,23 +215,35 @@ What the screenshots show today (AR is the same CSS mirrored by `dir`, not separ
 | Paid or settled | till | `rop-till-paid` (`role="status"`) with change due | A large change figure helps the cashier. |
 | Alert rows (variance) | `/manage/day` | `manage__row-alert` (2px red outline) plus `manage__alert` red pill | Colour must not be the only signal; keep text and consider an icon. Fix `--rop-surface-alt`. |
 | Blind count | `/stock/count` | One counted input per ingredient (`manage__count-input`, labelled with name and unit), `aria-invalid` plus inline text on bad input, a "blind count" note, confirm dialog | **Must never show expected or on-hand quantities, or any variance, before finalize.** No extra columns, hints, tooltips or derived numbers here. |
-| Selected, active | tabs, areas, categories, nav, range buttons | `aria-selected`, `aria-pressed`, `aria-current`, filled with accent | Differ by more than colour. |
-| Toasts | everywhere | Bottom for info and success, top for errors, 5 s | Cannot carry required information. |
+| Selected, active | tabs, areas, categories, nav, range buttons | `aria-selected`, `aria-pressed`, `aria-current`: a `--rop-selected` tint or the raised option on a segmented track, plus weight 600 | Differ by more than colour. |
+| Toasts | everywhere | Bottom for info and success, top for errors, 5 s. Info and success are ink (success adds a green mark); only errors are solid red | Cannot carry required information. |
 
-## 7. Open design questions
+## 7. Decisions, and what is still open
 
-| Question | Context and current default |
+Decided on 2026-11-21 (reasoning in `docs/DESIGN-RESEARCH.md`):
+
+| Question | Decision |
 |---|---|
-| Brand | Name is a placeholder. Logo, colour, voice, bilingual wordmark and its place in the top bar are open. |
-| Dark mode | Not implemented. Decide yes or no (waiters in dim venues); if yes, define a second token set including chart colours. |
-| Floor-plan visual style | Plain card grid today. Options: keep the grid, draw a true map (manage already stores `grid_x` and `grid_y`), add per-state colours. Status must not rely on colour alone. |
-| Chart palette | One accent colour. Decide categorical and sequential palettes and axis styles, validated in AR and dark. |
-| Density: till vs tablets | The till (cashier, fixed screen) can be denser and side by side; waiter tablets need large targets and simpler screens. Density token or per-screen classes? |
-| Status colours | Only success and danger exist. Add warning and info? |
-| Typography | A bundled Latin plus Arabic pair, a type scale and a money numeral style. |
-| Navigation | 9 wrapping links for an owner; group them or use a bottom bar on tablets? |
-| Motion and feedback | Busy spinners, post-payment and post-send confirmation, with reduced-motion support. |
-| Responsive breakpoints | None exist; tab and till need portrait-tablet rules. |
+| Brand | "Kagu Restaurant" as a placeholder, set as plain text in the rail and bar. Logo and bilingual wordmark are still open. |
+| Dark mode | Light first. Dark later, as a per-device setting with a second token set. |
+| Floor-plan visual style | Keep the grid placed by `grid_x` and `grid_y`. Status by fill, label and time, not a drawn map. |
+| Chart palette | One series in the information blue; red and amber only for values out of range. Categorical and sequential palettes are open until analytics v2 needs them. |
+| Density: till vs tablets | Same components; the till uses side-by-side panes, waiter screens use larger tiles. No density token yet. |
+| Status colours | Success, warning, danger and information, each with a tint. |
+| Typography | IBM Plex Sans with IBM Plex Sans Arabic, fixed scale, tabular figures, Western digits in both languages. |
+| Navigation | A grouped rail for roles with several destinations, one bar for waiters. |
+| Visual weight (quieter pass, 2026-11-21) | Ink only for the one primary action; selection by tint and weight; raised paper on a slightly deeper page; tinted state borders; softer chart blue; labels and table headers at weight 500. |
+| Motion and feedback | 150ms ease-out on state changes only; a spinner inside busy buttons; reduced motion respected. |
+| Responsive breakpoints | 48, 56, 64, 72 and 80rem, listed in section 5. |
+
+Still open:
+
+- Skeleton loading states and a global offline banner (new markup in `RootLayout`).
+- A phone bottom bar for the owner; today the bar's nav scrolls sideways.
+- Own-table emphasis and a time warning on the floor.
+- A full pass on the shift, stock and setup screens.
+- The attention-first reports layout, with analytics v2 (`docs/PLAN.md` item 2.6).
+- Logo and wordmark.
 
 ## 8. Checklist before handing back
 

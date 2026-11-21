@@ -18,11 +18,10 @@ export function RangePicker({ state }: { state: RangeState }) {
   const { preset, setPreset, custom, setCustom, range, error } = state;
   return (
     <>
-      <div className="manage__range" role="group" aria-label={tr('manage.panel.range')}>
+      <div className="rop-segmented manage__range" role="group" aria-label={tr('manage.panel.range')}>
         {PRESETS.map((p) => (
           <Button
             key={p}
-            variant={preset === p ? 'primary' : 'secondary'}
             aria-pressed={preset === p}
             onClick={() => {
               if (p === 'custom') setCustom(range);

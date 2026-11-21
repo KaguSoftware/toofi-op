@@ -193,6 +193,14 @@ export function DayScreen() {
               <dt>{tr('manage.day.s_tabs')}</dt>
               <dd className="manage__figure">{formatNumber(shown.summary.tabs, locale)}</dd>
             </div>
+            {(['paid_outs', 'pay_ins', 'drops'] as const).map((k) => (
+              <div key={k} className="manage__card">
+                <dt>{tr(`manage.day.s_${k}`)}</dt>
+                <dd className="manage__figure">
+                  <Money amount={shown.summary[k] ?? 0} />
+                </dd>
+              </div>
+            ))}
           </dl>
           <Button
             onClick={() =>
@@ -209,6 +217,9 @@ export function DayScreen() {
                     voids: tr('manage.day.s_voids'),
                     covers: tr('manage.day.s_covers'),
                     tabs: tr('manage.day.s_tabs'),
+                    paidOuts: tr('manage.day.s_paid_outs'),
+                    payIns: tr('manage.day.s_pay_ins'),
+                    drops: tr('manage.day.s_drops'),
                   },
                   locale,
                 }),

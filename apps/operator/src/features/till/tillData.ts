@@ -3,7 +3,16 @@
 import { appRpc } from '../../lib/appRpc';
 import { supabase } from '../../lib/supabase';
 import type { ReceiptSettings } from './receiptLogic';
-import { parseShiftStatus, parseTotals, startOfBusinessDay, type Method, type ShiftStatus, type Totals } from './tillLogic';
+import {
+  parseCashMovements,
+  parseShiftStatus,
+  parseTotals,
+  startOfBusinessDay,
+  type CashMovement,
+  type Method,
+  type ShiftStatus,
+  type Totals,
+} from './tillLogic';
 
 export interface OpenTab {
   tabId: string;
@@ -191,4 +200,11 @@ export async function fetchOpenShifts(): Promise<OpenShift[]> {
       openingFloat: n(r.opening_float),
     };
   });
+}
+
+/** The cash movements of one till shift, newest first. RLS shows a cashier only their own. */
+export async function fetchCashMovements(shiftId: string): Promise<CashMovement[]> {
+  return parseCashMovements(
+    await rows(supabase.from('cash_movements').select('id, kind, amount, reason, created_at').eq('till_shift_id', shiftId)),
+  );
 }

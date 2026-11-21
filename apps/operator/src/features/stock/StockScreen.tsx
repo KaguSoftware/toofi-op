@@ -23,7 +23,7 @@ export function StockScreen() {
   return (
     <section className="manage">
       <h1>{tr('stock.title')}</h1>
-      <nav className="manage__tabs" aria-label={tr('stock.sections')}>
+      <nav className="rop-segmented manage__tabs" aria-label={tr('stock.sections')}>
         {SECTIONS.map((s) => (
           <Link key={s.to} to={s.to} activeOptions={{ exact: s.exact ?? false }}>
             {tr(s.key)}

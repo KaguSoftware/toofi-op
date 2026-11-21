@@ -100,55 +100,81 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
         <Button onClick={onBack}>{tr('till.back')}</Button>
       </header>
 
-      {last && (
-        <div role="status" className="rop-till-paid">
-          <p>{tr('till.pay.taken', { amount: formatIQD(last.amount, locale) })}</p>
-          {last.method === 'cash' && (
-            <p className="rop-till-paid__change">
-              {tr('till.pay.change')}: <Money amount={last.change} />
-              <small> {tr('till.pay.giveChange')}</small>
-            </p>
-          )}
-          {!last.settled && (
-            <p>
-              {tr('till.pay.stillDue')}: <Money amount={last.totals.due} />
-            </p>
+      <div className="rop-till-bill__cols">
+        <div className="rop-till-bill__main">
+          <DataTable columns={columns} rows={bill.lines} rowKey={(l) => l.id} caption={tr('till.bill.title')} />
+
+          <dl className="rop-till-totals">
+            <dt>{tr('till.bill.subtotal')}</dt>
+            <dd><Money amount={totals.subtotal} /></dd>
+            {totals.discount > 0 && (
+              <>
+                <dt>{tr('till.bill.discount')}</dt>
+                <dd>−<Money amount={totals.discount} /></dd>
+              </>
+            )}
+            <dt>{tr('till.bill.tax')}</dt>
+            <dd><Money amount={totals.tax} /></dd>
+            <dt>{tr('till.bill.total')}</dt>
+            <dd><strong><Money amount={totals.total} /></strong></dd>
+            <dt>{tr('till.bill.paid')}</dt>
+            <dd><Money amount={totals.paid} /></dd>
+            {totals.refunded > 0 && (
+              <>
+                <dt>{tr('till.bill.refunded')}</dt>
+                <dd><Money amount={totals.refunded} /></dd>
+              </>
+            )}
+            <dt>{tr('till.bill.due')}</dt>
+            <dd><strong><Money amount={totals.due} /></strong></dd>
+          </dl>
+
+          {isOpen ? (
+            <>
+              <DiscountControl tabId={tabId} role={role} onApplied={refresh} />
+              {totals.due > 0 && (
+                <SplitPanel
+                  tabId={tabId}
+                  due={totals.due}
+                  lines={bill.lines}
+                  state={pruneSplit(split, bill.lines.map((l) => l.id))}
+                  onState={(s) => updateSplit(() => s)}
+                  onUse={setTarget}
+                />
+              )}
+            </>
+          ) : (
+            <>
+              <h2>{tr('till.settled.title')}</h2>
+              {settledAt && <p>{settledAt}</p>}
+              <Button variant="primary" onClick={() => void print(bill)}>
+                {tr('till.settled.print')}
+              </Button>
+              <RefundPanel payments={bill.payments} role={role} onRefunded={refresh} />
+            </>
           )}
         </div>
-      )}
 
-      <DataTable columns={columns} rows={bill.lines} rowKey={(l) => l.id} caption={tr('till.bill.title')} />
+        {(last || (isOpen && totals.due > 0)) && (
+          <div className="rop-till-bill__side">
+            {last && (
+              <div role="status" className="rop-till-paid">
+                <p>{tr('till.pay.taken', { amount: formatIQD(last.amount, locale) })}</p>
+                {last.method === 'cash' && (
+                  <p className="rop-till-paid__change">
+                    {tr('till.pay.change')}: <Money amount={last.change} />
+                    <small> {tr('till.pay.giveChange')}</small>
+                  </p>
+                )}
+                {!last.settled && (
+                  <p>
+                    {tr('till.pay.stillDue')}: <Money amount={last.totals.due} />
+                  </p>
+                )}
+              </div>
+            )}
 
-      <dl className="rop-till-totals">
-        <dt>{tr('till.bill.subtotal')}</dt>
-        <dd><Money amount={totals.subtotal} /></dd>
-        {totals.discount > 0 && (
-          <>
-            <dt>{tr('till.bill.discount')}</dt>
-            <dd>−<Money amount={totals.discount} /></dd>
-          </>
-        )}
-        <dt>{tr('till.bill.tax')}</dt>
-        <dd><Money amount={totals.tax} /></dd>
-        <dt>{tr('till.bill.total')}</dt>
-        <dd><strong><Money amount={totals.total} /></strong></dd>
-        <dt>{tr('till.bill.paid')}</dt>
-        <dd><Money amount={totals.paid} /></dd>
-        {totals.refunded > 0 && (
-          <>
-            <dt>{tr('till.bill.refunded')}</dt>
-            <dd><Money amount={totals.refunded} /></dd>
-          </>
-        )}
-        <dt>{tr('till.bill.due')}</dt>
-        <dd><strong><Money amount={totals.due} /></strong></dd>
-      </dl>
-
-      {isOpen ? (
-        <>
-          <DiscountControl tabId={tabId} role={role} onApplied={refresh} />
-          {totals.due > 0 && (
-            <>
+            {isOpen && totals.due > 0 && (
               <PaymentPane
                 tabId={tabId}
                 due={totals.due}
@@ -161,27 +187,10 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
                   return r.data.totals.due;
                 }}
               />
-              <SplitPanel
-                tabId={tabId}
-                due={totals.due}
-                lines={bill.lines}
-                state={pruneSplit(split, bill.lines.map((l) => l.id))}
-                onState={(s) => updateSplit(() => s)}
-                onUse={setTarget}
-              />
-            </>
-          )}
-        </>
-      ) : (
-        <>
-          <h2>{tr('till.settled.title')}</h2>
-          {settledAt && <p>{settledAt}</p>}
-          <Button variant="primary" onClick={() => void print(bill)}>
-            {tr('till.settled.print')}
-          </Button>
-          <RefundPanel payments={bill.payments} role={role} onRefunded={refresh} />
-        </>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }

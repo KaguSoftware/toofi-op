@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { Fragment, useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { StaffRole } from '@rop/core';
 import { formatDateTime } from '@rop/i18n';
@@ -9,9 +9,11 @@ import { errorMessage } from '../../lib/errors';
 import { useLocale } from '../../lib/i18n';
 import { stationId } from '../../lib/idem';
 import { QK } from '../../lib/queryKeys';
+import { CashMovePanel } from './CashMovePanel';
 import { fetchOpenShifts, type OpenShift } from './tillData';
 import { parseShiftClose, type ShiftClose } from './tillLogic';
 import { useGatedAction } from './useGatedAction';
+import './till.css';
 
 export function ShiftScreen() {
   const { tr, locale } = useLocale();
@@ -40,6 +42,7 @@ export function ShiftScreen() {
         <>
           <MyShift shift={mine} onClosed={onClosed} />
           <DrawerOpen />
+          <CashMovePanel shiftId={mine.shiftId} role={staff?.role ?? null} />
         </>
       ) : (
         <OpenShift onOpened={refresh} />
@@ -73,6 +76,17 @@ function ShiftResult({ result }: { result: ShiftClose }) {
       <dl>
         <dt>{tr('till.shift.openingFloat')}</dt>
         <dd><Money amount={result.openingFloat} /></dd>
+        {(['payIns', 'paidOuts', 'drops'] as const)
+          .filter((k) => result[k] > 0)
+          .map((k) => (
+            <Fragment key={k}>
+              <dt>{tr(`till.shift.${k}`)}</dt>
+              <dd>
+                {k === 'payIns' ? '+' : '−'}
+                <Money amount={result[k]} />
+              </dd>
+            </Fragment>
+          ))}
         <dt>{tr('till.shift.expected')}</dt>
         <dd><Money amount={result.expected} /></dd>
         <dt>{tr('till.shift.counted')}</dt>

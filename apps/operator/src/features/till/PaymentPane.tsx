@@ -138,7 +138,7 @@ export function PaymentPane({ tabId, due, suggested, shiftOpen, onPaid, onRechec
 
       {method === 'cash' && (
         <div className="rop-till-cash">
-          <AmountPad label={tr('till.pay.tendered')} value={tendered} onChange={setTendered} />
+          <p className="rop-till-cash__label">{tr('till.pay.tendered')}</p>
           <div className="rop-till-quick" role="group" aria-label={tr('till.pay.tendered')}>
             <Button onClick={() => setTendered(amount)}>{tr('till.pay.exact')}</Button>
             {quickTenders(amount).map((note) => (
@@ -147,6 +147,7 @@ export function PaymentPane({ tabId, due, suggested, shiftOpen, onPaid, onRechec
               </Button>
             ))}
           </div>
+          <AmountPad label={tr('till.pay.tendered')} value={tendered} onChange={setTendered} />
           <p className="rop-till-change" aria-live="polite">
             {tr('till.pay.change')}: <strong>{tendered >= amount && amount > 0 ? <Money amount={change} /> : '-'}</strong>
           </p>
@@ -165,7 +166,7 @@ export function PaymentPane({ tabId, due, suggested, shiftOpen, onPaid, onRechec
           {error}
         </p>
       )}
-      <Button variant="primary" busy={submitting} disabled={!check.ok} onClick={() => void pay()}>
+      <Button className="rop-till-pay__submit" variant="primary" busy={submitting} disabled={!check.ok} onClick={() => void pay()}>
         {submitting ? tr('till.pay.paying') : tr('till.pay.pay')}
       </Button>
     </section>

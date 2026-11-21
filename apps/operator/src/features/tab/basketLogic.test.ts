@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   addLine,
+  addsInOneTap,
+  qtyByItem,
   basketTotal,
   emptyBasket,
   ensureSendKey,
@@ -65,6 +67,26 @@ describe('addLine', () => {
     b = addLine(b, tea({ qty: 600 }));
     expect(b.lines[0]?.qty).toBe(999);
   });
+});
+
+describe('qtyByItem', () => {
+  it('is empty for an empty basket', () => expect(qtyByItem(emptyBasket()).size).toBe(0));
+  it('sums every line of the same item, whatever its modifiers or note', () => {
+    let b = addLine(emptyBasket(), tea({ qty: 2 }));
+    b = addLine(b, tea({ note: 'no sugar' }));
+    b = addLine(b, tea({ menuItemId: 'cola', qty: 3 }));
+    expect(b.lines).toHaveLength(3);
+    expect(qtyByItem(b).get('tea')).toBe(3);
+    expect(qtyByItem(b).get('cola')).toBe(3);
+    expect(qtyByItem(b).get('water')).toBeUndefined();
+  });
+});
+
+describe('addsInOneTap', () => {
+  it('adds straight away when there is nothing to choose', () => expect(addsInOneTap([])).toBe(true));
+  it('opens the sheet for a required group', () => expect(addsInOneTap([group('doneness', 1, 1, ['rare', 'medium'])])).toBe(false));
+  it('opens the sheet for an optional group too, since the basket cannot add modifiers later', () =>
+    expect(addsInOneTap([group('extras', 0, 2, ['cheese', 'egg'])])).toBe(false));
 });
 
 describe('edits', () => {

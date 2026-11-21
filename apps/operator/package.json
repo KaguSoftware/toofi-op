@@ -12,6 +12,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.2.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.2.0",
     "@rop/core": "workspace:*",
     "@rop/db": "workspace:*",
     "@rop/i18n": "workspace:*",
