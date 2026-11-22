@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
 import { needsManagerPin } from '@rop/core';
 import { formatTime } from '@rop/i18n';
-import { ConfirmDialog, EmptyState, ErrorState, Button, Loading, Money, PinReasonModal, useToast } from '../../components';
+import { ConfirmDialog, EmptyState, ErrorState, Button, Icon, Loading, Money, PageHeader, PinReasonModal, useToast } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useAuth } from '../../lib/auth';
 import { errorMessage } from '../../lib/errors';
@@ -300,15 +300,44 @@ function TabView({ tabId }: { tabId: string }) {
 
   return (
     <section className="tab">
-      <header className="tab__header">
-        <Link to="/floor" className="rop-btn">
-          {tr('tab.backToFloor')}
-        </Link>
-        <h1>{tab.table_label ? tr('tab.table', { label: tab.table_label }) : tr('tab.noTable')}</h1>
-        <p>{tr('common.covers.other', { count: tab.covers })}</p>
-        {tab.waiter_name && <p>{tr('tab.waiter', { name: tab.waiter_name })}</p>}
-        <p>{tr('tab.opened', { time: formatTime(new Date(tab.opened_at), locale) })}</p>
-      </header>
+      <PageHeader
+        className="tab__header"
+        lead={
+          <Link to="/floor" className="rop-btn rop-btn--ghost tab__back" aria-label={tr('tab.backToFloor')}>
+            <Icon name="back" />
+            <span>{tr('nav.floor')}</span>
+          </Link>
+        }
+        title={tab.table_label ? tr('tab.table', { label: tab.table_label }) : tr('tab.noTable')}
+        meta={
+          <>
+            <span>
+              <Icon name="person" size={16} />
+              {tr('common.covers.other', { count: tab.covers })}
+            </span>
+            {tab.waiter_name && <span>{tab.waiter_name}</span>}
+            <span>
+              <Icon name="clock" size={16} />
+              {tr('tab.opened', { time: formatTime(new Date(tab.opened_at), locale) })}
+            </span>
+          </>
+        }
+        actions={
+          <>
+            <Button title={tr('tab.transfer')} onClick={() => setDialog('transfer')}>
+              {tr('tab.transferShort')}
+            </Button>
+            <Button disabled={!canLeave} title={canLeave ? tr('tab.merge') : tr('tab.sendFirst')} onClick={() => setDialog('merge')}>
+              {tr('tab.mergeShort')}
+            </Button>
+            {!active && (
+              <Button variant="danger" disabled={!canLeave} title={canLeave ? undefined : tr('tab.sendFirst')} onClick={() => setDialog('cancel')}>
+                {tr('tab.cancelTab')}
+              </Button>
+            )}
+          </>
+        }
+      />
 
       <div className="tab__body">
         <section className="tab__menu" aria-labelledby="menu-title">
@@ -373,6 +402,7 @@ function TabView({ tabId }: { tabId: string }) {
 
           <section className="tab__sent" aria-labelledby="sent-title">
             <h2 id="sent-title">{tr('tab.sent')}</h2>
+            <div className="tab__orders">
             {orders.length === 0 && <p>{tr('tab.noneSent')}</p>}
             {orders.map((o) => (
               <div key={o.orderId} className="tab__order">
@@ -410,6 +440,7 @@ function TabView({ tabId }: { tabId: string }) {
                 </ul>
               </div>
             ))}
+            </div>
 
             <dl className="tab__totals">
               {totals.data ? (
@@ -453,19 +484,6 @@ function TabView({ tabId }: { tabId: string }) {
                 <dd>…</dd>
               )}
             </dl>
-          </section>
-
-          <section className="tab__actions" aria-labelledby="actions-title">
-            <h2 id="actions-title">{tr('tab.actions')}</h2>
-            <Button onClick={() => setDialog('transfer')}>{tr('tab.transfer')}</Button>
-            <Button disabled={!canLeave} title={canLeave ? undefined : tr('tab.sendFirst')} onClick={() => setDialog('merge')}>
-              {tr('tab.merge')}
-            </Button>
-            {!active && (
-              <Button variant="danger" disabled={!canLeave} title={canLeave ? undefined : tr('tab.sendFirst')} onClick={() => setDialog('cancel')}>
-                {tr('tab.cancelTab')}
-              </Button>
-            )}
           </section>
         </div>
       </div>

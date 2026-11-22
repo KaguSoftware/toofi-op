@@ -10,12 +10,13 @@ export interface PageHeaderProps {
   lead?: ReactNode;
   /** A sub-navigation row under the title row. */
   children?: ReactNode;
+  className?: string;
 }
 
 /** The top of every screen: title, status and the screen's own controls in one band. */
-export function PageHeader({ title, meta, actions, lead, children }: PageHeaderProps) {
+export function PageHeader({ title, meta, actions, lead, children, className }: PageHeaderProps) {
   return (
-    <header className="rop-page-head">
+    <header className={className ? `rop-page-head ${className}` : 'rop-page-head'}>
       <div className="rop-page-head__row">
         {lead}
         <div className="rop-page-head__title">

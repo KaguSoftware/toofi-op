@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { formatIQD } from '@rop/i18n';
-import { Button, Field, Modal, Money } from '../../components';
+import { Button, Field, Icon, Modal, Money } from '../../components';
 import { useLocale } from '../../lib/i18n';
 import { MAX_QTY, linePrice, modifierErrors, toggleModifier, type ModifierGroup, type NewLine } from './basketLogic';
 
@@ -105,12 +105,12 @@ export function ItemSheet({ item, groups, onAdd, onClose }: ItemSheetProps) {
         })}
 
         <div className="item-sheet__qty" role="group" aria-label={tr('tab.qty')}>
-          <Button aria-label={tr('tab.decrease')} disabled={qty <= 1} onClick={() => setQty((q) => Math.max(1, q - 1))}>
-            −
+          <Button className="rop-btn--icon" aria-label={tr('tab.decrease')} disabled={qty <= 1} onClick={() => setQty((q) => Math.max(1, q - 1))}>
+            <Icon name="minus" size={20} />
           </Button>
           <output aria-label={tr('tab.qty')}>{qty}</output>
-          <Button aria-label={tr('tab.increase')} disabled={qty >= MAX_QTY} onClick={() => setQty((q) => Math.min(MAX_QTY, q + 1))}>
-            +
+          <Button className="rop-btn--icon" aria-label={tr('tab.increase')} disabled={qty >= MAX_QTY} onClick={() => setQty((q) => Math.min(MAX_QTY, q + 1))}>
+            <Icon name="plus" size={20} />
           </Button>
         </div>
 

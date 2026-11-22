@@ -1,4 +1,4 @@
-import { Button, Field, Money } from '../../components';
+import { Button, Field, Icon, Money } from '../../components';
 import { useLocale } from '../../lib/i18n';
 import { basketLinePrice, basketTotal, type Basket } from './basketLogic';
 
@@ -20,9 +20,13 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
   const { tr, locale } = useLocale();
   const sending = sendingNow || check !== null; // locked: no edits, no send
   const empty = basket.lines.length === 0;
+  const count = basket.lines.reduce((n, l) => n + l.qty, 0);
   return (
     <section className="basket" aria-labelledby="basket-title">
-      <h2 id="basket-title">{tr('tab.basket')}</h2>
+      <div className="basket__header">
+        <h2 id="basket-title">{tr('tab.basket')}</h2>
+        {!empty && <span className="rop-badge" data-tone="ink">{count}</span>}
+      </div>
       {empty ? (
         <p className="basket__empty">{tr('tab.basketEmpty')}</p>
       ) : (
@@ -34,20 +38,18 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
                 <div className="basket__head">
                   <strong>{name}</strong>
                   <Money amount={basketLinePrice(l)} />
-                  <Button className="basket__remove" aria-label={`${tr('tab.remove')}: ${name}`} disabled={sending} onClick={() => onRemove(l.id)}>
-                    <span aria-hidden="true">×</span>
-                  </Button>
                 </div>
                 {l.modifiers.length > 0 && (
                   <p className="basket__mods">{l.modifiers.map((m) => (locale === 'ar' ? m.nameAr : m.nameEn)).join(', ')}</p>
                 )}
+                <div className="basket__row">
                 <div className="basket__controls">
-                  <Button aria-label={`${tr('tab.decrease')}: ${name}`} disabled={sending} onClick={() => onQty(l.id, l.qty - 1)}>
-                    −
+                  <Button className="rop-btn--icon" aria-label={`${tr('tab.decrease')}: ${name}`} disabled={sending} onClick={() => onQty(l.id, l.qty - 1)}>
+                    <Icon name="minus" size={20} />
                   </Button>
                   <output aria-label={`${tr('tab.qty')}: ${name}`}>{l.qty}</output>
-                  <Button aria-label={`${tr('tab.increase')}: ${name}`} disabled={sending} onClick={() => onQty(l.id, l.qty + 1)}>
-                    +
+                  <Button className="rop-btn--icon" aria-label={`${tr('tab.increase')}: ${name}`} disabled={sending} onClick={() => onQty(l.id, l.qty + 1)}>
+                    <Icon name="plus" size={20} />
                   </Button>
                 </div>
                 <Field label={`${tr('tab.noteLabel')}: ${name}`}>
@@ -56,13 +58,17 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
                       {...p}
                       type="text"
                       autoComplete="off"
-                      placeholder={tr('tab.noteLabel')}
+                      placeholder={tr('tab.addNote')}
                       disabled={sending}
                       defaultValue={l.note}
                       onBlur={(e) => e.target.value.trim() !== l.note && onNote(l.id, e.target.value)}
                     />
                   )}
                 </Field>
+                <Button className="basket__remove rop-btn--icon" aria-label={`${tr('tab.remove')}: ${name}`} disabled={sending} onClick={() => onRemove(l.id)}>
+                  <Icon name="close" size={20} />
+                </Button>
+                </div>
               </li>
             );
           })}
@@ -79,12 +85,15 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
           {tr('tab.checkFailed')} <Button onClick={onRecheck}>{tr('tab.recheck')}</Button>
         </p>
       )}
-      <p className="basket__total">
-        {tr('tab.total')}: <Money amount={basketTotal(basket)} />
-      </p>
-      <Button className="basket__send" variant="primary" disabled={empty || sending} busy={sendingNow} onClick={onSend}>
-        {sendingNow ? tr('tab.sending') : tr('tab.send')}
-      </Button>
+      <div className="basket__footer">
+        <p className="basket__total">
+          <span>{tr('tab.total')}</span> <Money amount={basketTotal(basket)} />
+        </p>
+        <Button className="basket__send" variant="primary" disabled={empty || sending} busy={sendingNow} onClick={onSend}>
+          {!sendingNow && <Icon name="send" size={20} />}
+          {sendingNow ? tr('tab.sending') : tr('tab.send')}
+        </Button>
+      </div>
     </section>
   );
 }
