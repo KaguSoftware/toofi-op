@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { STAFF_ROLES, isStaffRole, type StaffRole } from '@rop/core';
-import { Button, DataTable, ErrorState, Loading, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Loading, PageHeader, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
@@ -115,14 +115,15 @@ export function StaffScreen() {
   ];
 
   return (
-    <section className="manage">
-      <h1>{tr('manage.staffTitle')}</h1>
-      <header className="manage__section-head">
-        <h2>{tr('manage.staff.list')}</h2>
-        <Button variant="primary" onClick={() => setCreating(true)}>
-          {tr('manage.staff.add')}
-        </Button>
-      </header>
+    <section className="manage manage--setup">
+      <PageHeader
+        title={tr('manage.staffTitle')}
+        actions={
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            {tr('manage.staff.add')}
+          </Button>
+        }
+      />
       <DataTable columns={cols} rows={q.data} rowKey={(s) => s.id} caption={tr('manage.staff.list')} />
 
       <VenueSettingsForm />

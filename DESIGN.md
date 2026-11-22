@@ -55,7 +55,7 @@ All tokens are defined once on `:root` in `base.css`, with `color-scheme: light`
 | `--rop-danger`, `--rop-danger-text`, `--rop-danger-tint`, `--rop-danger-border` | `oklch(0.5 0.19 27)` | void, shortage, destructive action, errors |
 | `--rop-scrim`, `--rop-shadow` | ink at 40%; one soft shadow | dialog backdrop; dialogs and toasts only |
 | `--rop-ease`, `--rop-fast` | ease-out curve, 150ms | state transitions |
-| `--rop-rail`, `--rop-chrome` | 13rem; block space the shell takes | rail width; full-height screens subtract `--rop-chrome` from the viewport |
+| `--rop-rail`, `--rop-bar`, `--rop-tabbar`, `--rop-chrome` | 6.25rem; 4rem; 4.25rem; block space the shell takes | icon rail width; top bar height; tablet bottom bar height; full-height screens subtract `--rop-chrome` from the viewport |
 
 Rules that come with the tokens:
 
@@ -82,6 +82,10 @@ All in `apps/operator/src/components/`, exported from `index.ts`.
 | Component | Props | Classes | States and behaviour to preserve |
 |---|---|---|---|
 | `Button` | `variant` (`primary`, `secondary` default, `danger`), `busy`, native button props | `rop-btn rop-btn--{variant}` | `busy` sets `aria-busy="true"`, drops `onClick` and shows a spinner. `disabled` renders at 0.45 opacity, `not-allowed`; a disabled primary is a recessed slot instead. Default `type="button"`. Min 3rem square. Toggles use `aria-pressed` and stay `secondary`: never switch the variant to `primary` to show a pressed state. |
+| `Icon` | `name` (`IconName`), `size?` (24) | `rop-icon`, `data-mirror` | The one icon set: inline SVG, 24px grid, 1.75 stroke, `currentColor`, `aria-hidden`. The control around it carries the name. Directional icons (back, forward, sign out, send) mirror under `dir="rtl"`. Add icons to `PATHS` in `Icon.tsx`; never add an icon font or a second set. |
+| `PageHeader` | `title`, `meta?`, `actions?`, `lead?`, `children?`, `className?` | `rop-page-head`, `__row`, `__title`, `__meta`, `__actions` | The top of every screen: the `h1`, one quiet status line (counts, shift or day status, who), the screen's own actions at the inline end, a `lead` such as a back link, and a sub-navigation row as `children`. |
+| Badges and dots | markup only | `rop-badge[data-tone=success\|warning\|danger\|ink]`, `rop-dot` | Small status labels. The text always states the status; the tone only supports it. |
+| Ghost and icon buttons | `className` on `Button` | `rop-btn--ghost`, `rop-btn--icon` | Ghost: no box until hovered. Icon: square, no padding; always give it an `aria-label`. |
 | `.rop-segmented` | class on a `role="group"`, `role="tablist"` or `nav` wrapper | `rop-segmented` | Children are `.rop-btn` (with `aria-pressed` or `aria-selected`) or links (with `aria-current="page"`). Do not give the wrapper its own `display` or `gap` in feature CSS. |
 | `Field` | `label`, `hint?`, `error?`, `children(p)` render prop | `rop-field`, `rop-field__hint`, `rop-field__error` | Wires `label for`, `aria-describedby` (hint, error) and `aria-invalid` via the render prop; the error is `role="alert"`. Always spread `{...p}` on the control. |
 | `Modal` | `open`, `title`, `onClose`, `dismissible` (default true), `footer?` | `rop-modal`, `rop-modal__body`, `rop-modal__header`, `rop-modal__footer` | Native `<dialog>` opened with `showModal()`: browser traps focus, gives `::backdrop`, Esc calls `onClose` only when dismissible. `aria-labelledby` on the h2. Close button has `aria-label` and a "x" glyph. Content renders only while open. Width `min(32rem, 94vw)`. Do not replace with a div overlay. |
@@ -110,10 +114,10 @@ Global form styling (`base.css`): `input, select, textarea` are 3rem high, full 
 
 | Region | Markup and classes | Notes |
 |---|---|---|
-| Shell | `div.rop-shell[data-nav=rail\|bar]` | `navLayoutFor(role)` picks the layout: a rail when the role has several destinations, one bar when it has one (waiters). Under 64rem the rail also becomes a bar with a scrolling nav. |
+| Shell | `div.rop-shell[data-nav=rail\|bar]` | `navLayoutFor(role)` picks the layout. One destination (waiters): a single top bar with brand, nav and account. Several destinations: an icon rail from 64rem; under 64rem a top bar for brand and account plus a fixed bottom tab bar for the nav. A short landscape screen (under 52rem tall) tightens the rail rows so every destination fits. |
 | Skip link | `a.rop-skip.rop-btn` to `#main` | Off-screen until focused. Keep it first in tab order. |
-| Side | `div.rop-side` containing `p.rop-brand`, `nav.rop-nav`, `header.rop-topbar` | Product name from `brand.config.json`, then nav, then the account block (name, role, language toggle, kiosk buttons on desktop, sign out). |
-| Nav | `nav.rop-nav` > `div.rop-nav__group[role=group]` > `p.rop-nav__heading` + `a[aria-current=page]` | Links per role from `navGroupsFor`, grouped as Service, Business and Setup. Headings show only in the rail. The current link is ink. |
+| Side | `div.rop-side` containing `p.rop-brand` (`__mark`, `__name`), `nav.rop-nav`, `header.rop-topbar` | A lettermark from the product name, then the nav, then the account block: avatar initials (`rop-avatar`), name and role, then language, kiosk buttons on desktop and sign out, each an icon with a label (`rop-topbar__btn`, `rop-topbar__label`). In the rail the labels are visually hidden but stay the accessible names. Sign out stays the last button in `header.rop-topbar` (the e2e helper relies on it). |
+| Nav | `nav.rop-nav` > `div.rop-nav__group[role=group]` > `p.rop-nav__heading` + `a[aria-current=page]` > `Icon` + `span.rop-nav__label` | Links per role from `navGroupsFor`, grouped as Service, Business and Setup; each has an icon from `NAV_ICONS` in `RootLayout.tsx`. Group headings are for screen readers; in the rail, groups are split by hairlines. The current link gets the `--rop-selected` tint and weight 600. |
 | Main | `main#main.rop-main[tabindex=-1]` | Focus target of the skip link. |
 | Idle lock | non-dismissible `Modal` | After N idle minutes (saved in `localStorage`) a PIN prompt covers the app: PIN, "Switch user", "Unlock". Esc and close are disabled. A reload keeps the lock, so it can be present on first paint. |
 | Kiosk controls | `Button`s plus `PinReasonModal` | Leave full screen or quit, each behind a manager PIN and reason. Rendered only under Electron (`isDesktop()`). |
@@ -144,9 +148,12 @@ Roles come from `ROUTE_ROLES` in `@rop/core`: `/floor` and `/tab` are open to ev
 
 What the screens do (AR is the same CSS mirrored by `dir`, not separate styles):
 
-- **Floor:** a free table is a raised tile with seats and a green "Free" dot and label. An occupied table is a deeper warm fill (`--rop-occupied`) and shows guests, waiter, time open (top corner) and the amount due.
-- **Order screen (`/tab`):** three zones on a wide screen: categories as a column, the item grid, and the ticket. The screen fills the viewport and does not scroll as a page; items and sent lines scroll inside their zones. An item with no modifier groups adds in one tap and its tile shows the quantity in the basket; an item with any modifier group opens the sheet. The ticket shows the basket first with Send directly under it, then sent lines with the amount due pinned at the bottom.
-- **Till:** three panes on a wide screen: tab list, bill, payment. Payment stays in view; the amount due and the change are display-size figures. Two-option controls (open or settled, cash or card, split mode) are joined switches.
+- **Floor:** the header line counts free tables, seated tables and tables open 90 minutes or more (`summarize`, `LONG_OPEN_MINUTES` in `floorLogic.ts`); the area tabs sit at its end. A free table is a raised tile with seats and a green "Free" mark. A seated table is a deeper warm fill (`--rop-occupied`) with guests, waiter, a time badge that turns amber at 90 minutes, and "Due" with the amount. The signed-in waiter's own tables are inked and say "Your table". Opening a tab offers one-tap guest counts 1 to 8 above the number field.
+- **Order screen (`/tab`):** the header holds the back link, the table, guests, waiter and time, and the tab actions (Transfer, Merge, Cancel empty tab). Categories are chips over a full-width item grid; the ticket sits at the inline end. The screen fills the viewport and does not scroll as a page; items, basket lines and sent lines scroll inside their zones. An item with no modifier groups adds in one tap and its tile shows the quantity in the basket; an item with any modifier group opens the sheet, whose options are tiles. The ticket is a guest check: "New order" with an item count, lines with a stepper, note and remove, then the total and Send; under it the sent orders, and the totals with the amount due fixed below them.
+- **Till:** the header line shows the shift status (a green badge, or a warning pill with the link to open a shift). Three panes on a wide screen: tab list with search, the bill as a check, and payment. Discount and "Split the bill" sit under the check; the split panel unfolds on request and opens by itself when a split is already under way. Payment leads with the amount due at display size; the change after a payment is display size too. Two-option controls are segmented tracks. A settled tab shows a green confirmation with Print receipt, then one card per payment for refunds.
+- **Shift (`/till/shift`):** the count panel (open or close, blind) is the main column; cash in and out, the drawer and other open shifts sit beside it. The result shows expected, counted and the variance only after the server answers.
+- **Day (`/manage/day`):** a status band (day open since, or closed) with Open or Close the day as the header action, then the till shifts and the day summary.
+- **Setup and stock (`manage--setup`):** a page header with the main action and the sub-navigation, then tables and forms on raised panels; forms keep a readable width and form lines lay their fields side by side. The floor plan leads with one canvas per area, drawn as the floor shows it; tapping a table opens it for editing.
 - **Reports (`/manage`):** a strip of figures divided by hairlines, then single-colour bar charts with a table alternative.
 
 ## 5. Hard constraints
@@ -192,7 +199,7 @@ What the screens do (AR is the same CSS mirrored by `dir`, not separate styles):
 - Fonts: one or two weights, subset, local only. Use inline SVG, not icon fonts.
 - Recharts is only used on `/manage`; keep chart code out of waiter screens.
 - Floor and menu grids can hold dozens of tiles: keep tile CSS cheap (flat colours, border only).
-- Breakpoints in use: 48rem (till bill and payment side by side), 56rem (order screen becomes full-height with the ticket beside the menu), 64rem (rail), 72rem (category column), 80rem (till tab list as a third pane). Below them the screens stack.
+- Breakpoints in use: 48rem (till bill and payment side by side; account labels show in the top bar), 56rem (order screen becomes full-height with the ticket beside the menu), 64rem (icon rail instead of the bottom tab bar; shift count and side column side by side), 80rem (till tab list as a third pane). Below them the screens stack. A height query at 52rem tightens the rail on short landscape screens.
 
 ## 6. States to design
 
@@ -231,7 +238,7 @@ Decided on 2026-11-21 (reasoning in `docs/DESIGN-RESEARCH.md`):
 | Density: till vs tablets | Same components; the till uses side-by-side panes, waiter screens use larger tiles. No density token yet. |
 | Status colours | Success, warning, danger and information, each with a tint. |
 | Typography | IBM Plex Sans with IBM Plex Sans Arabic, fixed scale, tabular figures, Western digits in both languages. |
-| Navigation | A grouped rail for roles with several destinations, one bar for waiters. |
+| Navigation | An icon rail for roles with several destinations (a bottom tab bar under 64rem), one top bar for waiters. Every screen starts with `PageHeader`. |
 | Visual weight (quieter pass, 2026-11-21) | Ink only for the one primary action; selection by tint and weight; raised paper on a slightly deeper page; tinted state borders; softer chart blue; labels and table headers at weight 500. |
 | Motion and feedback | 150ms ease-out on state changes only; a spinner inside busy buttons; reduced motion respected. |
 | Responsive breakpoints | 48, 56, 64, 72 and 80rem, listed in section 5. |

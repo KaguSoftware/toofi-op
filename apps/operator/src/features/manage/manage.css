@@ -50,3 +50,43 @@
 .manage-day > section { margin-block-end: var(--rop-space-5); }
 .manage-day > section > h2 { font-size: var(--rop-font-lg); }
 .manage-day__summary .manage__summary { padding: var(--rop-space-4); border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised); margin-block-end: var(--rop-space-3); }
+
+/* Setup and stock: one page pattern. A page header (title, main action, sub-navigation), then
+   tables and forms on raised panels, each headed by its section title. Forms keep a readable
+   width instead of stretching across the screen. Dialog forms are left alone. */
+.manage--setup .rop-page-head .manage__tabs { margin-block-end: 0; }
+.manage--setup .manage__section-head { margin-block: var(--rop-space-2) var(--rop-space-3); }
+.manage--setup .manage__section-head h2, .manage--setup section > h2 { margin-block-end: var(--rop-space-3); font-size: var(--rop-font-lg); }
+.manage--setup .rop-table-wrap {
+  margin-block-end: var(--rop-space-5); padding: var(--rop-space-1) var(--rop-space-4);
+  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised);
+}
+.manage--setup .manage__form:not(dialog .manage__form) {
+  max-inline-size: 46rem; margin-block-end: var(--rop-space-5); padding: var(--rop-space-4);
+  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised);
+}
+.manage--setup .manage__form:not(dialog .manage__form) fieldset {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--rop-space-3); align-items: start;
+  padding: var(--rop-space-3); background: var(--rop-bg);
+}
+.manage--setup .manage__form:not(dialog .manage__form) > .rop-btn { justify-self: start; }
+.manage--setup .manage__form:not(dialog .manage__form) > .rop-btn--primary,
+.manage--setup .manage__form:not(dialog .manage__form) > [type='submit'] { min-inline-size: 10rem; }
+/* A stock page's own title repeats the selected tab, so only screen readers get it. */
+.manage--stock > section > h2:first-child { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Floor plan: each area drawn as the floor shows it, tables on a deeper paper; tap a table to edit it. */
+.manage__canvases { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: var(--rop-space-4); margin-block-end: var(--rop-space-5); }
+.manage__canvas { padding: var(--rop-space-4); border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-surface); }
+.manage--setup .manage__canvas > h2 { margin: 0 0 var(--rop-space-3); font-size: var(--rop-font); }
+.manage__grid { gap: var(--rop-space-2); }
+.manage__grid-cell {
+  display: grid; place-items: center; gap: 2px; min-block-size: 4.5rem; padding: var(--rop-space-2);
+  border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-raised);
+  color: var(--rop-text); font: inherit; cursor: pointer;
+  transition: border-color var(--rop-fast) var(--rop-ease);
+}
+.manage__grid-cell:hover { border-color: var(--rop-border-hover); }
+.manage__grid-cell strong { font-size: var(--rop-font-lg); line-height: 1.1; }
+.manage__grid-cell span { display: inline-flex; align-items: center; gap: 2px; color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
+.manage__grid-cell[data-inactive='true'] { opacity: 0.55; border-style: dashed; }

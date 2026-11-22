@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Button, DataTable, ErrorState, Loading, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Icon, Loading, PageHeader, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { errorMessage } from '../../lib/errors';
 import { useLocale } from '../../lib/i18n';
@@ -96,8 +96,18 @@ export function FloorPlanScreen() {
   ];
 
   return (
-    <section className="manage">
-      <h1>{tr('manage.floorTitle')}</h1>
+    <section className="manage manage--setup">
+      <PageHeader
+        title={tr('manage.floorTitle')}
+        actions={
+          <>
+            <Button onClick={() => setAreaEdit('new')}>{tr('manage.floor.addArea')}</Button>
+            <Button variant="primary" disabled={areas.length === 0} onClick={() => setTableEdit('new')}>
+              {tr('manage.floor.addTable')}
+            </Button>
+          </>
+        }
+      />
 
       {blocked && (
         <div role="alert" className="manage__notice">
@@ -112,25 +122,21 @@ export function FloorPlanScreen() {
         </p>
       )}
 
+      <div className="manage__canvases">
+        {sorted.map((a) => (
+          <PreviewGrid key={a.id} title={areaName(a)} tables={tables.filter((t) => t.area_id === a.id)} onEdit={(t) => setTableEdit(t)} />
+        ))}
+      </div>
+
       <header className="manage__section-head">
         <h2>{tr('manage.floor.areas')}</h2>
-        <Button variant="primary" onClick={() => setAreaEdit('new')}>
-          {tr('manage.floor.addArea')}
-        </Button>
       </header>
       <DataTable columns={areaCols} rows={sorted} rowKey={(a) => a.id} caption={tr('manage.floor.areas')} emptyMessage={tr('manage.floor.noAreas')} />
 
       <header className="manage__section-head">
         <h2>{tr('manage.floor.tables')}</h2>
-        <Button variant="primary" disabled={areas.length === 0} onClick={() => setTableEdit('new')}>
-          {tr('manage.floor.addTable')}
-        </Button>
       </header>
       <DataTable columns={tableCols} rows={tables} rowKey={(t) => t.id} caption={tr('manage.floor.tables')} emptyMessage={tr('manage.floor.noTables')} />
-
-      {sorted.map((a) => (
-        <PreviewGrid key={a.id} title={areaName(a)} tables={tables.filter((t) => t.area_id === a.id)} />
-      ))}
 
       {areaEdit && <AreaDialog area={areaEdit === 'new' ? null : areaEdit} nextSort={areas.length + 1} onClose={() => setAreaEdit(null)} />}
       {tableEdit && (
@@ -140,24 +146,31 @@ export function FloorPlanScreen() {
   );
 }
 
-function PreviewGrid({ title, tables }: { title: string; tables: Table[] }) {
+/** The area as the floor shows it; tapping a table opens it for editing. */
+function PreviewGrid({ title, tables, onEdit }: { title: string; tables: Table[]; onEdit: (t: Table) => void }) {
   const { tr } = useLocale();
   if (tables.length === 0) return null;
   const cols = Math.max(...tables.map((t) => t.grid_x)) + 1;
   return (
-    <section aria-label={tr('manage.floor.preview', { area: title })}>
-      <h3>{tr('manage.floor.preview', { area: title })}</h3>
-      <div className="manage__grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(4rem, 1fr))` }}>
+    <section className="manage__canvas" aria-label={tr('manage.floor.preview', { area: title })}>
+      <h2>{title}</h2>
+      <div className="manage__grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(5.5rem, 1fr))` }}>
         {tables.map((t) => (
-          <div
+          <button
             key={t.id}
+            type="button"
             className="manage__grid-cell"
             data-inactive={!t.is_active}
             style={{ gridColumn: t.grid_x + 1, gridRow: t.grid_y + 1 }}
+            title={tr('manage.floor.editTable')}
+            onClick={() => onEdit(t)}
           >
             <strong>{t.label}</strong>
-            <div>{t.seats}</div>
-          </div>
+            <span>
+              <Icon name="person" size={14} />
+              {t.seats}
+            </span>
+          </button>
         ))}
       </div>
     </section>

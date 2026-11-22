@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, DataTable, ErrorState, Loading, Money, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Loading, Money, PageHeader, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useLocale } from '../../lib/i18n';
 import { QK } from '../../lib/queryKeys';
@@ -34,15 +34,16 @@ export function MenuScreen() {
   if (q.error) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
   const data = q.data;
   return (
-    <section className="manage">
-      <h1>{tr('manage.menuTitle')}</h1>
-      <div className="rop-segmented manage__tabs" role="group" aria-label={tr('manage.menu.sections')}>
-        {(['items', 'modifiers', 'tax'] as const).map((t) => (
-          <Button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>
-            {tr(t === 'items' ? 'manage.menu.tabItems' : t === 'modifiers' ? 'manage.menu.tabModifiers' : 'manage.menu.tabTax')}
-          </Button>
-        ))}
-      </div>
+    <section className="manage manage--setup">
+      <PageHeader title={tr('manage.menuTitle')}>
+        <div className="rop-segmented manage__tabs" role="group" aria-label={tr('manage.menu.sections')}>
+          {(['items', 'modifiers', 'tax'] as const).map((t) => (
+            <Button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>
+              {tr(t === 'items' ? 'manage.menu.tabItems' : t === 'modifiers' ? 'manage.menu.tabModifiers' : 'manage.menu.tabTax')}
+            </Button>
+          ))}
+        </div>
+      </PageHeader>
       {tab === 'items' && (
         <>
           <CategoriesPanel data={data} />

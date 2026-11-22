@@ -1,5 +1,6 @@
 import { Link, Outlet } from '@tanstack/react-router';
 import type { MessageKey } from '@rop/i18n';
+import { PageHeader } from '../../components';
 import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
 import { useBroadcast } from '../../lib/realtime';
@@ -21,15 +22,16 @@ export function StockScreen() {
   const { staff } = useAuth();
   useBroadcast(staff ? `stock:${staff.venueId}` : null);
   return (
-    <section className="manage">
-      <h1>{tr('stock.title')}</h1>
-      <nav className="rop-segmented manage__tabs" aria-label={tr('stock.sections')}>
-        {SECTIONS.map((s) => (
-          <Link key={s.to} to={s.to} activeOptions={{ exact: s.exact ?? false }}>
-            {tr(s.key)}
-          </Link>
-        ))}
-      </nav>
+    <section className="manage manage--setup manage--stock">
+      <PageHeader title={tr('stock.title')}>
+        <nav className="rop-segmented manage__tabs" aria-label={tr('stock.sections')}>
+          {SECTIONS.map((s) => (
+            <Link key={s.to} to={s.to} activeOptions={{ exact: s.exact ?? false }}>
+              {tr(s.key)}
+            </Link>
+          ))}
+        </nav>
+      </PageHeader>
       <Outlet />
     </section>
   );
