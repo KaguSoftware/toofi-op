@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { formatNumber } from '@rop/i18n';
-import { Button, DataTable, Money, type Column } from '../../components';
+import { Button, DataTable, Icon, Money, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useLocale } from '../../lib/i18n';
 import { ActiveToggle, EditDialog, NumberField, TextField } from './formKit';
@@ -37,6 +37,7 @@ export function ModifiersPanel({ data }: { data: MenuData }) {
       <header className="manage__section-head">
         <h2>{tr('manage.menu.modifierGroups')}</h2>
         <Button variant="primary" onClick={() => setGroupEdit('new')}>
+          <Icon name="plus" size={20} />
           {tr('manage.menu.addGroup')}
         </Button>
       </header>
@@ -154,6 +155,7 @@ export function TaxPanel({ data }: { data: MenuData }) {
       <header className="manage__section-head">
         <h2>{tr('manage.menu.taxGroups')}</h2>
         <Button variant="primary" onClick={() => setEditing('new')}>
+          <Icon name="plus" size={20} />
           {tr('manage.menu.addTax')}
         </Button>
       </header>

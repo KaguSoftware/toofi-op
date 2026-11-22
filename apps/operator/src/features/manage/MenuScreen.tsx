@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, DataTable, ErrorState, Loading, Money, PageHeader, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Icon, Loading, Money, PageHeader, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useLocale } from '../../lib/i18n';
 import { QK } from '../../lib/queryKeys';
@@ -98,7 +98,8 @@ function CategoriesPanel({ data }: { data: MenuData }) {
     <section>
       <header className="manage__section-head">
         <h2>{tr('manage.menu.categories')}</h2>
-        <Button variant="primary" onClick={() => setEditing('new')}>
+        <Button onClick={() => setEditing('new')}>
+          <Icon name="plus" size={20} />
           {tr('manage.menu.addCategory')}
         </Button>
       </header>
@@ -186,6 +187,7 @@ function ItemsPanel({ data }: { data: MenuData }) {
       <header className="manage__section-head">
         <h2>{tr('manage.menu.items')}</h2>
         <Button variant="primary" disabled={data.cats.length === 0 || data.taxes.length === 0} onClick={() => setEditing('new')}>
+          <Icon name="plus" size={20} />
           {tr('manage.menu.addItem')}
         </Button>
       </header>

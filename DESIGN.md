@@ -65,6 +65,10 @@ Rules that come with the tokens:
 - **Ornament is copper and quiet.** The lattice sits at low opacity on forest surfaces; the strip under each page header fades out at both ends. Never put ornament behind text that must be read quickly, except as a faint corner motif.
 - **State borders are tinted.** Banners, notices and the variance pill use the `*-tint` fill with the matching `*-border`. Danger buttons are outlined, and solid crimson only in a dialog footer where they confirm.
 - **Row actions in tables are ghost buttons** with no resting shadow.
+- **Focus:** a 3px terra cotta ring everywhere, except on forest surfaces (rail, bars, seated tables), where it turns copper so it keeps 3:1.
+- **Contrast on colour:** text on the terra cotta and forest gradients is checked at both ends of the gradient (4.5:1 or better); badges on forest use a darkening glass, never a lightening one.
+- **Tables** keep their natural width (`min-inline-size: max-content`) and scroll inside their panel on small screens instead of squeezing controls.
+- **Phones:** the floor drops floor-plan placement and flows tables two to a row.
 - **Depth:** tiles and buttons rest on `--rop-shadow-sm`; panels on `-md`; dialogs and toasts on `-lg`. Tappable tiles lift on hover (pointer devices only) and squeeze on press.
 - **Motion:** each screen rises in on arrival (`.rop-main > *`); grids cascade (`.rop-cascade`, up to 270ms of stagger); dialogs scale in; basket lines slide in; count badges pop when they change; a payment ends with a drawn checkmark. Only `transform` and `opacity` animate, entrances use `animation-fill-mode: backwards` so hover and press transforms still work, and `prefers-reduced-motion` turns it all off.
 

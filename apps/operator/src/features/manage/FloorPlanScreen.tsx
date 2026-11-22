@@ -101,8 +101,12 @@ export function FloorPlanScreen() {
         title={tr('manage.floorTitle')} icon="floorPlan" tone="accent"
         actions={
           <>
-            <Button onClick={() => setAreaEdit('new')}>{tr('manage.floor.addArea')}</Button>
+            <Button onClick={() => setAreaEdit('new')}>
+              <Icon name="plus" size={20} />
+              {tr('manage.floor.addArea')}
+            </Button>
             <Button variant="primary" disabled={areas.length === 0} onClick={() => setTableEdit('new')}>
+              <Icon name="plus" size={20} />
               {tr('manage.floor.addTable')}
             </Button>
           </>

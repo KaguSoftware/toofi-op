@@ -123,7 +123,7 @@
 .item-sheet fieldset label.item-sheet__option:has(input:disabled) { opacity: 0.5; cursor: not-allowed; }
 .item-sheet__option input { margin: 0; }
 .item-sheet__rule, .item-sheet__delta { color: var(--rop-text-muted); font-size: var(--rop-font-sm); font-weight: 400; }
-.item-sheet__delta { margin-inline-start: auto; }
+.item-sheet__delta { margin-inline-start: auto; white-space: nowrap; }
 .item-sheet__qty { justify-self: start; }
 .item-sheet__qty output { min-inline-size: 3rem; text-align: center; font-size: var(--rop-font-lg); font-weight: 600; }
 .item-sheet__price { margin: 0; color: var(--rop-text-muted); }

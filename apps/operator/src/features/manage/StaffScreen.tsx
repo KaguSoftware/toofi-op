@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { STAFF_ROLES, isStaffRole, type StaffRole } from '@rop/core';
-import { Button, DataTable, ErrorState, Loading, PageHeader, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Icon, Loading, PageHeader, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
@@ -120,6 +120,7 @@ export function StaffScreen() {
         title={tr('manage.staffTitle')} icon="staff" tone="accent"
         actions={
           <Button variant="primary" onClick={() => setCreating(true)}>
+            <Icon name="plus" size={20} />
             {tr('manage.staff.add')}
           </Button>
         }

@@ -3,7 +3,7 @@
 // the expected snapshot and applies counted - on-hand at finalize.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, ConfirmDialog, DataTable, ErrorState, Loading, type Column } from '../../components';
+import { Button, ConfirmDialog, DataTable, EmptyState, ErrorState, Loading, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { errorMessage } from '../../lib/errors';
 import { useLocale } from '../../lib/i18n';
@@ -64,14 +64,18 @@ export function CountScreen() {
     return (
       <section>
         <h2>{tr('stock.countTitle')}</h2>
-        <p>{tr('stock.count.none')}</p>
-        <Button
-          variant="primary"
-          busy={busy}
-          onClick={() => void run(() => appRpc('start_count'), 'stock.count.started').then(() => open.refetch())}
-        >
-          {tr('stock.count.start')}
-        </Button>
+        <EmptyState
+          message={tr('stock.count.none')}
+          action={
+            <Button
+              variant="primary"
+              busy={busy}
+              onClick={() => void run(() => appRpc('start_count'), 'stock.count.started').then(() => open.refetch())}
+            >
+              {tr('stock.count.start')}
+            </Button>
+          }
+        />
       </section>
     );
   }

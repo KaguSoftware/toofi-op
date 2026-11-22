@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { useLocale } from '../lib/i18n';
 import { Button } from './Button';
+import { Icon } from './Icon';
 
 export interface ModalProps {
   open: boolean;
@@ -46,8 +47,8 @@ export function Modal({ open, title, onClose, dismissible = true, children, foot
           <header className="rop-modal__header">
             <h2 id={titleId}>{title}</h2>
             {dismissible && (
-              <Button variant="secondary" onClick={onClose} aria-label={tr('common.close')}>
-                ×
+              <Button variant="secondary" className="rop-btn--icon" onClick={onClose} aria-label={tr('common.close')}>
+                <Icon name="close" size={20} />
               </Button>
             )}
           </header>

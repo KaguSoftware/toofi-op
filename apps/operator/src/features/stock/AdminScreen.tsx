@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, DataTable, ErrorState, Loading, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Icon, Loading, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useLocale } from '../../lib/i18n';
 import { ActiveToggle, EditDialog, SelectField, TextField } from '../manage/formKit';
@@ -48,6 +48,7 @@ export function AdminScreen() {
       <header className="manage__section-head">
         <h2>{tr('stock.ingredients')}</h2>
         <Button variant="primary" onClick={() => setIngEdit('new')}>
+          <Icon name="plus" size={20} />
           {tr('stock.addIngredient')}
         </Button>
       </header>
@@ -55,7 +56,8 @@ export function AdminScreen() {
 
       <header className="manage__section-head">
         <h2>{tr('stock.suppliers')}</h2>
-        <Button variant="primary" onClick={() => setSupEdit('new')}>
+        <Button onClick={() => setSupEdit('new')}>
+          <Icon name="plus" size={20} />
           {tr('stock.addSupplier')}
         </Button>
       </header>

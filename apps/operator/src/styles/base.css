@@ -56,8 +56,8 @@
   --rop-terra-ink: oklch(0.48 0.14 36);
   --rop-terra-tint: oklch(0.93 0.04 55);
   --rop-on-terra: oklch(0.98 0.012 80);
-  --rop-grad-terra: linear-gradient(155deg, oklch(0.62 0.15 42), oklch(0.5 0.145 33));
-  --rop-grad-terra-hover: linear-gradient(155deg, oklch(0.57 0.15 42), oklch(0.46 0.14 33));
+  --rop-grad-terra: linear-gradient(155deg, oklch(0.56 0.15 40), oklch(0.47 0.14 32));
+  --rop-grad-terra-hover: linear-gradient(155deg, oklch(0.52 0.15 40), oklch(0.43 0.14 32));
   /* Copper (#C98A5E): ornament lines, the brand mark, your own tables. */
   --rop-copper: oklch(0.687 0.097 55);
   --rop-copper-tint: oklch(0.92 0.04 60);
@@ -81,7 +81,7 @@
   --rop-accent-text: var(--rop-on-brand);
   --rop-accent-tint: var(--rop-brand-tint);
   --rop-chart: oklch(0.42 0.06 165);
-  --rop-success: oklch(0.5 0.13 145);
+  --rop-success: oklch(0.47 0.13 145);
   --rop-success-text: oklch(0.98 0.012 85);
   --rop-success-tint: oklch(0.93 0.06 135);
   --rop-success-border: oklch(0.8 0.09 140);
@@ -98,7 +98,7 @@
   --rop-on-success-tint: oklch(0.3 0.07 150);
   --rop-shadow-success: 0 6px 14px -6px oklch(0.5 0.13 145 / 0.8);
   --rop-on-warning: oklch(0.25 0.06 60);
-  --rop-glass-on-brand: oklch(1 0 0 / 0.16);
+  --rop-glass-on-brand: oklch(0.2 0.03 167 / 0.35);
 
   /* Depth: three soft shadows tinted toward forest, never grey. */
   --rop-shadow-sm: 0 1px 2px oklch(0.25 0.04 167 / 0.08), 0 1px 1px oklch(0.25 0.04 167 / 0.05);
@@ -140,6 +140,8 @@ p { margin-block: 0 var(--rop-space-2); }
 a { color: var(--rop-brand); text-underline-offset: 0.2em; }
 strong, b { font-weight: 600; }
 :focus-visible { outline: 3px solid var(--rop-terra); outline-offset: 2px; }
+/* On forest surfaces terra cotta is too close in lightness; the ring turns copper (4:1 there). */
+.rop-side :focus-visible, .floor__table[data-state='occupied']:focus-visible { outline-color: var(--rop-copper); }
 
 .rop-sr-only {
   position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden;
@@ -267,7 +269,7 @@ p.rop-state[role='status']::before {
 .rop-state--error { color: var(--rop-text); background: var(--rop-danger-tint); border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius); }
 .rop-state--error h2 { color: var(--rop-danger); }
 .rop-table-wrap { overflow-x: auto; }
-.rop-table { inline-size: 100%; border-collapse: collapse; }
+.rop-table { inline-size: 100%; min-inline-size: max-content; border-collapse: collapse; }
 .rop-table th, .rop-table td { padding: var(--rop-space-2) var(--rop-space-3); border-block-end: 1px solid var(--rop-border); text-align: start; }
 .rop-table th { font-size: var(--rop-font-sm); font-weight: 500; color: var(--rop-text-muted); white-space: nowrap; }
 .rop-table tbody tr:last-child td { border-block-end: 0; }
@@ -422,6 +424,10 @@ p.rop-state[role='status']::before {
     background: var(--rop-raised); border-block-start: 1px solid var(--rop-border); box-shadow: 0 -8px 24px -12px oklch(0.25 0.04 167 / 0.3);
   }
   .rop-shell[data-nav='rail'] .rop-nav a { color: var(--rop-text-muted); }
+  .rop-shell[data-nav='rail'] .rop-nav {
+    -webkit-mask-image: linear-gradient(90deg, transparent, var(--rop-text) 0.75rem, var(--rop-text) calc(100% - 1.5rem), transparent);
+    mask-image: linear-gradient(90deg, transparent, var(--rop-text) 0.75rem, var(--rop-text) calc(100% - 1.5rem), transparent);
+  }
   .rop-shell[data-nav='rail'] .rop-nav a:hover { background: var(--rop-brand-tint); color: var(--rop-brand-ink); }
   .rop-shell[data-nav='rail'] .rop-nav a[aria-current='page'] { background: var(--rop-grad-brand); color: var(--rop-on-brand); }
   .rop-shell[data-nav='rail'] .rop-nav a[aria-current='page'] .rop-icon { color: var(--rop-on-brand); }
@@ -496,10 +502,10 @@ p.rop-state[role='status']::before {
 @keyframes rop-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rop-dialog-in { from { opacity: 0; transform: translateY(12px) scale(0.96); } to { opacity: 1; transform: none; } }
 @keyframes rop-toast-in { from { opacity: 0; transform: translateY(16px) scale(0.96); } to { opacity: 1; transform: none; } }
-@keyframes rop-pop-in { 0% { opacity: 0; transform: scale(0.5); } 70% { opacity: 1; transform: scale(1.08); } 100% { transform: scale(1); } }
+@keyframes rop-pop-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
 @keyframes rop-slide-in { from { opacity: 0; transform: translateX(calc(var(--rop-dir, 1) * -12px)); } to { opacity: 1; transform: none; } }
 @keyframes rop-draw { to { stroke-dashoffset: 0; } }
-@keyframes rop-pulse-ring { 0% { box-shadow: 0 0 0 0 oklch(0.8 0.15 75 / 0.7); } 100% { box-shadow: 0 0 0 8px oklch(0.8 0.15 75 / 0); } }
+@keyframes rop-beat { 0%, 100% { opacity: 1; transform: none; } 50% { opacity: 0.45; transform: scale(0.85); } }
 [dir='rtl'] { --rop-dir: -1; }
 .rop-main > * { animation: rop-rise var(--rop-slow) var(--rop-ease) backwards; }
 .rop-cascade > * { animation: rop-rise var(--rop-slow) var(--rop-ease) backwards; }
