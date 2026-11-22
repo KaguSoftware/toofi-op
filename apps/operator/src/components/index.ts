@@ -8,3 +8,5 @@ export { PinReasonModal, type PinReasonModalProps } from './PinReasonModal';
 export { ConfirmDialog, type ConfirmDialogProps } from './ConfirmDialog';
 export { ToastProvider, useToast } from './Toast';
 export { Loading, EmptyState, ErrorState } from './States';
+export { Icon, type IconName } from './Icon';
+export { PageHeader, type PageHeaderProps } from './PageHeader';

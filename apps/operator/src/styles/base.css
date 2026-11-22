@@ -66,7 +66,7 @@
   --rop-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --rop-fast: 150ms;
   --rop-z-toast: 10;
-  --rop-rail: 13rem;
+  --rop-rail: 6.25rem;
   color-scheme: light;
 }
 :root:lang(ar) { --rop-leading: 1.7; }
@@ -222,61 +222,154 @@ legend { padding-inline: var(--rop-space-1); font-weight: 500; }
 .rop-toast--success::before { content: ''; flex: none; inline-size: 0.625rem; block-size: 0.625rem; border-radius: 50%; background: var(--rop-success-on-ink); }
 .rop-toast--error { background: var(--rop-danger); color: var(--rop-danger-text); }
 
-/* App shell: a rail on wide screens when the role has several destinations, otherwise one bar. */
-/* --rop-chrome: block space the shell takes around a screen (bar plus main padding), for full-height screens. */
-.rop-shell { display: flex; flex-direction: column; min-block-size: 100dvh; --rop-chrome: calc(7rem + 1px); }
+/* Icons: inline SVG in currentColor; directional ones mirror in right-to-left. */
+.rop-icon { display: block; flex: none; }
+[dir='rtl'] .rop-icon[data-mirror='true'] { transform: scaleX(-1); }
+.rop-btn--icon { padding: 0; }
+.rop-btn--ghost, .rop-btn.rop-btn--ghost { background: transparent; border-color: transparent; }
+.rop-btn--ghost:hover { background: var(--rop-surface-2); border-color: transparent; }
+
+/* Badges and dots: small status labels. Tone comes from data-tone; the text always says it too. */
+.rop-badge {
+  display: inline-flex; align-items: center; gap: var(--rop-space-1); flex: none;
+  min-block-size: 1.5rem; padding-inline: var(--rop-space-2); border-radius: 999px;
+  background: var(--rop-surface-2); color: var(--rop-text); font-size: var(--rop-font-xs); font-weight: 500; line-height: 1.2; white-space: nowrap;
+}
+.rop-badge .rop-icon { inline-size: 0.875rem; block-size: 0.875rem; }
+.rop-badge[data-tone='warning'] { background: var(--rop-warning-tint); color: var(--rop-warning-ink); box-shadow: inset 0 0 0 1px var(--rop-warning-border); }
+.rop-badge[data-tone='success'] { background: var(--rop-success-tint); color: var(--rop-success); }
+.rop-badge[data-tone='danger'] { background: var(--rop-danger-tint); color: var(--rop-danger); }
+.rop-badge[data-tone='ink'] { background: var(--rop-ink); color: var(--rop-ink-text); }
+.rop-dot { display: inline-block; flex: none; inline-size: 0.5rem; block-size: 0.5rem; border-radius: 50%; background: currentColor; }
+
+/* Page header: title, one status line and the screen's own controls in one band. */
+.rop-page-head { display: grid; gap: var(--rop-space-3); margin-block-end: var(--rop-space-4); }
+.rop-page-head__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2) var(--rop-space-4); min-block-size: var(--rop-target); }
+.rop-page-head__title { display: grid; gap: 2px; flex: 1 1 14rem; min-inline-size: 0; }
+.rop-page-head h1 { margin: 0; font-size: var(--rop-font-xl); line-height: 1.15; text-wrap: balance; }
+.rop-page-head__meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-1) var(--rop-space-3);
+  color: var(--rop-text-muted); font-size: var(--rop-font-sm);
+}
+.rop-page-head__meta > * { display: inline-flex; align-items: center; gap: var(--rop-space-1); }
+.rop-page-head__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2); }
+
+/* App shell. Mobile first: one top bar. Roles with several destinations get a bottom tab bar
+   on tablets and an icon rail from 64rem. --rop-chrome is the block space the shell takes
+   around a screen, so full-height screens can subtract it from the viewport. */
+.rop-shell {
+  display: flex; flex-direction: column; min-block-size: 100dvh;
+  --rop-bar: 4rem;
+  --rop-chrome: calc(var(--rop-bar) + 1px + 2 * var(--rop-space-4));
+}
 .rop-side {
-  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2) var(--rop-space-3);
-  padding: var(--rop-space-2) var(--rop-space-3);
+  position: sticky; inset-block-start: 0; z-index: 5;
+  display: flex; align-items: center; gap: var(--rop-space-3);
+  min-block-size: var(--rop-bar); padding-inline: var(--rop-space-3);
   background: var(--rop-surface); border-block-end: 1px solid var(--rop-border);
 }
-.rop-brand { margin: 0; font-weight: 600; white-space: nowrap; }
-.rop-nav { display: flex; align-items: center; gap: var(--rop-space-1); min-inline-size: 0; overflow-x: auto; flex: 1; }
+.rop-brand { display: flex; align-items: center; gap: var(--rop-space-2); margin: 0; font-weight: 600; white-space: nowrap; }
+.rop-brand__mark {
+  display: inline-grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; flex: none;
+  border-radius: var(--rop-radius); background: var(--rop-ink); color: var(--rop-ink-text);
+  font-size: var(--rop-font-lg); font-weight: 600; line-height: 1;
+}
+.rop-nav { display: flex; align-items: center; gap: 2px; min-inline-size: 0; overflow-x: auto; flex: 1; scrollbar-width: none; }
 .rop-nav__group { display: contents; }
-.rop-nav__heading { display: none; }
+.rop-nav__heading, .rop-shell .rop-sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
 .rop-nav a {
-  display: inline-flex; align-items: center; flex: none;
+  display: inline-flex; align-items: center; gap: var(--rop-space-2); flex: none;
   min-block-size: var(--rop-target); padding-inline: var(--rop-space-3);
   border-radius: var(--rop-radius); color: var(--rop-text-muted); text-decoration: none; font-weight: 500; white-space: nowrap;
   transition: background-color var(--rop-fast) var(--rop-ease), color var(--rop-fast) var(--rop-ease);
+  -webkit-tap-highlight-color: transparent;
 }
+.rop-nav a .rop-icon { inline-size: 1.25rem; block-size: 1.25rem; }
 .rop-nav a:hover { background: var(--rop-surface-2); color: var(--rop-text); }
 .rop-nav a[aria-current='page'] { background: var(--rop-selected); color: var(--rop-text); font-weight: 600; }
-.rop-topbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2); margin-inline-start: auto; }
-.rop-topbar__user { margin: 0; margin-inline-end: var(--rop-space-2); font-size: var(--rop-font-sm); line-height: 1.3; }
-.rop-topbar__user strong { display: block; font-size: var(--rop-font); }
+.rop-topbar { display: flex; align-items: center; gap: 2px; margin-inline-start: auto; }
+.rop-topbar__user { display: flex; align-items: center; gap: var(--rop-space-2); margin: 0; margin-inline-end: var(--rop-space-2); line-height: 1.25; }
+.rop-avatar {
+  display: inline-grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; flex: none; border-radius: 50%;
+  background: var(--rop-selected); color: var(--rop-text); font-size: var(--rop-font-sm); font-weight: 600;
+}
+.rop-topbar__who { display: grid; font-size: var(--rop-font-xs); }
+.rop-topbar__who strong { font-size: var(--rop-font-sm); font-weight: 600; }
 .rop-topbar__role { color: var(--rop-text-muted); }
+.rop-topbar__btn.rop-btn { background: transparent; border-color: transparent; color: var(--rop-text-muted); font-size: var(--rop-font-sm); padding-inline: var(--rop-space-2); }
+.rop-topbar__btn.rop-btn:hover { background: var(--rop-surface-2); color: var(--rop-text); }
 .rop-main { flex: 1; min-inline-size: 0; padding: var(--rop-space-4); }
 
+@media (max-width: 47.99rem) {
+  .rop-brand__name, .rop-topbar__who, .rop-topbar__label { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .rop-topbar__user { margin-inline-end: 0; }
+}
+
+/* Tablets: a role with several destinations keeps the top bar for the account and gets a bottom tab bar. */
+@media (max-width: 63.99rem) {
+  .rop-shell[data-nav='rail'] {
+    --rop-tabbar: 4.25rem;
+    --rop-chrome: calc(var(--rop-bar) + 1px + 2 * var(--rop-space-4) + var(--rop-tabbar));
+  }
+  .rop-shell[data-nav='rail'] .rop-nav {
+    position: fixed; inset-inline: 0; inset-block-end: 0; z-index: 5;
+    min-block-size: var(--rop-tabbar); padding: var(--rop-space-1) var(--rop-space-2) calc(var(--rop-space-1) + env(safe-area-inset-bottom, 0px));
+    background: var(--rop-raised); border-block-start: 1px solid var(--rop-border);
+  }
+  .rop-shell[data-nav='rail'] .rop-nav a {
+    flex: 1 0 4.75rem; flex-direction: column; justify-content: center; gap: 2px;
+    min-block-size: 3.5rem; padding-inline: var(--rop-space-1); font-size: var(--rop-font-xs);
+  }
+  .rop-shell[data-nav='rail'] .rop-main { padding-block-end: calc(var(--rop-tabbar) + var(--rop-space-4)); }
+}
+
+/* Wide screens: an icon rail. Each destination is an icon over its label; groups split by hairlines. */
 @media (min-width: 64rem) {
-  .rop-shell[data-nav='rail'] { flex-direction: row; --rop-chrome: 4rem; }
+  .rop-shell[data-nav='rail'] { flex-direction: row; --rop-chrome: calc(2 * var(--rop-space-4)); }
   .rop-shell[data-nav='rail'] .rop-side {
-    position: sticky; inset-block-start: 0; flex: none;
-    inline-size: var(--rop-rail); block-size: 100dvh; overflow-y: auto;
-    flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: var(--rop-space-3);
-    padding: var(--rop-space-3);
+    flex: none; inline-size: var(--rop-rail); block-size: 100dvh; overflow-y: auto;
+    flex-direction: column; align-items: stretch; gap: var(--rop-space-3);
+    padding: var(--rop-space-3) var(--rop-space-2);
     border-block-end: 0; border-inline-end: 1px solid var(--rop-border);
   }
-  .rop-shell[data-nav='rail'] .rop-brand { padding-inline: var(--rop-space-3); }
-  .rop-shell[data-nav='rail'] .rop-nav { flex-direction: column; align-items: stretch; gap: var(--rop-space-3); overflow: visible; flex: none; }
+  .rop-shell[data-nav='rail'] .rop-brand { justify-content: center; padding-block: var(--rop-space-1); }
+  .rop-shell[data-nav='rail'] .rop-brand__name { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .rop-shell[data-nav='rail'] .rop-nav { flex-direction: column; align-items: stretch; gap: var(--rop-space-2); overflow: visible; flex: none; }
   .rop-shell[data-nav='rail'] .rop-nav__group { display: grid; gap: 2px; }
-  .rop-shell[data-nav='rail'] .rop-nav__heading {
-    display: block; margin: 0; padding-inline: var(--rop-space-3); padding-block-end: var(--rop-space-1);
-    font-size: var(--rop-font-xs); font-weight: 500; color: var(--rop-text-muted);
+  .rop-shell[data-nav='rail'] .rop-nav__group + .rop-nav__group { padding-block-start: var(--rop-space-2); border-block-start: 1px solid var(--rop-border); }
+  .rop-shell[data-nav='rail'] .rop-nav a {
+    flex-direction: column; justify-content: center; gap: var(--rop-space-1);
+    min-block-size: 3.5rem; padding: var(--rop-space-1);
+    font-size: var(--rop-font-xs); line-height: 1.2; text-align: center; white-space: normal;
   }
+  .rop-shell[data-nav='rail'] .rop-nav a .rop-icon { inline-size: 1.375rem; block-size: 1.375rem; }
   .rop-shell[data-nav='rail'] .rop-topbar {
-    margin-inline-start: 0; margin-block-start: auto; gap: var(--rop-space-1);
-    padding-block-start: var(--rop-space-2); border-block-start: 1px solid var(--rop-border);
+    flex-direction: column; align-items: stretch; margin-inline-start: 0; margin-block-start: auto;
+    padding-block-start: var(--rop-space-3); border-block-start: 1px solid var(--rop-border);
   }
-  .rop-shell[data-nav='rail'] .rop-topbar__user { flex-basis: 100%; padding-inline: var(--rop-space-3); margin: 0; }
-  .rop-shell[data-nav='rail'] .rop-topbar .rop-btn { flex: 1 1 auto; background: transparent; border-color: transparent; font-size: var(--rop-font-sm); white-space: nowrap; }
-  .rop-shell[data-nav='rail'] .rop-topbar .rop-btn:hover { background: var(--rop-surface-2); }
-  .rop-shell[data-nav='rail'] .rop-main { padding: var(--rop-space-5); }
+  /* The account block stays compact so it never falls below the fold: the avatar, then icon-only actions
+     whose names stay available to screen readers. */
+  .rop-shell[data-nav='rail'] .rop-topbar { align-items: center; gap: 2px; padding-block-start: var(--rop-space-2); }
+  .rop-shell[data-nav='rail'] .rop-topbar__user { margin: 0 0 var(--rop-space-1); }
+  .rop-shell[data-nav='rail'] .rop-topbar__who,
+  .rop-shell[data-nav='rail'] .rop-topbar__label { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .rop-shell[data-nav='rail'] .rop-topbar__btn.rop-btn { inline-size: 100%; padding: 0; }
+  .rop-shell[data-nav='rail'] .rop-main { padding: var(--rop-space-4) var(--rop-space-5); }
+}
+/* Short landscape screens (a till at 768px tall): tighter rail rows so every destination fits. */
+@media (min-width: 64rem) and (max-height: 52rem) {
+  .rop-shell[data-nav='rail'] .rop-side { gap: var(--rop-space-2); padding-block: var(--rop-space-2); }
+  .rop-shell[data-nav='rail'] .rop-nav a { min-block-size: var(--rop-target); gap: 2px; }
+  .rop-shell[data-nav='rail'] .rop-nav a .rop-icon { inline-size: 1.25rem; block-size: 1.25rem; }
 }
 
 /* Sign in */
-.rop-login { max-inline-size: 24rem; margin: var(--rop-space-6) auto; padding: var(--rop-space-4); }
-.rop-login .rop-btn--primary { min-block-size: 3.5rem; }
+.rop-login { display: grid; gap: var(--rop-space-4); max-inline-size: 24rem; margin: clamp(var(--rop-space-4), 10vh, var(--rop-space-6) * 2) auto; }
+
+
+.rop-login__panel { display: grid; gap: var(--rop-space-4); padding: var(--rop-space-5); border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised); }
+.rop-login h1 { margin: 0; }
+.rop-login .rop-btn--primary { min-block-size: 3.5rem; inline-size: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }

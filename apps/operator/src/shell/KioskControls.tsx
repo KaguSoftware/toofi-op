@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, PinReasonModal } from '../components';
+import { Button, Icon, PinReasonModal } from '../components';
 import { getBridge } from '../lib/bridge';
 import { useLocale } from '../lib/i18n';
 
@@ -22,8 +22,14 @@ export function KioskControls() {
 
   return (
     <>
-      <Button onClick={() => setPending('exit')}>{tr('auth.kioskExit')}</Button>
-      <Button onClick={() => setPending('quit')}>{tr('auth.quit')}</Button>
+      <Button className="rop-topbar__btn" onClick={() => setPending('exit')}>
+        <Icon name="fullscreenExit" size={20} />
+        <span className="rop-topbar__label">{tr('auth.kioskExit')}</span>
+      </Button>
+      <Button className="rop-topbar__btn" onClick={() => setPending('quit')}>
+        <Icon name="power" size={20} />
+        <span className="rop-topbar__label">{tr('auth.quit')}</span>
+      </Button>
       <PinReasonModal
         open={pending !== null}
         action={pending === 'quit' ? 'quit_app' : 'kiosk_exit'}

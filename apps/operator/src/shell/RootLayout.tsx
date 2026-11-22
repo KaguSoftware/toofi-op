@@ -1,5 +1,5 @@
 import { Link, Outlet } from '@tanstack/react-router';
-import { Button, Loading } from '../components';
+import { Button, Icon, Loading, type IconName } from '../components';
 import { useAuth } from '../lib/auth';
 import { productName } from '../lib/brand';
 import { isDesktop } from '../lib/bridge';
@@ -7,6 +7,29 @@ import { useLocale } from '../lib/i18n';
 import { navGroupsFor, navLayoutFor } from '../lib/navLogic';
 import { IdleLock } from './IdleLock';
 import { KioskControls } from './KioskControls';
+
+/** One icon per destination; the label under it carries the name. */
+const NAV_ICONS: Record<string, IconName> = {
+  '/floor': 'floor',
+  '/till': 'till',
+  '/till/shift': 'shift',
+  '/manage': 'reports',
+  '/manage/day': 'day',
+  '/stock': 'stock',
+  '/manage/menu': 'menu',
+  '/manage/floor': 'floorPlan',
+  '/manage/staff': 'staff',
+};
+
+/** Up to two initials for the account mark. */
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+}
 
 export function RootLayout() {
   const { status, staff, signOut } = useAuth();
@@ -27,17 +50,30 @@ export function RootLayout() {
         {tr('nav.skipToContent')}
       </a>
       <div className="rop-side">
-        {productName && <p className="rop-brand">{productName}</p>}
+        {productName && (
+          <p className="rop-brand">
+            <span className="rop-brand__mark" aria-hidden="true">
+              {productName.slice(0, 1)}
+            </span>
+            <span className="rop-brand__name">{productName}</span>
+          </p>
+        )}
         {signedIn && (
           <nav className="rop-nav" aria-label={tr('nav.main')}>
             {navGroupsFor(staff.role).map((group) => (
-              <div key={group.id} className="rop-nav__group" role="group" aria-labelledby={`nav-group-${group.id}`}>
+              <div
+                key={group.id}
+                className="rop-nav__group"
+                role="group"
+                aria-labelledby={`nav-group-${group.id}`}
+              >
                 <p id={`nav-group-${group.id}`} className="rop-nav__heading">
                   {tr(group.labelKey)}
                 </p>
                 {group.items.map((item) => (
-                  <Link key={item.to} to={item.to} activeOptions={{ exact: true }}>
-                    {tr(item.labelKey)}
+                  <Link key={item.to} to={item.to} activeOptions={{ exact: item.to !== '/stock' }}>
+                    <Icon name={NAV_ICONS[item.to] ?? 'floor'} />
+                    <span className="rop-nav__label">{tr(item.labelKey)}</span>
                   </Link>
                 ))}
               </div>
@@ -47,14 +83,30 @@ export function RootLayout() {
         <header className="rop-topbar">
           {signedIn && (
             <p className="rop-topbar__user">
-              <strong>{staff.fullName}</strong> <span className="rop-topbar__role">{tr(`auth.role.${staff.role}`)}</span>
+              <span className="rop-avatar" aria-hidden="true" title={staff.fullName}>
+                {initials(staff.fullName)}
+              </span>
+              <span className="rop-topbar__who">
+                <strong>{staff.fullName}</strong>{' '}
+                <span className="rop-topbar__role">{tr(`auth.role.${staff.role}`)}</span>
+              </span>
             </p>
           )}
-          <Button onClick={toggle} aria-label={tr('auth.languageLabel')}>
-            {tr('auth.language')}
+          <Button
+            className="rop-topbar__btn"
+            onClick={toggle}
+            aria-label={tr('auth.languageLabel')}
+          >
+            <Icon name="language" size={20} />
+            <span className="rop-topbar__label">{tr('auth.language')}</span>
           </Button>
           {signedIn && isDesktop() && <KioskControls />}
-          {signedIn && <Button onClick={() => void signOut()}>{tr('auth.signOut')}</Button>}
+          {signedIn && (
+            <Button className="rop-topbar__btn" onClick={() => void signOut()}>
+              <Icon name="signOut" size={20} />
+              <span className="rop-topbar__label">{tr('auth.signOut')}</span>
+            </Button>
+          )}
         </header>
       </div>
       <main id="main" className="rop-main" tabIndex={-1}>

@@ -17,6 +17,7 @@ export interface FloorRow {
   grid_y: number;
   tab_id: string | null;
   covers: number | null;
+  waiter_id: string | null;
   waiter_name: string | null;
   opened_at: string | null;
   total: number | null;
@@ -61,4 +62,32 @@ export function splitMinutes(total: number): { hours: number; minutes: number } 
 export function clampCovers(n: number): number {
   if (!Number.isFinite(n)) return MIN_COVERS;
   return Math.min(MAX_COVERS, Math.max(MIN_COVERS, Math.trunc(n)));
+}
+
+/** A tab open this long is flagged on the floor so the table gets a look. */
+export const LONG_OPEN_MINUTES = 90;
+
+export const isLongOpen = (minutes: number): boolean => minutes >= LONG_OPEN_MINUTES;
+
+/** The signed-in waiter's own table. */
+export const isMine = (r: Pick<FloorRow, 'waiter_id'>, staffId: string | null | undefined): boolean =>
+  !!staffId && r.waiter_id === staffId;
+
+export interface FloorSummary {
+  free: number;
+  seated: number;
+  long: number;
+}
+
+/** Counts for the floor header: free tables, seated tables, and seated tables open too long. */
+export function summarize(rows: readonly FloorRow[], now: Date): FloorSummary {
+  const out: FloorSummary = { free: 0, seated: 0, long: 0 };
+  for (const r of rows) {
+    if (tableIsFree(r)) out.free += 1;
+    else {
+      out.seated += 1;
+      if (r.opened_at && isLongOpen(minutesOpen(r.opened_at, now))) out.long += 1;
+    }
+  }
+  return out;
 }

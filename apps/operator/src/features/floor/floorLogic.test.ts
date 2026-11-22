@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { clampCovers, groupByArea, gridPlacement, minutesOpen, splitMinutes, tableIsFree, type FloorRow } from './floorLogic';
+import {
+  clampCovers,
+  groupByArea,
+  gridPlacement,
+  isLongOpen,
+  isMine,
+  minutesOpen,
+  splitMinutes,
+  summarize,
+  tableIsFree,
+  type FloorRow,
+} from './floorLogic';
 
 const row = (over: Partial<FloorRow>): FloorRow => ({
   table_id: 't',
@@ -10,6 +21,7 @@ const row = (over: Partial<FloorRow>): FloorRow => ({
   grid_y: 0,
   tab_id: null,
   covers: null,
+  waiter_id: null,
   waiter_name: null,
   opened_at: null,
   total: null,
@@ -63,5 +75,38 @@ describe('misc', () => {
     expect(clampCovers(150)).toBe(99);
     expect(clampCovers(Number.NaN)).toBe(1);
     expect(clampCovers(6.7)).toBe(6);
+  });
+});
+
+describe('isLongOpen', () => {
+  it('flags a tab from 90 minutes on', () => {
+    expect(isLongOpen(89)).toBe(false);
+    expect(isLongOpen(90)).toBe(true);
+  });
+});
+
+describe('isMine', () => {
+  it('matches the waiter on the tab, and never without a signed-in staff id', () => {
+    expect(isMine({ waiter_id: 's1' }, 's1')).toBe(true);
+    expect(isMine({ waiter_id: 's2' }, 's1')).toBe(false);
+    expect(isMine({ waiter_id: null }, null)).toBe(false);
+    expect(isMine({ waiter_id: 's1' }, undefined)).toBe(false);
+  });
+});
+
+describe('summarize', () => {
+  it('counts free, seated, and seated tables open 90 minutes or more', () => {
+    const now = new Date('2026-11-21T20:00:00Z');
+    const rows = [
+      row({ table_id: 'a' }),
+      row({ table_id: 'b' }),
+      row({ table_id: 'c', tab_id: 'x', opened_at: '2026-11-21T19:30:00Z' }),
+      row({ table_id: 'd', tab_id: 'y', opened_at: '2026-11-21T18:30:00Z' }),
+      row({ table_id: 'e', tab_id: 'z', opened_at: null }),
+    ];
+    expect(summarize(rows, now)).toEqual({ free: 2, seated: 3, long: 1 });
+  });
+  it('is all zeros with no tables', () => {
+    expect(summarize([], new Date())).toEqual({ free: 0, seated: 0, long: 0 });
   });
 });

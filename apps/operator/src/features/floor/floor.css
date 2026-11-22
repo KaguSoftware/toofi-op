@@ -1,39 +1,48 @@
-/* Floor screen. Fill carries the first signal: a free table is raised paper with a green
-   "Free" mark; an occupied table is a deeper warm fill led by the amount due. The label
-   and text say the rest, so colour is never alone. */
-.floor__areas { margin-block-end: var(--rop-space-4); }
+/* Floor. Three states a waiter reads at a glance: free (raised paper, green "Free"), seated
+   (a deeper warm fill led by the amount due) and open a long time (an amber time badge).
+   Text always says the state too, so colour is never alone. */
+.floor__count { color: var(--rop-text-muted); }
+.floor__count[data-tone='free'] .rop-dot { color: var(--rop-success); }
+.floor__count[data-tone='seated'] .rop-dot { color: var(--rop-border-strong); }
+.floor__count[data-tone='long'] { color: var(--rop-warning-ink); font-weight: 500; }
+
 .floor__notice {
+  display: flex; align-items: flex-start; gap: var(--rop-space-3);
   padding: var(--rop-space-3) var(--rop-space-4); margin-block-end: var(--rop-space-4);
-  border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius); background: var(--rop-danger-tint);
+  border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius-lg); background: var(--rop-danger-tint);
 }
-.floor__notice h2 { margin: 0; color: var(--rop-danger); }
+.floor__notice > .rop-icon { color: var(--rop-danger); margin-block-start: 2px; }
+.floor__notice h2 { margin: 0; font-size: var(--rop-font); color: var(--rop-danger); }
 .floor__notice p { margin: 0; }
-.floor__grid { display: grid; grid-auto-columns: minmax(8rem, 1fr); grid-auto-rows: minmax(8.5rem, auto); gap: var(--rop-space-3); }
+
+.floor__grid { display: grid; grid-auto-columns: minmax(9rem, 1fr); grid-auto-rows: minmax(9rem, auto); gap: var(--rop-space-3); }
 .floor__table {
-  position: relative;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-  min-block-size: 8.5rem; padding: var(--rop-space-3);
+  display: flex; flex-direction: column; align-items: stretch; gap: var(--rop-space-1);
+  min-block-size: 9rem; padding: var(--rop-space-3);
   border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg);
   background: var(--rop-raised); color: var(--rop-text); font: inherit; text-align: start; cursor: pointer;
-  transition: background-color var(--rop-fast) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease);
+  transition: background-color var(--rop-fast) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease), transform var(--rop-fast) var(--rop-ease);
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .floor__table:hover { border-color: var(--rop-border-hover); }
-.floor__table:active { background: var(--rop-surface); }
-.floor__label { font-size: var(--rop-font-xl); font-weight: 600; line-height: 1.15; margin-block-end: var(--rop-space-1); }
-.floor__meta { font-size: var(--rop-font-sm); color: var(--rop-text-muted); line-height: 1.4; }
-.floor__state {
-  display: inline-flex; align-items: center; gap: var(--rop-space-2); margin-block-start: auto;
-  color: var(--rop-success); font-weight: 500;
-}
-.floor__state::before { content: ''; inline-size: 0.625rem; block-size: 0.625rem; border-radius: 50%; background: currentColor; }
+.floor__table:active { transform: scale(0.985); }
+.floor__top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--rop-space-2); }
+.floor__label { font-size: var(--rop-font-xl); font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; }
+.floor__meta { display: flex; flex-wrap: wrap; gap: 0 var(--rop-space-2); font-size: var(--rop-font-sm); color: var(--rop-text-muted); line-height: 1.4; }
+.floor__state { display: inline-flex; align-items: center; gap: var(--rop-space-2); margin-block-start: auto; color: var(--rop-success); font-weight: 500; }
 
 .floor__table[data-state='occupied'] { background: var(--rop-occupied); border-color: var(--rop-occupied); }
 .floor__table[data-state='occupied']:hover { background: var(--rop-occupied-hover); border-color: var(--rop-occupied-hover); }
-/* Seats matter when choosing a free table; once seated, guests replace them. */
-.floor__table[data-state='occupied'] .floor__meta--seats { display: none; }
-.floor__meta--time {
-  position: absolute; inset-block-start: var(--rop-space-3); inset-inline-end: var(--rop-space-3);
-  font-weight: 500; font-size: var(--rop-font-sm);
-}
-.floor__due { margin-block-start: auto; padding-block-start: var(--rop-space-2); font-size: var(--rop-font-lg); font-weight: 600; line-height: 1.2; }
+.floor__table[data-state='occupied'] .floor__time { background: var(--rop-raised); }
+.floor__table[data-state='occupied'] .floor__time[data-tone='warning'] { background: var(--rop-warning-tint); }
+.floor__table[data-mine='true'] { border-color: var(--rop-ink); box-shadow: inset 0 0 0 1px var(--rop-ink); }
+.floor__meta > * + *::before { content: '·'; margin-inline-end: var(--rop-space-2); color: var(--rop-text-muted); font-weight: 400; }
+.floor__mine { display: inline-flex; align-items: center; gap: 2px; color: var(--rop-text); font-weight: 600; }
+.floor__due { display: grid; margin-block-start: auto; padding-block-start: var(--rop-space-2); line-height: 1.2; }
+.floor__due-label { font-size: var(--rop-font-xs); color: var(--rop-text-muted); }
+.floor__due .rop-money { font-size: var(--rop-font-lg); font-weight: 600; }
+
+/* Open a tab: guest counts are one tap; the field takes anything larger. */
+.floor__covers { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--rop-space-2); }
+.floor__covers .rop-btn { min-block-size: 3.5rem; font-size: var(--rop-font-lg); }
+.floor__covers .rop-btn[aria-pressed='true'] { background: var(--rop-ink); border-color: var(--rop-ink); color: var(--rop-ink-text); }

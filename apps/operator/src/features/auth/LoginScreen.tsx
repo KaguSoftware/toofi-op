@@ -23,22 +23,39 @@ export function LoginScreen() {
 
   return (
     <section className="rop-login">
-      <h1>{tr('auth.signInTitle')}</h1>
-      <form onSubmit={submit} className="rop-form">
-        <Field label={tr('auth.email')}>
-          {(p) => (
-            <input {...p} type="email" autoComplete="username" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
-          )}
-        </Field>
-        <Field label={tr('auth.password')} error={shown}>
-          {(p) => (
-            <input {...p} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-          )}
-        </Field>
-        <Button type="submit" variant="primary" busy={busy}>
-          {busy ? tr('auth.signingIn') : tr('auth.signIn')}
-        </Button>
-      </form>
+      <div className="rop-login__panel">
+        <h1>{tr('auth.signInTitle')}</h1>
+        <form onSubmit={submit} className="rop-form">
+          <Field label={tr('auth.email')}>
+            {(p) => (
+              <input
+                {...p}
+                type="email"
+                autoComplete="username"
+                required
+                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            )}
+          </Field>
+          <Field label={tr('auth.password')} error={shown}>
+            {(p) => (
+              <input
+                {...p}
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            )}
+          </Field>
+          <Button type="submit" variant="primary" busy={busy}>
+            {busy ? tr('auth.signingIn') : tr('auth.signIn')}
+          </Button>
+        </form>
+      </div>
     </section>
   );
 }
