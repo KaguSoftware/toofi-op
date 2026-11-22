@@ -2,7 +2,7 @@ import { Fragment, useState, type FormEvent } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { StaffRole } from '@rop/core';
 import { formatDateTime } from '@rop/i18n';
-import { AmountPad, Button, ConfirmDialog, ErrorState, Field, Loading, Modal, Money, useToast } from '../../components';
+import { AmountPad, Button, ConfirmDialog, ErrorState, Field, Loading, Modal, Money, PageHeader, useToast } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { useAuth } from '../../lib/auth';
 import { errorMessage } from '../../lib/errors';
@@ -36,33 +36,47 @@ export function ShiftScreen() {
 
   return (
     <section className="rop-shift">
-      <h1>{tr('till.shiftTitle')}</h1>
+      <PageHeader
+        title={tr('till.shiftTitle')}
+        meta={
+          mine && (
+            <span className="rop-badge" data-tone="success">
+              <span className="rop-dot" />
+              {tr('till.shift.since', { time: formatDateTime(new Date(mine.openedAt), locale) })}
+            </span>
+          )
+        }
+      />
       {closed && <ShiftResult result={closed} />}
-      {mine ? (
-        <>
-          <MyShift shift={mine} onClosed={onClosed} />
-          <DrawerOpen />
-          <CashMovePanel shiftId={mine.shiftId} role={staff?.role ?? null} />
-        </>
-      ) : (
-        <OpenShift onOpened={refresh} />
-      )}
-      {others.length > 0 && (
-        <section aria-labelledby="shift-others-title">
-          <h2 id="shift-others-title">{tr('till.shift.othersTitle')}</h2>
-          <ul>
-            {others.map((s) => (
-              <li key={s.shiftId}>
-                <p>
-                  {tr('till.shift.byStaff')}: <strong>{s.staffName}</strong> ·{' '}
-                  {tr('till.shift.since', { time: formatDateTime(new Date(s.openedAt), locale) })}
-                </p>
-                <CloseOther shift={s} role={staff?.role ?? null} onClosed={onClosed} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <div className="rop-shift__layout">
+        <div className="rop-shift__main">{mine ? <MyShift shift={mine} onClosed={onClosed} /> : <OpenShift onOpened={refresh} />}</div>
+        {(mine || others.length > 0) && (
+          <div className="rop-shift__side">
+            {mine && (
+              <>
+                <CashMovePanel shiftId={mine.shiftId} role={staff?.role ?? null} />
+                <DrawerOpen />
+              </>
+            )}
+            {others.length > 0 && (
+              <section className="rop-shift__others" aria-labelledby="shift-others-title">
+                <h2 id="shift-others-title">{tr('till.shift.othersTitle')}</h2>
+                <ul>
+                  {others.map((s) => (
+                    <li key={s.shiftId}>
+                      <p>
+                        <strong>{s.staffName}</strong>
+                        <span>{tr('till.shift.since', { time: formatDateTime(new Date(s.openedAt), locale) })}</span>
+                      </p>
+                      <CloseOther shift={s} role={staff?.role ?? null} onClosed={onClosed} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
@@ -133,7 +147,7 @@ function OpenShift({ onOpened }: { onOpened: () => void }) {
   return (
     <section aria-labelledby="shift-open-title">
       <h2 id="shift-open-title">{tr('till.shift.openTitle')}</h2>
-      <p>{tr('till.shift.noOpen')}</p>
+      <p className="rop-field__hint">{tr('till.shift.noOpen')}</p>
       <AmountPad label={tr('till.shift.floatLabel')} value={float} onChange={setFloat} />
       {error && (
         <p role="alert" className="rop-field__error">
@@ -173,11 +187,19 @@ function MyShift({ shift, onClosed }: { shift: OpenShift; onClosed: (r: ShiftClo
   return (
     <section aria-labelledby="shift-close-title">
       <h2 id="shift-close-title">{tr('till.shift.closeTitle')}</h2>
-      <p>
-        {tr('till.shift.mine')} · {tr('till.shift.since', { time: formatDateTime(new Date(shift.openedAt), locale) })} ·{' '}
-        {tr('till.shift.openingFloat')}: <Money amount={shift.openingFloat} />
-      </p>
-      <p>{tr('till.shift.closeHint')}</p>
+      <dl className="rop-shift__facts">
+        <div>
+          <dt>{tr('till.shift.mine')}</dt>
+          <dd>{formatDateTime(new Date(shift.openedAt), locale)}</dd>
+        </div>
+        <div>
+          <dt>{tr('till.shift.openingFloat')}</dt>
+          <dd>
+            <Money amount={shift.openingFloat} />
+          </dd>
+        </div>
+      </dl>
+      <p className="rop-field__hint">{tr('till.shift.closeHint')}</p>
       <AmountPad label={tr('till.shift.counted')} value={counted} onChange={setCounted} />
       {error && (
         <p role="alert" className="rop-field__error">

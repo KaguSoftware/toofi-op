@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { formatTime } from '@rop/i18n';
-import { Button, EmptyState, ErrorState, Loading, Money } from '../../components';
+import { Button, EmptyState, ErrorState, Icon, Loading, Money, PageHeader } from '../../components';
 import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
 import { stationId } from '../../lib/idem';
@@ -53,12 +53,23 @@ export function TillScreen() {
 
   return (
     <section className="rop-till">
-      <h1>{tr('till.title')}</h1>
-      {shift.data && !shift.data.open && (
-        <p role="status" className="rop-till-banner">
-          {tr('till.noShiftBanner')} <Link to="/till/shift">{tr('till.openShiftLink')}</Link>
-        </p>
-      )}
+      <PageHeader
+        title={tr('till.title')}
+        meta={
+          shift.data &&
+          (shift.data.open ? (
+            <span className="rop-badge" data-tone="success">
+              <span className="rop-dot" />
+              {tr('till.shiftOn')}
+            </span>
+          ) : (
+            <p role="status" className="rop-till-banner">
+              <Icon name="alert" size={18} />
+              <span>{tr('till.noShiftBanner')}</span> <Link to="/till/shift">{tr('till.openShiftLink')}</Link>
+            </p>
+          ))
+        }
+      />
       <div className="rop-till-layout">
         <div className="rop-till-list">
           <div className="rop-segmented" role="group" aria-label={tr('till.title')}>
@@ -72,6 +83,8 @@ export function TillScreen() {
           <label className="rop-sr-only" htmlFor="till-search">
             {tr('till.search')}
           </label>
+          <div className="rop-till-search">
+          <Icon name="search" size={20} />
           <input
             id="till-search"
             type="search"
@@ -79,6 +92,7 @@ export function TillScreen() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          </div>
           {list.isPending && <Loading />}
           {list.isError && <ErrorState error={list.error} onRetry={() => void list.refetch()} />}
           {list.data && rows.length === 0 && <EmptyState message={tr(view === 'open' ? 'till.noOpenTabs' : 'till.noSettled')} />}

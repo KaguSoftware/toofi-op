@@ -38,3 +38,15 @@
 .manage__alert { display: inline-block; background: var(--rop-danger-tint); color: var(--rop-danger); border: 1px solid var(--rop-danger-border); padding: 0 var(--rop-space-2); border-radius: var(--rop-radius-sm); font-size: var(--rop-font-sm); font-weight: 600; }
 .manage__row-alert td { background: var(--rop-danger-tint); }
 .manage__note { margin: 0; color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
+
+/* Business day: one status band says whether service can run; the close is a header action. */
+.manage-day__status {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2) var(--rop-space-3);
+  margin-block-end: var(--rop-space-5); padding: var(--rop-space-4);
+  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised);
+}
+.manage-day__status p { margin: 0; font-size: var(--rop-font-lg); }
+.manage-day__status:not([data-open]) .rop-badge { color: var(--rop-text-muted); }
+.manage-day > section { margin-block-end: var(--rop-space-5); }
+.manage-day > section > h2 { font-size: var(--rop-font-lg); }
+.manage-day__summary .manage__summary { padding: var(--rop-space-4); border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised); margin-block-end: var(--rop-space-3); }

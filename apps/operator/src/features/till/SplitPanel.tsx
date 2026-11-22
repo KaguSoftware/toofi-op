@@ -25,7 +25,7 @@ export function SplitPanel({ tabId, due, lines, state, onState, onUse }: SplitPa
   const { tr } = useLocale();
   const [mode, setMode] = useState<'even' | 'items'>('even');
   return (
-    <section className="rop-till-split" aria-labelledby="till-split-title">
+    <section id="till-split" className="rop-till-split" aria-labelledby="till-split-title">
       <h2 id="till-split-title">{tr('till.split.title')}</h2>
       <div className="rop-segmented" role="group" aria-label={tr('till.split.title')}>
         <Button aria-pressed={mode === 'even'} onClick={() => setMode('even')}>

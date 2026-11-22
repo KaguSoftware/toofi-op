@@ -17,6 +17,7 @@ test('split by item: paid lines stay paid, also after a reload', async ({ page }
 
   await page.goto('/till');
   await page.locator('.rop-till-tabs button', { hasText: 'T6' }).click();
+  await page.getByRole('button', { name: 'Split the bill' }).click();
   await page.getByRole('button', { name: 'By item' }).click();
   await page.getByLabel(/Lamb Kebab/).check();
   await page.getByLabel(/Cola/).check();

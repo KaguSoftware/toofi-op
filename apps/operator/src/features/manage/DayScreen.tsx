@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { formatDateTime, formatIQD, formatNumber } from '@rop/i18n';
-import { Button, ConfirmDialog, DataTable, ErrorState, Loading, Money, type Column } from '../../components';
+import { Button, ConfirmDialog, DataTable, ErrorState, Loading, Money, PageHeader, type Column } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { errorMessage } from '../../lib/errors';
 import { useLocale } from '../../lib/i18n';
@@ -120,14 +120,33 @@ export function DayScreen() {
   const shown = justClosed ?? (current && current.closed_at && current.summary ? { business_date: current.business_date, summary: current.summary } : null);
 
   return (
-    <section className="manage">
-      <h1>{tr('manage.dayTitle')}</h1>
+    <section className="manage manage-day">
+      <PageHeader
+        title={tr('manage.dayTitle')}
+        actions={
+          isOpen ? (
+            <Button variant="danger" busy={busy} onClick={() => setConfirming(true)}>
+              {tr('manage.day.close')}
+            </Button>
+          ) : (
+            <Button variant="primary" busy={busy} onClick={() => void open()}>
+              {tr('manage.day.open')}
+            </Button>
+          )
+        }
+      />
 
-      <p role="status">
-        {isOpen && current
-          ? tr('manage.day.openSince', { date: current.business_date, time: formatDateTime(new Date(current.opened_at), locale) })
-          : tr('manage.day.closedState')}
-      </p>
+      <div className="manage-day__status" data-open={isOpen || undefined}>
+        <span className="rop-badge" data-tone={isOpen ? 'success' : undefined}>
+          <span className="rop-dot" />
+          {isOpen ? tr('manage.day.statusOpen') : tr('manage.day.statusClosed')}
+        </span>
+        <p role="status">
+          {isOpen && current
+            ? tr('manage.day.openSince', { date: current.business_date, time: formatDateTime(new Date(current.opened_at), locale) })
+            : tr('manage.day.closedState')}
+        </p>
+      </div>
 
       {openTabs && (
         <div role="alert" className="manage__notice">
@@ -142,17 +161,6 @@ export function DayScreen() {
         </p>
       )}
 
-      <div className="manage__row">
-        {isOpen ? (
-          <Button variant="danger" busy={busy} onClick={() => setConfirming(true)}>
-            {tr('manage.day.close')}
-          </Button>
-        ) : (
-          <Button variant="primary" busy={busy} onClick={() => void open()}>
-            {tr('manage.day.open')}
-          </Button>
-        )}
-      </div>
 
       <ConfirmDialog
         open={confirming}
@@ -168,7 +176,7 @@ export function DayScreen() {
       <ShiftsSection date={current?.business_date ?? presetRange('today', new Date()).from} />
 
       {shown && (
-        <section aria-labelledby="day-summary">
+        <section className="manage-day__summary" aria-labelledby="day-summary">
           <h2 id="day-summary">{tr('manage.day.summary', { date: shown.business_date })}</h2>
           <dl className="manage__summary">
             {(['gross', 'discounts', 'refunds', 'net', 'cash', 'card'] as const).map((k) => (

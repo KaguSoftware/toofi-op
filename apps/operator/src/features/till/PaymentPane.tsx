@@ -113,6 +113,10 @@ export function PaymentPane({ tabId, due, suggested, shiftOpen, onPaid, onRechec
   return (
     <section className="rop-till-pay" aria-labelledby="till-pay-title">
       <h2 id="till-pay-title">{tr('till.pay.title')}</h2>
+      <p className="rop-till-pay__due">
+        <span>{tr('till.bill.due')}</span>
+        <Money amount={due} />
+      </p>
       <fieldset className="rop-till-method">
         <legend>{tr('till.pay.method')}</legend>
         {(['cash', 'card'] as const).map((m) => (

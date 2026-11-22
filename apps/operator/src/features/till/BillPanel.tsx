@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { StaffRole } from '@rop/core';
 import { formatDateTime, formatIQD } from '@rop/i18n';
-import { Button, DataTable, ErrorState, Loading, Money, useToast, type Column } from '../../components';
+import { Button, DataTable, ErrorState, Icon, Loading, Money, useToast, type Column } from '../../components';
 import { useLocale } from '../../lib/i18n';
 import { printReceipt } from '../../lib/print';
 import { QK } from '../../lib/queryKeys';
@@ -30,6 +30,8 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
   const [last, setLast] = useState<SettleResult | null>(null);
   const [split, setSplit] = useState<SplitState>(() => loadSplit(localStorage, tabId));
   const [target, setTarget] = useState<SplitTarget | null>(null);
+  // Splitting is the exception: it stays folded away unless a split is already under way.
+  const [splitOpen, setSplitOpen] = useState(() => split.paid > 0 || split.paidLines.length > 0);
 
   // Every change is remembered per tab: a reload must not make a paid line payable again.
   const updateSplit = (f: (s: SplitState) => SplitState) =>
@@ -102,6 +104,7 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
 
       <div className="rop-till-bill__cols">
         <div className="rop-till-bill__main">
+          <div className="rop-till-check">
           <DataTable columns={columns} rows={bill.lines} rowKey={(l) => l.id} caption={tr('till.bill.title')} />
 
           <dl className="rop-till-totals">
@@ -128,11 +131,20 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
             <dt>{tr('till.bill.due')}</dt>
             <dd><strong><Money amount={totals.due} /></strong></dd>
           </dl>
+          </div>
 
           {isOpen ? (
             <>
-              <DiscountControl tabId={tabId} role={role} onApplied={refresh} />
-              {totals.due > 0 && (
+              <div className="rop-till-actions">
+                <DiscountControl tabId={tabId} role={role} onApplied={refresh} />
+                {totals.due > 0 && (
+                  <Button aria-expanded={splitOpen} aria-controls="till-split" onClick={() => setSplitOpen((o) => !o)}>
+                    {tr('till.split.title')}
+                    <Icon name={splitOpen ? 'arrowUp' : 'arrowDown'} size={18} />
+                  </Button>
+                )}
+              </div>
+              {totals.due > 0 && splitOpen && (
                 <SplitPanel
                   tabId={tabId}
                   due={totals.due}
@@ -145,11 +157,17 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
             </>
           ) : (
             <>
-              <h2>{tr('till.settled.title')}</h2>
-              {settledAt && <p>{settledAt}</p>}
-              <Button variant="primary" onClick={() => void print(bill)}>
-                {tr('till.settled.print')}
-              </Button>
+              <div className="rop-till-settled">
+                <Icon name="check" />
+                <div>
+                  <h2>{tr('till.settled.title')}</h2>
+                  {settledAt && <p>{settledAt}</p>}
+                </div>
+                <Button variant="primary" onClick={() => void print(bill)}>
+                  <Icon name="print" size={20} />
+                  {tr('till.settled.print')}
+                </Button>
+              </div>
               <RefundPanel payments={bill.payments} role={role} onRefunded={refresh} />
             </>
           )}

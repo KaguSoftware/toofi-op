@@ -35,6 +35,7 @@ test('cashier: shift, discount with PIN, even split cash+card, receipt, refund, 
   await expect.poll(() => dueOf(page)).toBe(21600);
 
   // Split evenly 2 ways: share 1 in cash with change.
+  await page.getByRole('button', { name: 'Split the bill' }).click();
   await page.getByRole('button', { name: /Pay this share/ }).click();
   const pay = page.locator('.rop-till-pay');
   await expect(pay.locator('input[type=text]')).toHaveValue('10800');
