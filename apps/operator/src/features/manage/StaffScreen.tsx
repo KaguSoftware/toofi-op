@@ -117,7 +117,7 @@ export function StaffScreen() {
   return (
     <section className="manage manage--setup">
       <PageHeader
-        title={tr('manage.staffTitle')}
+        title={tr('manage.staffTitle')} icon="staff" tone="accent"
         actions={
           <Button variant="primary" onClick={() => setCreating(true)}>
             {tr('manage.staff.add')}

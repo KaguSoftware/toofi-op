@@ -137,7 +137,7 @@ export function FloorScreen() {
   return (
     <section className="floor">
       <PageHeader
-        title={tr('floor.title')}
+        title={tr('floor.title')} icon="floor"
         meta={
           <>
             <span className="floor__count" data-tone="free">
@@ -189,7 +189,7 @@ export function FloorScreen() {
       )}
 
       {current && current.tables.length === 0 && <EmptyState message={tr('floor.noTables')} />}
-      <div className="floor__grid" role="tabpanel">
+      <div className="floor__grid rop-cascade" role="tabpanel" key={current?.area.id}>
         {current?.tables.map((row) => {
           const free = tableIsFree(row);
           const mins = row.opened_at ? minutesOpen(row.opened_at, now) : 0;
@@ -216,6 +216,7 @@ export function FloorScreen() {
               className="floor__table"
               data-state={free ? 'free' : 'occupied'}
               data-mine={mine || undefined}
+              data-long={long || undefined}
               style={gridPlacement(row)}
               aria-label={
                 free ? tr('floor.tableFree', { label: row.label, seats: row.seats }) : busyLabel

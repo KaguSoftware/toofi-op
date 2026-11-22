@@ -43,13 +43,15 @@
 .manage-day__status {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2) var(--rop-space-3);
   margin-block-end: var(--rop-space-5); padding: var(--rop-space-4);
-  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised);
+  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
 }
 .manage-day__status p { margin: 0; font-size: var(--rop-font-lg); }
+.manage-day__status[data-open] { background: var(--rop-grad-success); color: var(--rop-on-success-tint); }
+.manage-day__status[data-open] .rop-badge { background: var(--rop-success); color: var(--rop-success-text); }
 .manage-day__status:not([data-open]) .rop-badge { color: var(--rop-text-muted); }
 .manage-day > section { margin-block-end: var(--rop-space-5); }
 .manage-day > section > h2 { font-size: var(--rop-font-lg); }
-.manage-day__summary .manage__summary { padding: var(--rop-space-4); border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised); margin-block-end: var(--rop-space-3); }
+.manage-day__summary .manage__summary { padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); margin-block-end: var(--rop-space-3); }
 
 /* Setup and stock: one page pattern. A page header (title, main action, sub-navigation), then
    tables and forms on raised panels, each headed by its section title. Forms keep a readable
@@ -59,11 +61,11 @@
 .manage--setup .manage__section-head h2, .manage--setup section > h2 { margin-block-end: var(--rop-space-3); font-size: var(--rop-font-lg); }
 .manage--setup .rop-table-wrap {
   margin-block-end: var(--rop-space-5); padding: var(--rop-space-1) var(--rop-space-4);
-  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised);
+  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
 }
 .manage--setup .manage__form:not(dialog .manage__form) {
   max-inline-size: 46rem; margin-block-end: var(--rop-space-5); padding: var(--rop-space-4);
-  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-raised);
+  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
 }
 .manage--setup .manage__form:not(dialog .manage__form) fieldset {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--rop-space-3); align-items: start;
@@ -77,16 +79,18 @@
 
 /* Floor plan: each area drawn as the floor shows it, tables on a deeper paper; tap a table to edit it. */
 .manage__canvases { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: var(--rop-space-4); margin-block-end: var(--rop-space-5); }
-.manage__canvas { padding: var(--rop-space-4); border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); background: var(--rop-surface); }
+.manage__canvas { padding: var(--rop-space-4); border-radius: var(--rop-radius-xl); background: var(--rop-zakhrafa-on-light) 0 0 / 56px, linear-gradient(155deg, var(--rop-brand-tint), var(--rop-surface)); box-shadow: inset 0 1px 3px var(--rop-border); }
 .manage--setup .manage__canvas > h2 { margin: 0 0 var(--rop-space-3); font-size: var(--rop-font); }
 .manage__grid { gap: var(--rop-space-2); }
 .manage__grid-cell {
   display: grid; place-items: center; gap: 2px; min-block-size: 4.5rem; padding: var(--rop-space-2);
   border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-raised);
-  color: var(--rop-text); font: inherit; cursor: pointer;
-  transition: border-color var(--rop-fast) var(--rop-ease);
+  color: var(--rop-text); font: inherit; cursor: pointer; box-shadow: var(--rop-shadow-sm);
+  transition: transform var(--rop-base) var(--rop-ease), box-shadow var(--rop-base) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease);
 }
-.manage__grid-cell:hover { border-color: var(--rop-border-hover); }
+@media (hover: hover) { .manage__grid-cell:hover { transform: translateY(-2px); box-shadow: var(--rop-shadow-md); border-color: var(--rop-brand-tint-2); } }
+.manage__grid-cell:active { transform: scale(0.96); }
+.manage__grid-cell strong { color: var(--rop-brand-ink); }
 .manage__grid-cell strong { font-size: var(--rop-font-lg); line-height: 1.1; }
 .manage__grid-cell span { display: inline-flex; align-items: center; gap: 2px; color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
 .manage__grid-cell[data-inactive='true'] { opacity: 0.55; border-style: dashed; }

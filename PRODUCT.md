@@ -34,7 +34,7 @@ It behaves like a good head waiter: quick, never flustered, says what happened i
 ## Design Principles
 
 1. **The next tap is obvious.** Each screen has one primary action, and it is where the hand already is.
-2. **Colour means state.** If something is coloured, something is true about it. Decoration is not a reason. Primary actions are ink, not a brand colour.
+2. **Colour has a job.** Deep Forest is the brand and marks structure and selection; Terra Cotta marks the action to take; copper draws the ornament; green, amber and crimson mean free, needs attention and danger. Status colour is never decoration and never the only signal.
 3. **Numbers are the content.** Money and quantities are the largest, clearest things on a screen, aligned and stable.
 4. **Nothing is hidden, nothing is lost.** Voids stay visible, locked states look locked, and the app says so when it is unsure whether an order went through.
 5. **Arabic is first-class.** Layout, type and rhythm are designed in both directions at once.
@@ -49,4 +49,4 @@ It behaves like a good head waiter: quick, never flustered, says what happened i
 
 ## How these were decided
 
-The owner delegated the direction on 2026-11-21 ("do whatever you think is best"). The personality, anti-references, the "ink and paper" colour strategy and the light-first theme are therefore the designer's recommendation, recorded in `docs/DESIGN-RESEARCH.md`, and can be overridden.
+The owner delegated the direction on 2026-11-21 ("do whatever you think is best"). The personality, anti-references and the light-first theme are the designer's recommendation, recorded in `docs/DESIGN-RESEARCH.md`. On 2026-11-22 the owner found the restrained "ink and paper" result lifeless and chose the palette (Deep Forest #1E3A2F, Terra Cotta #B84C2E, Charcoal Ink #1C1C1E, Warm Cream #F2E9D8) and asked for Arabic geometric ornament (zakhrafa), depth and motion. That choice overrides the earlier "colour only for state" strategy.

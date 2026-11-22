@@ -177,6 +177,9 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
           <div className="rop-till-bill__side">
             {last && (
               <div role="status" className="rop-till-paid">
+                <span className="rop-till-paid__check" aria-hidden="true">
+                  <Icon name="check" size={28} />
+                </span>
                 <p>{tr('till.pay.taken', { amount: formatIQD(last.amount, locale) })}</p>
                 {last.method === 'cash' && (
                   <p className="rop-till-paid__change">

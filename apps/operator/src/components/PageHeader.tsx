@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Icon, type IconName } from './Icon';
 
 export interface PageHeaderProps {
   title: ReactNode;
@@ -11,14 +12,23 @@ export interface PageHeaderProps {
   /** A sub-navigation row under the title row. */
   children?: ReactNode;
   className?: string;
+  /** A coloured tile before the title that names the screen at a glance. */
+  icon?: IconName;
+  /** Service screens are forest; business and setup screens are terra cotta. */
+  tone?: 'brand' | 'accent';
 }
 
 /** The top of every screen: title, status and the screen's own controls in one band. */
-export function PageHeader({ title, meta, actions, lead, children, className }: PageHeaderProps) {
+export function PageHeader({ title, meta, actions, lead, children, className, icon, tone = 'brand' }: PageHeaderProps) {
   return (
     <header className={className ? `rop-page-head ${className}` : 'rop-page-head'}>
       <div className="rop-page-head__row">
         {lead}
+        {icon && (
+          <span className="rop-page-head__icon" data-tone={tone} aria-hidden="true">
+            <Icon name={icon} />
+          </span>
+        )}
         <div className="rop-page-head__title">
           <h1>{title}</h1>
           {meta && <div className="rop-page-head__meta">{meta}</div>}

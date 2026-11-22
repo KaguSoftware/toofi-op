@@ -25,7 +25,11 @@ export function BasketPanel({ basket, sending: sendingNow, error, check = null, 
     <section className="basket" aria-labelledby="basket-title">
       <div className="basket__header">
         <h2 id="basket-title">{tr('tab.basket')}</h2>
-        {!empty && <span className="rop-badge" data-tone="ink">{count}</span>}
+        {!empty && (
+          <span key={count} className="rop-badge basket__count" data-tone="terra">
+            {count}
+          </span>
+        )}
       </div>
       {empty ? (
         <p className="basket__empty">{tr('tab.basketEmpty')}</p>

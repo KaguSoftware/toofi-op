@@ -98,7 +98,7 @@ export function FloorPlanScreen() {
   return (
     <section className="manage manage--setup">
       <PageHeader
-        title={tr('manage.floorTitle')}
+        title={tr('manage.floorTitle')} icon="floorPlan" tone="accent"
         actions={
           <>
             <Button onClick={() => setAreaEdit('new')}>{tr('manage.floor.addArea')}</Button>
@@ -154,7 +154,7 @@ function PreviewGrid({ title, tables, onEdit }: { title: string; tables: Table[]
   return (
     <section className="manage__canvas" aria-label={tr('manage.floor.preview', { area: title })}>
       <h2>{title}</h2>
-      <div className="manage__grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(5.5rem, 1fr))` }}>
+      <div className="manage__grid rop-cascade" style={{ gridTemplateColumns: `repeat(${cols}, minmax(5.5rem, 1fr))` }}>
         {tables.map((t) => (
           <button
             key={t.id}

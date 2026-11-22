@@ -1,6 +1,6 @@
 # DESIGN.md: the Kagu Restaurant interface
 
-For anyone changing how the app looks. The direction is **ink and paper, colour only for state**: warm near-white surfaces, near-black ink for the one primary action on a screen, soft tints for selection, and colour reserved for what is true about a thing (free, waiting, danger). `PRODUCT.md` holds the why; `docs/DESIGN-RESEARCH.md` holds the research. The brand name is a placeholder (strings live in `brand.config.json`).
+For anyone changing how the app looks. The direction is **forest and terra cotta on warm cream, with Arabic geometric ornament**: Deep Forest (#1E3A2F) is the brand and carries the rail, seated tables, selection and the amount-due plate; Terra Cotta (#B84C2E) is the action colour; Charcoal Ink (#1C1C1E) is text; Warm Cream (#F2E9D8) is the page; copper (#C98A5E) draws the zakhrafa (an eight-point-star lattice, an ornament strip under every page header, arch frames on the brand mark and header tiles). Depth comes from soft forest-tinted shadows and motion from short transform and opacity moves. `PRODUCT.md` holds the why; the palette is the owner's choice of 2026-11-22. The brand name is a placeholder (strings live in `brand.config.json`).
 
 ## 1. Purpose and ground rules
 
@@ -41,30 +41,32 @@ All tokens are defined once on `:root` in `base.css`, with `color-scheme: light`
 | `--rop-font-xs` to `--rop-font-display` | 0.8125, 0.875, 1, 1.25, 1.625, 2, 2.75rem | fixed scale; the display step is only for amount due, change and pad totals |
 | `--rop-font-family` | IBM Plex Sans, IBM Plex Sans Arabic, system | everything; tabular figures are on globally |
 | `--rop-leading` | 1.5, and 1.7 under `:lang(ar)` | body line height |
-| `--rop-bg`, `--rop-raised` | `oklch(0.975 0.005 85)`, `oklch(0.995 0.002 85)` | page; tiles, buttons, inputs, panels and dialogs sit one step above it |
-| `--rop-surface`, `--rop-surface-2` | `0.958 0.007`, `0.935 0.009` | rail and bar, quiet fills; recessed tracks, hover, disabled primary |
-| `--rop-selected` | `oklch(0.905 0.013 85)` | current nav link, selected category, pressed toggle (with weight 600) |
-| `--rop-occupied`, `--rop-occupied-hover` | `oklch(0.915 0.016 80)`, `0.895 0.018 80` | occupied table fill |
-| `--rop-border`, `--rop-border-hover`, `--rop-border-strong` | `oklch(0.9 0.007 85)`, `0.8 0.01`, `0.66 0.012` | hairlines; hover and dividers that must read; input boundary (3:1 on raised) |
-| `--rop-text`, `--rop-text-muted` | `oklch(0.25 0.012 85)`, `oklch(0.48 0.012 85)` | body; meta, hints and unselected tabs (4.5:1 or better on every surface up to `--rop-selected`) |
-| `--rop-ink`, `--rop-ink-hover`, `--rop-ink-text`, `--rop-ink-text-muted` | `oklch(0.27 0.012 85)`, `0.35`, raised, `0.82` | primary buttons, the in-basket border and badge, toasts |
-| `--rop-accent`, `--rop-accent-text`, `--rop-accent-tint` | `oklch(0.48 0.16 264)` | information blue: focus ring and links. Not for buttons. |
-| `--rop-chart` | `oklch(0.6 0.11 258)` | the one chart series (3:1 on the page) |
-| `--rop-success`, `--rop-success-text`, `--rop-success-tint`, `--rop-success-border`, `--rop-success-on-ink` | `oklch(0.48 0.12 150)` | free, paid, in range; the mark on a success toast |
-| `--rop-warning`, `--rop-warning-ink`, `--rop-warning-tint`, `--rop-warning-border` | `oklch(0.8 0.15 80)`, `oklch(0.45 0.09 75)` | waiting, low, needs attention. Amber is a fill or border, never text; use `--rop-warning-ink` for text. |
-| `--rop-danger`, `--rop-danger-text`, `--rop-danger-tint`, `--rop-danger-border` | `oklch(0.5 0.19 27)` | void, shortage, destructive action, errors |
-| `--rop-scrim`, `--rop-shadow` | ink at 40%; one soft shadow | dialog backdrop; dialogs and toasts only |
-| `--rop-ease`, `--rop-fast` | ease-out curve, 150ms | state transitions |
+| `--rop-bg`, `--rop-raised`, `--rop-surface`, `--rop-surface-2` | Warm Cream `oklch(0.937 0.025 83)` and lighter and deeper steps | page; tiles, buttons, inputs, panels; quiet and recessed fills |
+| `--rop-border`, `--rop-border-hover`, `--rop-border-strong` | cream to sage | hairlines; hover; input boundary (3:1) |
+| `--rop-text`, `--rop-text-muted` | Charcoal Ink `oklch(0.227 0.004 286)`; sage `oklch(0.45 0.02 160)` | body; meta and hints (4.5:1 or better) |
+| `--rop-brand`, `-hover`, `-deep`, `-ink`, `-tint`, `-tint-2`, `--rop-on-brand`, `--rop-on-brand-muted`, `--rop-grad-brand`, `--rop-grad-rail` | Deep Forest `oklch(0.322 0.04 167)` and its steps | rail and bars, seated tables, selected chips and rows, the amount-due plate, header tiles on service screens |
+| `--rop-terra`, `-ink`, `-tint`, `--rop-on-terra`, `--rop-grad-terra` | Terra Cotta `oklch(0.554 0.147 36)` | primary buttons, counts (basket, item quantity), focus ring, header tiles on business and setup screens |
+| `--rop-copper`, `--rop-copper-tint` | `oklch(0.687 0.097 55)` | ornament lines, the brand mark outline, the current nav link's underline, your own tables |
+| `--rop-zakhrafa-on-dark`, `-on-light`, `-strip`, `-star` | inline SVG `data:` images | the star lattice on forest surfaces and on cream canvases, the header ornament strip, the empty-state star |
+| `--rop-selected`, `--rop-occupied`, `--rop-ink`, `--rop-accent` | aliases of the brand tokens | older names kept so every screen follows the palette |
+| `--rop-chart` | forest `oklch(0.42 0.06 165)` | chart series |
+| `--rop-success*`, `--rop-grad-success` | leaf green `oklch(0.5 0.13 145)` | free, paid, in range; the payment and day-open confirmations |
+| `--rop-warning*`, `--rop-on-warning` | amber `oklch(0.79 0.14 78)` | waiting, low, open 90 minutes or more |
+| `--rop-danger*` | crimson `oklch(0.5 0.19 15)` | void, shortage, destructive action, errors; kept apart from terra cotta by hue and by always being outlined except in a confirm dialog |
+| `--rop-shadow-sm`, `-md`, `-lg`, `-brand`, `-terra`, `-success` | forest-tinted soft shadows | resting tiles and buttons; panels and hover lift; dialogs and toasts; coloured surfaces |
+| `--rop-scrim` | forest at 50% | dialog backdrop |
+| `--rop-ease`, `--rop-fast`, `--rop-base`, `--rop-slow` | ease-out quint; 150, 240, 380ms | feedback, state changes, entrances |
 | `--rop-rail`, `--rop-bar`, `--rop-tabbar`, `--rop-chrome` | 6.25rem; 4rem; 4.25rem; block space the shell takes | icon rail width; top bar height; tablet bottom bar height; full-height screens subtract `--rop-chrome` from the viewport |
 
 Rules that come with the tokens:
 
-- **Ink is the action colour, used once per screen.** Only the primary action (Send, Take payment, Save, Open the day) is ink. A button that only prepares that action, such as "Pay this share", is secondary. A disabled primary drops to a recessed `--rop-surface-2` slot.
-- **Selection is a tint plus weight, never ink.** The current nav link, selected category and pressed toggles use `--rop-selected` and weight 600. Horizontal option sets (floor areas, report ranges, menu and stock sections, open or settled, split mode, cash or card) use the `.rop-segmented` track: a recessed `--rop-surface-2` track where the chosen option is raised paper with a hairline.
-- **State borders are tinted.** Banners, notices, the paid box and the variance pill use the `*-tint` fill with the matching `*-border`, not the saturated state colour. Danger buttons are outlined in `--rop-danger-border` with red text, and solid red only in a dialog footer where they confirm.
-- **Row actions in tables are ghost buttons**: full 3rem targets with no box until hovered or pressed.
-- **Colour means state.** Do not use a state colour as decoration, and never as the only signal: pair it with fill, a label or an icon.
-- **No new shadows, gradients or blurs.** Depth comes from tone: the page, raised paper and the recessed surfaces. Hairlines are light; only inputs carry a 3:1 edge.
+- **Terra cotta is the action colour, used once per screen.** Only the primary action (Send, Take payment, Save, Open the day) is terra cotta. A button that only prepares that action is secondary. A disabled primary drops to a recessed `--rop-surface-2` slot.
+- **Forest is structure and selection.** The rail and bars, seated tables, selected category chips, the selected till row and the amount-due plate are forest. The current nav link is a cream pill with a copper underline. Horizontal option sets use the `.rop-segmented` track, the chosen option raised with a shadow.
+- **Ornament is copper and quiet.** The lattice sits at low opacity on forest surfaces; the strip under each page header fades out at both ends. Never put ornament behind text that must be read quickly, except as a faint corner motif.
+- **State borders are tinted.** Banners, notices and the variance pill use the `*-tint` fill with the matching `*-border`. Danger buttons are outlined, and solid crimson only in a dialog footer where they confirm.
+- **Row actions in tables are ghost buttons** with no resting shadow.
+- **Depth:** tiles and buttons rest on `--rop-shadow-sm`; panels on `-md`; dialogs and toasts on `-lg`. Tappable tiles lift on hover (pointer devices only) and squeeze on press.
+- **Motion:** each screen rises in on arrival (`.rop-main > *`); grids cascade (`.rop-cascade`, up to 270ms of stagger); dialogs scale in; basket lines slide in; count badges pop when they change; a payment ends with a drawn checkmark. Only `transform` and `opacity` animate, entrances use `animation-fill-mode: backwards` so hover and press transforms still work, and `prefers-reduced-motion` turns it all off.
 
 How to theme:
 
@@ -234,13 +236,14 @@ Decided on 2026-11-21 (reasoning in `docs/DESIGN-RESEARCH.md`):
 | Brand | "Kagu Restaurant" as a placeholder, set as plain text in the rail and bar. Logo and bilingual wordmark are still open. |
 | Dark mode | Light first. Dark later, as a per-device setting with a second token set. |
 | Floor-plan visual style | Keep the grid placed by `grid_x` and `grid_y`. Status by fill, label and time, not a drawn map. |
-| Chart palette | One series in the information blue; red and amber only for values out of range. Categorical and sequential palettes are open until analytics v2 needs them. |
+| Chart palette | One series in forest; red and amber only for values out of range. Categorical and sequential palettes are open until analytics v2 needs them. |
 | Density: till vs tablets | Same components; the till uses side-by-side panes, waiter screens use larger tiles. No density token yet. |
 | Status colours | Success, warning, danger and information, each with a tint. |
 | Typography | IBM Plex Sans with IBM Plex Sans Arabic, fixed scale, tabular figures, Western digits in both languages. |
 | Navigation | An icon rail for roles with several destinations (a bottom tab bar under 64rem), one top bar for waiters. Every screen starts with `PageHeader`. |
 | Visual weight (quieter pass, 2026-11-21) | Ink only for the one primary action; selection by tint and weight; raised paper on a slightly deeper page; tinted state borders; softer chart blue; labels and table headers at weight 500. |
-| Motion and feedback | 150ms ease-out on state changes only; a spinner inside busy buttons; reduced motion respected. |
+| Colour, ornament and motion (2026-11-22) | The owner's palette (forest, terra cotta, charcoal, cream) with copper zakhrafa; soft forest-tinted depth; entrances, cascades, pops and a payment checkmark. Supersedes the quieter pass. |
+| Motion and feedback | 150 to 380ms ease-out; a spinner inside busy buttons and beside loading text; reduced motion respected. |
 | Responsive breakpoints | 48, 56, 64, 72 and 80rem, listed in section 5. |
 
 Still open:

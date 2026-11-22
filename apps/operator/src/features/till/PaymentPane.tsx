@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AmountPad, Button, Field, Money } from '../../components';
+import { AmountPad, Button, Field, Icon, Money } from '../../components';
 import { appRpc } from '../../lib/appRpc';
 import { errorMessage } from '../../lib/errors';
 import { useLocale } from '../../lib/i18n';
@@ -121,7 +121,8 @@ export function PaymentPane({ tabId, due, suggested, shiftOpen, onPaid, onRechec
         <legend>{tr('till.pay.method')}</legend>
         {(['cash', 'card'] as const).map((m) => (
           <label key={m}>
-            <input type="radio" name="till-method" checked={method === m} onChange={() => setMethod(m)} />{' '}
+            <input type="radio" name="till-method" checked={method === m} onChange={() => setMethod(m)} />
+            <Icon name={m === 'cash' ? 'cash' : 'card'} size={20} />{' '}
             {tr(m === 'cash' ? 'till.method.cash' : 'till.method.card')}
           </label>
         ))}

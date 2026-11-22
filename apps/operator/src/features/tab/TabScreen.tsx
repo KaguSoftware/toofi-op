@@ -362,7 +362,7 @@ function TabView({ tabId }: { tabId: string }) {
             ))}
           </div>
           {currentCategory && items.length === 0 && <EmptyState message={tr('tab.noItems')} />}
-          <div className="tab__items" role="tabpanel">
+          <div className="tab__items rop-cascade" role="tabpanel" key={currentCategory?.id}>
             {items.map((i) => {
               const qty = inBasket.get(i.id) ?? 0;
               return (
@@ -377,7 +377,7 @@ function TabView({ tabId }: { tabId: string }) {
                   <span className="tab__item-name">{localName(locale, i)}</span>
                   <Money amount={i.price} />
                   {qty > 0 && (
-                    <span className="tab__item-qty" aria-label={`${tr('tab.qty')}: ${qty}`}>
+                    <span key={qty} className="tab__item-qty" aria-label={`${tr('tab.qty')}: ${qty}`}>
                       {qty}
                     </span>
                   )}

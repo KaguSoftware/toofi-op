@@ -37,7 +37,7 @@ export function ShiftScreen() {
   return (
     <section className="rop-shift">
       <PageHeader
-        title={tr('till.shiftTitle')}
+        title={tr('till.shiftTitle')} icon="shift"
         meta={
           mine && (
             <span className="rop-badge" data-tone="success">

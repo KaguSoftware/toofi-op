@@ -23,7 +23,7 @@ export function StockScreen() {
   useBroadcast(staff ? `stock:${staff.venueId}` : null);
   return (
     <section className="manage manage--setup manage--stock">
-      <PageHeader title={tr('stock.title')}>
+      <PageHeader title={tr('stock.title')} icon="stock" tone="accent">
         <nav className="rop-segmented manage__tabs" aria-label={tr('stock.sections')}>
           {SECTIONS.map((s) => (
             <Link key={s.to} to={s.to} activeOptions={{ exact: s.exact ?? false }}>

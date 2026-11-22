@@ -122,7 +122,7 @@ export function DayScreen() {
   return (
     <section className="manage manage-day">
       <PageHeader
-        title={tr('manage.dayTitle')}
+        title={tr('manage.dayTitle')} icon="day" tone="accent"
         actions={
           isOpen ? (
             <Button variant="danger" busy={busy} onClick={() => setConfirming(true)}>

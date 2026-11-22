@@ -35,7 +35,7 @@ export function MenuScreen() {
   const data = q.data;
   return (
     <section className="manage manage--setup">
-      <PageHeader title={tr('manage.menuTitle')}>
+      <PageHeader title={tr('manage.menuTitle')} icon="menu" tone="accent">
         <div className="rop-segmented manage__tabs" role="group" aria-label={tr('manage.menu.sections')}>
           {(['items', 'modifiers', 'tax'] as const).map((t) => (
             <Button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>

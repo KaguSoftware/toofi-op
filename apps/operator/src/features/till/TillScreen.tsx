@@ -54,7 +54,7 @@ export function TillScreen() {
   return (
     <section className="rop-till">
       <PageHeader
-        title={tr('till.title')}
+        title={tr('till.title')} icon="till"
         meta={
           shift.data &&
           (shift.data.open ? (
@@ -96,7 +96,7 @@ export function TillScreen() {
           {list.isPending && <Loading />}
           {list.isError && <ErrorState error={list.error} onRetry={() => void list.refetch()} />}
           {list.data && rows.length === 0 && <EmptyState message={tr(view === 'open' ? 'till.noOpenTabs' : 'till.noSettled')} />}
-          <ul className="rop-till-tabs">
+          <ul className="rop-till-tabs rop-cascade" key={view}>
             {rows.map((r) => (
               <li key={r.id}>
                 <Button aria-pressed={selected === r.id} onClick={() => setSelected(r.id)}>
