@@ -49,6 +49,7 @@ test('screenshots of every screen', async ({ page }, testInfo) => {
   await visit(`/tab/${openTabId}`, 'tab', '.tab__order');
   // Items with nothing to choose add in one tap; the sheet opens for an item with modifiers (Grills).
   await page.locator('.tab__category').nth(1).click();
+  await expect(page.locator('.tab__category').nth(1)).toHaveAttribute('aria-selected', 'true');
   await page.locator('.tab__item').first().click();
   await expect(page.locator('dialog[open]')).toBeVisible();
   await page.screenshot({ path: path.join(OUT, lang, 'tab-item-sheet.png'), fullPage: true, animations: 'disabled' });

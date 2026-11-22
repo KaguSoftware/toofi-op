@@ -1,5 +1,5 @@
 import { Link, Outlet } from '@tanstack/react-router';
-import { Button, Icon, Loading, type IconName } from '../components';
+import { BrandMark, Button, Icon, Loading, type IconName } from '../components';
 import { useAuth } from '../lib/auth';
 import { productName } from '../lib/brand';
 import { isDesktop } from '../lib/bridge';
@@ -52,9 +52,7 @@ export function RootLayout() {
       <div className="rop-side">
         {productName && (
           <p className="rop-brand">
-            <span className="rop-brand__mark" aria-hidden="true">
-              {productName.slice(0, 1)}
-            </span>
+            <BrandMark className="rop-brand__mark" />
             <span className="rop-brand__name">{productName}</span>
           </p>
         )}

@@ -56,7 +56,7 @@
 /* Setup and stock: one page pattern. A page header (title, main action, sub-navigation), then
    tables and forms on raised panels, each headed by its section title. Forms keep a readable
    width instead of stretching across the screen. Dialog forms are left alone. */
-.manage--setup .rop-page-head .manage__tabs { margin-block-end: 0; }
+.rop-page-head .manage__tabs { margin-block-end: 0; }
 .manage--setup .manage__section-head { margin-block: var(--rop-space-2) var(--rop-space-3); }
 .manage--setup .manage__section-head h2, .manage--setup section > h2 { margin-block-end: var(--rop-space-3); font-size: var(--rop-font-lg); }
 .manage--setup .rop-table-wrap {

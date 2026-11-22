@@ -44,13 +44,22 @@
   --rop-brand-hover: oklch(0.28 0.038 168);
   --rop-brand-deep: oklch(0.24 0.034 170);
   --rop-brand-ink: oklch(0.322 0.04 167);
-  --rop-brand-tint: oklch(0.915 0.03 150);
-  --rop-brand-tint-2: oklch(0.84 0.04 155);
+  --rop-brand-tint: oklch(0.91 0.03 108);
+  --rop-brand-tint-2: oklch(0.84 0.045 112);
   --rop-on-brand: oklch(0.96 0.02 85);
-  --rop-on-brand-muted: oklch(0.8 0.035 140);
+  --rop-on-brand-muted: oklch(0.82 0.03 100);
+  --rop-on-rail-muted: oklch(0.8 0.02 80);
   --rop-grad-brand: linear-gradient(155deg, oklch(0.4 0.05 163), oklch(0.29 0.04 170));
   --rop-grad-brand-hover: linear-gradient(155deg, oklch(0.36 0.05 163), oklch(0.26 0.04 170));
-  --rop-grad-rail: linear-gradient(180deg, oklch(0.33 0.042 166), oklch(0.235 0.034 172));
+  /* Charcoal Ink as a surface: the app's frame (rail, bars), header badges, the amount-due plate, toasts. */
+  --rop-charcoal: oklch(0.227 0.004 286);
+  --rop-grad-charcoal: linear-gradient(160deg, oklch(0.31 0.006 286), oklch(0.205 0.004 286));
+  --rop-on-charcoal: oklch(0.96 0.02 85);
+  --rop-on-charcoal-muted: oklch(0.8 0.02 80);
+  --rop-shadow-charcoal: 0 10px 24px -10px oklch(0.15 0.005 286 / 0.7), inset 0 1px 0 oklch(1 0 0 / 0.08);
+  --rop-grad-rail: linear-gradient(180deg, oklch(0.27 0.005 286), oklch(0.19 0.004 286));
+  /* The Rub el Hizb: an eight-point star from two squares, for header badges. */
+  --rop-star: polygon(50% 0%, 64.64% 14.64%, 85.36% 14.64%, 85.36% 35.36%, 100% 50%, 85.36% 64.64%, 85.36% 85.36%, 64.64% 85.36%, 50% 100%, 35.36% 85.36%, 14.64% 85.36%, 14.64% 64.64%, 0% 50%, 14.64% 35.36%, 14.64% 14.64%, 35.36% 14.64%);
   /* Terra Cotta (#B84C2E): the action colour. -ink is dark enough for text on cream. */
   --rop-terra: oklch(0.554 0.147 36);
   --rop-terra-ink: oklch(0.48 0.14 36);
@@ -61,11 +70,17 @@
   /* Copper (#C98A5E): ornament lines, the brand mark, your own tables. */
   --rop-copper: oklch(0.687 0.097 55);
   --rop-copper-tint: oklch(0.92 0.04 60);
+  /* Olive: the second detail colour beside copper, and the only green besides forest.
+     -bright is for details on charcoal and forest. */
+  --rop-olive: oklch(0.46 0.09 120);
+  --rop-olive-bright: oklch(0.72 0.1 118);
+  --rop-olive-tint: oklch(0.92 0.045 115);
+  --rop-grad-olive: linear-gradient(155deg, oklch(0.55 0.1 118), oklch(0.43 0.085 124));
   /* Arabic geometric ornament: an eight-point-star lattice, a border strip, a single star. */
-  --rop-zakhrafa-on-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23C98A5E' stroke-opacity='.22' stroke-width='1'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Ccircle cx='28' cy='28' r='4'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3C/svg%3E");
-  --rop-zakhrafa-on-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%231E3A2F' stroke-opacity='.07' stroke-width='1'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Ccircle cx='28' cy='28' r='4'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3C/svg%3E");
-  --rop-zakhrafa-strip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='14' viewBox='0 0 36 14'%3E%3Cpath d='M0 7h11M25 7h11' stroke='%23C98A5E' stroke-opacity='.55' stroke-width='1'/%3E%3Cpath d='M18 1.5l1.7 3.8 3.8 1.7-3.8 1.7L18 12.5l-1.7-3.8L12.5 7l3.8-1.7z' fill='%23C98A5E' fill-opacity='.8'/%3E%3C/svg%3E");
-  --rop-zakhrafa-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23C98A5E' stroke-width='1.5'%3E%3Crect x='10' y='10' width='20' height='20'/%3E%3Crect x='10' y='10' width='20' height='20' transform='rotate%2845 20 20%29'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%23C98A5E' fill-opacity='.35'/%3E%3C/g%3E%3C/svg%3E");
+  --rop-zakhrafa-on-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke-width='1'%3E%3Cg stroke='%238C9A4B' stroke-opacity='.26'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3Ccircle cx='28' cy='28' r='4' stroke='%23C98A5E' stroke-opacity='0.52'/%3E%3C/g%3E%3C/svg%3E");
+  --rop-zakhrafa-on-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke-width='1'%3E%3Cg stroke='%231E3A2F' stroke-opacity='.07'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3Ccircle cx='28' cy='28' r='4' stroke='%23B84C2E' stroke-opacity='0.14'/%3E%3C/g%3E%3C/svg%3E");
+  --rop-zakhrafa-strip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 7h11M25 7h22M61 7h11' stroke='%23C98A5E' stroke-opacity='.5' stroke-width='1'/%3E%3Cpath d='M18 1.5l1.7 3.8 3.8 1.7-3.8 1.7L18 12.5l-1.7-3.8L12.5 7l3.8-1.7z' fill='%23C98A5E' fill-opacity='.85'/%3E%3Cpath d='M54 1.5l1.7 3.8 3.8 1.7-3.8 1.7L54 12.5l-1.7-3.8L48.5 7l3.8-1.7z' fill='%238C9A4B' fill-opacity='.95'/%3E%3C/svg%3E");
+  --rop-zakhrafa-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%238C9A4B' stroke-width='1.5'%3E%3Crect x='10' y='10' width='20' height='20'/%3E%3Crect x='10' y='10' width='20' height='20' transform='rotate%2845 20 20%29'/%3E%3C/g%3E%3Ccircle cx='20' cy='20' r='4' fill='%23C98A5E' fill-opacity='.6'/%3E%3C/svg%3E");
 
   /* Older names, kept so every screen follows: selection and ink now speak lapis. */
   --rop-selected: var(--rop-brand-tint);
@@ -76,16 +91,16 @@
   --rop-ink-text: var(--rop-on-brand);
   --rop-ink-text-muted: var(--rop-on-brand-muted);
 
-  /* State colours: a leaf green distinct from forest, amber, and a crimson distinct from terra cotta. */
+  /* State colours: olive for good news (no other green), amber, and a crimson distinct from terra cotta. */
   --rop-accent: var(--rop-brand);
   --rop-accent-text: var(--rop-on-brand);
   --rop-accent-tint: var(--rop-brand-tint);
   --rop-chart: oklch(0.42 0.06 165);
-  --rop-success: oklch(0.47 0.13 145);
+  --rop-success: var(--rop-olive);
   --rop-success-text: oklch(0.98 0.012 85);
-  --rop-success-tint: oklch(0.93 0.06 135);
-  --rop-success-border: oklch(0.8 0.09 140);
-  --rop-success-on-ink: oklch(0.82 0.14 140);
+  --rop-success-tint: var(--rop-olive-tint);
+  --rop-success-border: oklch(0.8 0.07 118);
+  --rop-success-on-ink: var(--rop-olive-bright);
   --rop-warning: oklch(0.79 0.14 78);
   --rop-warning-ink: oklch(0.44 0.1 65);
   --rop-warning-tint: oklch(0.95 0.06 88);
@@ -94,9 +109,9 @@
   --rop-danger-text: oklch(0.98 0.01 15);
   --rop-danger-tint: oklch(0.95 0.03 15);
   --rop-danger-border: oklch(0.8 0.1 15);
-  --rop-grad-success: linear-gradient(155deg, oklch(0.95 0.06 135), oklch(0.91 0.07 150));
-  --rop-on-success-tint: oklch(0.3 0.07 150);
-  --rop-shadow-success: 0 6px 14px -6px oklch(0.5 0.13 145 / 0.8);
+  --rop-grad-success: linear-gradient(155deg, oklch(0.94 0.045 112), oklch(0.9 0.055 120));
+  --rop-on-success-tint: oklch(0.3 0.06 120);
+  --rop-shadow-success: 0 6px 14px -6px oklch(0.45 0.09 120 / 0.8);
   --rop-on-warning: oklch(0.25 0.06 60);
   --rop-glass-on-brand: oklch(0.2 0.03 167 / 0.35);
 
@@ -292,7 +307,7 @@ p.rop-state[role='status']::before {
 .rop-toasts { position: fixed; inset-block-end: var(--rop-space-3); inset-inline-end: var(--rop-space-3); display: grid; gap: var(--rop-space-2); z-index: var(--rop-z-toast); max-inline-size: min(26rem, calc(100vw - 2rem)); }
 .rop-toasts--errors { inset-block-end: auto; inset-block-start: var(--rop-space-3); }
 .rop-toast {
-  margin: 0; padding: var(--rop-space-3) var(--rop-space-4); background: var(--rop-brand-deep); color: var(--rop-on-brand);
+  margin: 0; padding: var(--rop-space-3) var(--rop-space-4); background: var(--rop-grad-charcoal); color: var(--rop-on-charcoal);
   border-radius: var(--rop-radius-lg); box-shadow: var(--rop-shadow-lg); font-weight: 500;
   animation: rop-toast-in var(--rop-slow) var(--rop-ease);
 }
@@ -341,13 +356,27 @@ p.rop-state[role='status']::before {
 }
 .rop-page-head__meta > * { display: inline-flex; align-items: center; gap: var(--rop-space-1); }
 .rop-page-head__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2); }
-.rop-page-head__icon {
-  display: inline-grid; place-items: center; inline-size: 2.875rem; block-size: 3.375rem; flex: none;
-  border-radius: 999px 999px var(--rop-radius) var(--rop-radius);
-  background: var(--rop-zakhrafa-on-dark) center / 28px, var(--rop-grad-brand); color: var(--rop-on-brand);
-  box-shadow: var(--rop-shadow-brand); outline: 1px solid var(--rop-copper); outline-offset: 3px;
+/* Header badge: an eight-point star (Rub el Hizb) in charcoal, set in a metal star a step larger:
+   olive on service screens, copper on business and setup screens. */
+.rop-page-head__badge {
+  position: relative; display: inline-grid; place-items: center; flex: none;
+  inline-size: 3.5rem; block-size: 3.5rem;
+  filter: drop-shadow(0 8px 12px oklch(0.15 0.005 286 / 0.35));
 }
-.rop-page-head__icon[data-tone='accent'] { background: var(--rop-zakhrafa-on-dark) center / 28px, var(--rop-grad-terra); color: var(--rop-on-terra); box-shadow: var(--rop-shadow-terra); }
+.rop-page-head__badge::before {
+  content: ''; position: absolute; inset: 0; clip-path: var(--rop-star);
+  background: linear-gradient(160deg, oklch(0.8 0.1 116), var(--rop-olive-bright) 55%, oklch(0.52 0.09 122));
+}
+.rop-page-head__badge[data-tone='accent']::before { background: linear-gradient(160deg, oklch(0.78 0.09 60), var(--rop-copper) 55%, oklch(0.55 0.09 50)); }
+.rop-page-head__icon {
+  position: relative; display: inline-grid; place-items: center; inline-size: calc(100% - 5px); block-size: calc(100% - 5px);
+  clip-path: var(--rop-star); background: var(--rop-zakhrafa-on-dark) center / 28px, var(--rop-grad-charcoal); color: var(--rop-olive-bright);
+  transition: transform var(--rop-slow) var(--rop-ease);
+}
+.rop-page-head__badge[data-tone='accent'] .rop-page-head__icon { color: var(--rop-copper); }
+.rop-page-head__icon .rop-icon { inline-size: 1.5rem; block-size: 1.5rem; }
+.rop-main > * .rop-page-head__badge { animation: rop-badge-in var(--rop-slow) var(--rop-ease) backwards; }
+@keyframes rop-badge-in { from { opacity: 0; transform: rotate(-45deg) scale(0.7); } to { opacity: 1; transform: none; } }
 /* An ornament strip closes every page header: a copper star between two fine rules, repeated. */
 .rop-page-head::after {
   content: ''; block-size: 14px; margin-block-start: calc(-1 * var(--rop-space-1));
@@ -373,17 +402,21 @@ p.rop-state[role='status']::before {
 .rop-brand { display: flex; align-items: center; gap: var(--rop-space-2); margin: 0; font-weight: 600; white-space: nowrap; }
 .rop-brand__mark {
   display: inline-grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; flex: none;
-  border-radius: 999px 999px var(--rop-radius-sm) var(--rop-radius-sm); background: var(--rop-grad-terra); color: var(--rop-on-terra);
-  font-size: var(--rop-font-lg); font-weight: 700; line-height: 1; box-shadow: var(--rop-shadow-terra);
-  outline: 1px solid var(--rop-copper); outline-offset: 2px;
+  background: none; box-shadow: none; border-radius: 0;
 }
+.rop-brand .rop-brand__mark { inline-size: 2.5rem; block-size: 3rem; filter: drop-shadow(0 4px 8px oklch(0.1 0.005 286 / 0.6)); }
+.rop-mark__frame { stroke: var(--rop-copper); }
+.rop-mark__line { stroke: var(--rop-olive-bright); }
+.rop-mark__frame--inner { opacity: 0.55; }
+.rop-mark__line { fill: oklch(0.72 0.1 118 / 0.16); }
+.rop-mark__bud { fill: var(--rop-terra); }
 .rop-nav { display: flex; align-items: center; gap: 2px; min-inline-size: 0; overflow-x: auto; flex: 1; scrollbar-width: none; }
 .rop-nav__group { display: contents; }
 .rop-nav__heading, .rop-shell .rop-sr { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; margin: 0; }
 .rop-nav a {
   display: inline-flex; align-items: center; gap: var(--rop-space-2); flex: none;
   min-block-size: var(--rop-target); padding-inline: var(--rop-space-3);
-  border-radius: var(--rop-radius); color: var(--rop-on-brand-muted); text-decoration: none; font-weight: 500; white-space: nowrap;
+  border-radius: var(--rop-radius); color: var(--rop-on-rail-muted); text-decoration: none; font-weight: 500; white-space: nowrap;
   transition: background-color var(--rop-base) var(--rop-ease), color var(--rop-base) var(--rop-ease), transform var(--rop-fast) var(--rop-ease), box-shadow var(--rop-base) var(--rop-ease);
   -webkit-tap-highlight-color: transparent;
 }
@@ -391,19 +424,19 @@ p.rop-state[role='status']::before {
 .rop-nav a:hover { background: oklch(1 0 0 / 0.09); color: var(--rop-on-brand); }
 .rop-nav a:hover .rop-icon { transform: translateY(-1px); }
 .rop-nav a:active { transform: scale(0.96); }
-.rop-nav a[aria-current='page'] { background: var(--rop-raised); color: var(--rop-brand-ink); font-weight: 600; box-shadow: 0 6px 16px -6px oklch(0.1 0.03 167 / 0.7), inset 0 -2px 0 var(--rop-copper); }
+.rop-nav a[aria-current='page'] { background: var(--rop-raised); color: var(--rop-brand-ink); font-weight: 600; box-shadow: 0 6px 16px -6px oklch(0.1 0.03 167 / 0.7), inset 0 -2px 0 var(--rop-olive); }
 .rop-nav a[aria-current='page'] .rop-icon { color: var(--rop-terra); }
 .rop-topbar { display: flex; align-items: center; gap: 2px; margin-inline-start: auto; }
 .rop-topbar__user { display: flex; align-items: center; gap: var(--rop-space-2); margin: 0; margin-inline-end: var(--rop-space-2); line-height: 1.25; }
 .rop-avatar {
   display: inline-grid; place-items: center; inline-size: 2.25rem; block-size: 2.25rem; flex: none; border-radius: 50%;
   background: var(--rop-copper-tint); color: var(--rop-brand-deep); font-size: var(--rop-font-sm); font-weight: 700;
-  box-shadow: 0 0 0 2px var(--rop-copper);
+  box-shadow: 0 0 0 2px var(--rop-olive-bright);
 }
 .rop-topbar__who { display: grid; font-size: var(--rop-font-xs); }
 .rop-topbar__who strong { font-size: var(--rop-font-sm); font-weight: 600; }
-.rop-topbar__role { color: var(--rop-on-brand-muted); }
-.rop-topbar__btn.rop-btn { background: transparent; border-color: transparent; color: var(--rop-on-brand-muted); font-size: var(--rop-font-sm); padding-inline: var(--rop-space-2); box-shadow: none; }
+.rop-topbar__role { color: var(--rop-on-rail-muted); }
+.rop-topbar__btn.rop-btn { background: transparent; border-color: transparent; color: var(--rop-on-rail-muted); font-size: var(--rop-font-sm); padding-inline: var(--rop-space-2); box-shadow: none; }
 .rop-topbar__btn.rop-btn:hover { background: oklch(1 0 0 / 0.1); color: var(--rop-on-brand); box-shadow: none; }
 .rop-main { flex: 1; min-inline-size: 0; padding: var(--rop-space-4); }
 
@@ -429,8 +462,8 @@ p.rop-state[role='status']::before {
     mask-image: linear-gradient(90deg, transparent, var(--rop-text) 0.75rem, var(--rop-text) calc(100% - 1.5rem), transparent);
   }
   .rop-shell[data-nav='rail'] .rop-nav a:hover { background: var(--rop-brand-tint); color: var(--rop-brand-ink); }
-  .rop-shell[data-nav='rail'] .rop-nav a[aria-current='page'] { background: var(--rop-grad-brand); color: var(--rop-on-brand); }
-  .rop-shell[data-nav='rail'] .rop-nav a[aria-current='page'] .rop-icon { color: var(--rop-on-brand); }
+  .rop-shell[data-nav='rail'] .rop-nav a[aria-current='page'] { background: var(--rop-grad-charcoal); color: var(--rop-on-charcoal); box-shadow: var(--rop-shadow-charcoal), inset 0 -2px 0 var(--rop-olive-bright); }
+  .rop-shell[data-nav='rail'] .rop-nav a[aria-current='page'] .rop-icon { color: var(--rop-olive-bright); }
   .rop-shell[data-nav='rail'] .rop-nav a {
     flex: 1 0 4.75rem; flex-direction: column; justify-content: center; gap: 2px;
     min-block-size: 3.5rem; padding-inline: var(--rop-space-1); font-size: var(--rop-font-xs);

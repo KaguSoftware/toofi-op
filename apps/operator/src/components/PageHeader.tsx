@@ -25,8 +25,10 @@ export function PageHeader({ title, meta, actions, lead, children, className, ic
       <div className="rop-page-head__row">
         {lead}
         {icon && (
-          <span className="rop-page-head__icon" data-tone={tone} aria-hidden="true">
-            <Icon name={icon} />
+          <span className="rop-page-head__badge" data-tone={tone} aria-hidden="true">
+            <span className="rop-page-head__icon">
+              <Icon name={icon} />
+            </span>
           </span>
         )}
         <div className="rop-page-head__title">

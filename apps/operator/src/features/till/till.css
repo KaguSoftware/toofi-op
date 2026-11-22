@@ -85,14 +85,14 @@
 .rop-till-pay { display: grid; gap: var(--rop-space-3); padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); }
 .rop-till-pay h2 { margin: 0; font-size: var(--rop-font-sm); font-weight: 500; color: var(--rop-text-muted); }
 .rop-till-pay > p { margin: 0; }
-/* The amount due sits on a forest plate with the star lattice: the number the whole till is about. */
+/* The amount due sits on a charcoal plate with the copper star lattice: the number the whole till is about. */
 .rop-till-pay__due {
   display: grid; gap: 2px; margin: calc(-1 * var(--rop-space-2)) calc(-1 * var(--rop-space-2)) 0 !important;
   padding: var(--rop-space-3) var(--rop-space-4); border-radius: var(--rop-radius-lg);
-  background: var(--rop-zakhrafa-on-dark) center / 56px, var(--rop-grad-brand); color: var(--rop-on-brand);
-  box-shadow: var(--rop-shadow-brand), inset 0 -2px 0 var(--rop-copper);
+  background: var(--rop-zakhrafa-on-dark) center / 56px, var(--rop-grad-charcoal); color: var(--rop-on-charcoal);
+  box-shadow: var(--rop-shadow-charcoal), inset 0 -2px 0 var(--rop-copper);
 }
-.rop-till-pay__due > span { font-size: var(--rop-font-sm); color: var(--rop-on-brand-muted); }
+.rop-till-pay__due > span { font-size: var(--rop-font-sm); color: var(--rop-on-charcoal-muted); }
 .rop-till-pay__due .rop-money { font-size: var(--rop-font-display); font-weight: 700; line-height: 1.05; letter-spacing: -0.01em; }
 .rop-till-method { display: flex; gap: 2px; padding: 3px; border: 0; border-radius: calc(var(--rop-radius) + 3px); background: var(--rop-surface-2); }
 .rop-till-method legend { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
