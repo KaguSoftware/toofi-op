@@ -19,7 +19,11 @@ Read with: `docs/SPEC.md` (v1 behaviour), `HANDOFF.md` (current state and pre-la
 | 4.5 Reports | Partly: figures strip, chart colour and direction, number formatting. The attention-first redesign waits for analytics v2 (2.6). |
 | 0.3 Pilot questionnaire, 0.4 Glossary | Not started. Glossary terms are added with the features that introduce them. |
 | 1.1 Cash movements | Done: `cash_movements` ledger, `record_cash_movement` with a manager PIN bound to the shift and the amount, expected cash and the day summary count them, "Cash in or out" on the shift screen. Left out on purpose until they are needed: `supplier_id` (with expenses, 3.1) and `reason_code_id` (with reason codes, 2.1). |
+| 2.6 Analytics v2 | Done: eight database functions (overview with food cost, menu engineering, stock losses, staff exceptions, weekday and hour, supplier price changes, table turns, attention list) and the Reports screen with five sections (Overview, Sales, Menu, Stock, Staff), in English and Arabic. Not done: cash variance per cashier as its own trend, category mix and dead-items lists as separate views (the menu section already shows unsold items), and the daily summary message. |
+| 2.5 Analytics by business day | Not done. The new functions date events by calendar day, like the existing ones, so the whole page stays consistent until all of it moves together. |
 | Rest of phases 1, 2, 3, 5 | Not started. Next: 1.2 kitchen tickets. |
+
+Demo data for the reports: `pnpm --filter @rop/db db:demo` loads three weeks of made-up trading into the local database (`packages/db/supabase/demo-history.sql`, local only). A database reset removes it, and the end-to-end tests reset the database, so run it again afterwards.
 
 Note: a second session revised the visual design on 2026-11-21 after the first pass (softer selection, new surface tokens). `DESIGN.md` is the source of truth for how things look; the 4.x rows above describe what was built, not every later refinement.
 

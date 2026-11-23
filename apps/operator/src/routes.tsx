@@ -12,7 +12,7 @@ import { FloorScreen } from './features/floor/FloorScreen';
 import { TabScreen } from './features/tab/TabScreen';
 import { TillScreen } from './features/till/TillScreen';
 import { ShiftScreen } from './features/till/ShiftScreen';
-import { ManageScreen } from './features/manage/ManageScreen';
+import { ReportsScreen } from './features/manage/ReportsScreen';
 import { DayScreen } from './features/manage/DayScreen';
 import { MenuScreen } from './features/manage/MenuScreen';
 import { FloorPlanScreen } from './features/manage/FloorPlanScreen';
@@ -58,7 +58,7 @@ const shiftRoute = createRoute({ getParentRoute: () => rootRoute, path: '/till/s
 const tillRoutes = [tillRoute, shiftRoute];
 
 // ---- manage: /manage, /manage/day, /manage/menu, /manage/floor, /manage/staff ----
-const manageRoute = createRoute({ getParentRoute: () => rootRoute, path: '/manage', component: ManageScreen });
+const manageRoute = createRoute({ getParentRoute: () => rootRoute, path: '/manage', component: ReportsScreen });
 const dayRoute = createRoute({ getParentRoute: () => rootRoute, path: '/manage/day', component: DayScreen });
 const menuRoute = createRoute({ getParentRoute: () => rootRoute, path: '/manage/menu', component: MenuScreen });
 const floorPlanRoute = createRoute({ getParentRoute: () => rootRoute, path: '/manage/floor', component: FloorPlanScreen });

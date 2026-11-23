@@ -1,0 +1,48 @@
+/* Reports. Tokens and kit only: figures use the shared strip, tables the shared table,
+   marks the shared badge. Red and amber appear only on things that need a look. */
+/* Sections and date range are two separate rows, not one long control. */
+.reports > .rop-segmented { display: flex; inline-size: fit-content; }
+.reports__head { display: grid; gap: 2px; margin-block-end: var(--rop-space-3); }
+.reports__head h2 { margin: 0; }
+.reports__intro { margin-block-end: var(--rop-space-4); max-inline-size: 70ch; }
+.reports__head .manage__note { max-inline-size: 75ch; }
+.reports__footnote { margin-block-start: var(--rop-space-2); max-inline-size: 75ch; }
+.reports__subhead { margin-block: var(--rop-space-4) var(--rop-space-2); font-size: var(--rop-font-sm); font-weight: 600; color: var(--rop-text-muted); }
+.reports__clear { margin: 0; color: var(--rop-text-muted); }
+.reports__unknown { font-size: var(--rop-font); font-weight: 500; color: var(--rop-text-muted); white-space: normal; }
+.reports__tag { color: var(--rop-text-muted); font-size: var(--rop-font-sm); font-weight: 400; }
+.reports__total { margin-block: 0 var(--rop-space-2); }
+
+/* Needs attention: one sentence per problem and where to deal with it. The dot only ranks; the sentence says what is wrong. */
+.reports__attention { list-style: none; margin: 0; padding: 0; border-block-start: 1px solid var(--rop-border); }
+.reports__attention li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--rop-space-3);
+  padding-block: var(--rop-space-2); border-block-end: 1px solid var(--rop-border);
+}
+.reports__attention li::before { content: ''; inline-size: 0.625rem; block-size: 0.625rem; border-radius: 50%; background: var(--rop-warning); }
+.reports__attention li[data-tone='danger']::before { background: var(--rop-danger); }
+.reports__attention-text { font-weight: 500; }
+.reports__attention .rop-btn { font-size: var(--rop-font-sm); white-space: nowrap; }
+
+/* Discounts, voids and refunds: a quiet row under the key figures. */
+.reports__leak { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: var(--rop-space-3) var(--rop-space-4); margin: 0; }
+.reports__leak dt { color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
+.reports__leak dd { margin: 0; }
+.reports__leak dd:first-of-type { font-size: var(--rop-font-lg); font-weight: 600; }
+
+/* Weekday by hour: one hue, four steps. The amount is in each cell's title and for screen readers. */
+/* contain: the grid scrolls inside its own box on a narrow screen and never widens the page. */
+.reports__heat { contain: inline-size; overflow-x: auto; }
+.reports__heat table { border-collapse: separate; border-spacing: 2px; }
+.reports__heat th { font-size: var(--rop-font-xs); font-weight: 500; color: var(--rop-text-muted); text-align: center; padding: 0 var(--rop-space-1); }
+.reports__heat th[scope='row'] { text-align: end; padding-inline-end: var(--rop-space-2); white-space: nowrap; }
+.reports__heat td { inline-size: 2.25rem; min-inline-size: 2.25rem; block-size: 2rem; border-radius: var(--rop-radius-sm); background: var(--rop-surface); }
+.reports__heat td[data-level='1'] { background: color-mix(in srgb, var(--rop-chart) 20%, var(--rop-raised)); }
+.reports__heat td[data-level='2'] { background: color-mix(in srgb, var(--rop-chart) 45%, var(--rop-raised)); }
+.reports__heat td[data-level='3'] { background: color-mix(in srgb, var(--rop-chart) 70%, var(--rop-raised)); }
+.reports__heat td[data-level='4'] { background: var(--rop-chart); }
+
+@media (max-width: 40rem) {
+  .reports__attention li { grid-template-columns: auto minmax(0, 1fr); }
+  .reports__attention .rop-btn { grid-column: 2; justify-self: start; }
+}

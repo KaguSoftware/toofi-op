@@ -56,11 +56,19 @@ export type Database = {
             "add_items":
 { Args: { "p_idempotency_key": string,"p_items": Json,"p_tab_id": string }; Returns: Json
                            },
+"analytics_attention":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "analytics_best_sellers":
 { Args: { "p_from": string,"p_limit"?: number,"p_to": string }; Returns: Json
                            },
 "analytics_by_waiter":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_cogs":
+{ Args: { "p_end": string,"p_start": string }; Returns: {
+              "cogs": number,"costed_sales": number,"item_sales": number
+            }[]
                            },
 "analytics_daily_sales":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
@@ -79,7 +87,28 @@ export type Database = {
         isOneToOne: false
         isSetofReturn: true
       } },
+"analytics_menu_engineering":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_overview":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
 "analytics_payment_mix":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_price_changes":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_staff":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_stock_losses":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_table_turns":
+{ Args: { "p_from": string,"p_to": string }; Returns: Json
+                           },
+"analytics_weekday_hour":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
                            },
 "apply_discount":

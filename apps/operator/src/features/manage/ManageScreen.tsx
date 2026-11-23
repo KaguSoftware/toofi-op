@@ -15,7 +15,7 @@ import {
   type Headline,
   type HeadlineKey,
 } from './manageLogic';
-import { RangePicker, useRangeState } from './RangePicker';
+import { RangePicker, useRangeState, type RangeState } from './RangePicker';
 import { downloadText } from './shared';
 import './manage.css';
 
@@ -89,9 +89,14 @@ function ChartBox({ summary, children }: { summary: string; children: ReactEleme
   );
 }
 
-export function ManageScreen() {
+/**
+ * The sales report. On its own it carries a title and a range picker; inside the reports
+ * screen it is one section and uses the range chosen there (`shared`).
+ */
+export function ManageScreen({ shared }: { shared?: RangeState } = {}) {
   const { tr, locale } = useLocale();
-  const rangeState = useRangeState('last7');
+  const own = useRangeState('last7');
+  const rangeState = shared ?? own;
   const { range, error: rangeError } = rangeState;
   const ok = rangeError === null;
 
@@ -148,9 +153,12 @@ export function ManageScreen() {
 
   return (
     <section className="manage">
-      <h1>{tr('manage.title')}</h1>
-
-      <RangePicker state={rangeState} />
+      {!shared && (
+        <>
+          <h1>{tr('manage.title')}</h1>
+          <RangePicker state={rangeState} />
+        </>
+      )}
 
       {failed ? (
         <ErrorState

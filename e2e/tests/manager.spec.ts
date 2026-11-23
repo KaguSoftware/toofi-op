@@ -19,7 +19,10 @@ test.beforeEach(async ({ page }) => {
 
 test('dashboard shows what the cashier took, and the best sellers', async ({ page }) => {
   await page.goto('/manage');
+  // Overview: net sales in the key figures.
   await expect(page.locator('.manage__cards')).toContainText('23,000');
+  // Best sellers live in the Sales section.
+  await page.getByRole('tab', { name: 'Sales' }).click();
   const best = page.locator('.manage__section', { has: page.getByRole('heading', { name: 'Best sellers' }) });
   await expect(best).toContainText('Hummus');
   await expect(best).toContainText('Lamb Kebab');

@@ -211,4 +211,14 @@ export const RPC_MATRIX: readonly RpcRule[] = [
     allow: CASHIER_UP,
     note: 'INVALID_AMOUNT; a cashier further needs a PIN',
   },
+
+  // --- analytics v2 (0131) ---
+  { fn: 'analytics_overview', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_menu_engineering', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_stock_losses', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_staff', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_weekday_hour', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_price_changes', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_table_turns', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
+  { fn: 'analytics_attention', args: {}, allow: MANAGER_UP, note: 'read only' },
 ];
