@@ -84,7 +84,15 @@ jobs:
         with:
           version: 3.2.0
       - name: Start the local Supabase stack
-        run: pnpm db:start
+        # Image pulls are sometimes rate limited, and a failed start leaves
+        # containers holding the ports. Stop cleanly between attempts.
+        run: |
+          for attempt in 1 2 3; do
+            pnpm db:start && exit 0
+            pnpm db:stop --no-backup || true
+            sleep 15
+          done
+          exit 1
       - name: Reset (apply every migration and the seed)
         run: pnpm db:reset
       - name: Database tests
