@@ -84,7 +84,6 @@ const enLiteral = {
     sections: 'Floor views',
     tables: 'Tables',
     bills: 'Bills',
-    areasLabel: 'Areas',
     noAreas: 'No floor plan is set up yet. Ask a manager.',
     noTables: 'No tables in this area.',
     free: 'Free',

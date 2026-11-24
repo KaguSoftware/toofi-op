@@ -4,7 +4,10 @@
 .manage__custom { display: flex; flex-wrap: wrap; gap: var(--rop-space-3); margin-block-end: var(--rop-space-3); }
 .manage__custom .rop-field { inline-size: auto; }
 .manage__period { color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
-.manage__section { margin-block-end: var(--rop-space-5); }
+.manage__section, .manage-day > section {
+  margin-block-end: var(--rop-space-4); padding: var(--rop-space-4);
+  border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
+}
 .manage__section-head { display: flex; justify-content: space-between; align-items: center; gap: var(--rop-space-3); flex-wrap: wrap; margin-block-end: var(--rop-space-2); }
 .manage__section-head h2 { margin: 0; }
 .manage__cards {
@@ -21,12 +24,12 @@
 .manage__bar { display: flex; flex-wrap: wrap; gap: var(--rop-space-2); align-items: end; margin-block-end: var(--rop-space-3); }
 .manage__form { display: grid; gap: var(--rop-space-3); }
 .manage__row { display: flex; flex-wrap: wrap; gap: var(--rop-space-2); align-items: center; }
-.manage__notice { padding: var(--rop-space-3) var(--rop-space-4); margin-block-end: var(--rop-space-3); border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius); background: var(--rop-danger-tint); }
+.manage__notice { padding: var(--rop-space-3) var(--rop-space-4); margin-block-end: var(--rop-space-3); border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius); background: var(--rop-panel-danger); }
 .manage__summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--rop-space-3); }
 .manage__summary dt { color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
 .manage__summary dd { margin: 0; font-size: var(--rop-font-lg); font-weight: 600; }
 .manage__grid { display: grid; gap: var(--rop-space-1); }
-.manage__grid-cell { border: 1px solid var(--rop-border); border-radius: var(--rop-radius); padding: var(--rop-space-1); text-align: center; background: var(--rop-raised); font-size: var(--rop-font-sm); }
+.manage__grid-cell { border: 1px solid var(--rop-border); border-radius: var(--rop-radius); padding: var(--rop-space-1); text-align: center; background: var(--rop-panel); font-size: var(--rop-font-sm); }
 .manage__grid-cell[data-inactive='true'] { opacity: 0.5; }
 .manage__tabs { margin-block-end: var(--rop-space-4); }
 .manage__tabs a {
@@ -43,15 +46,14 @@
 .manage-day__status {
   display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2) var(--rop-space-3);
   margin-block-end: var(--rop-space-5); padding: var(--rop-space-4);
-  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
+  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
 }
 .manage-day__status p { margin: 0; font-size: var(--rop-font-lg); }
 .manage-day__status[data-open] { background: var(--rop-grad-success); color: var(--rop-on-success-tint); }
 .manage-day__status[data-open] .rop-badge { background: var(--rop-success); color: var(--rop-success-text); }
 .manage-day__status:not([data-open]) .rop-badge { color: var(--rop-text-muted); }
-.manage-day > section { margin-block-end: var(--rop-space-5); }
 .manage-day > section > h2 { font-size: var(--rop-font-lg); }
-.manage-day__summary .manage__summary { padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); margin-block-end: var(--rop-space-3); }
+.manage-day__summary .manage__summary { margin-block-end: var(--rop-space-3); }
 
 /* Setup and stock: one page pattern. A page header (title, main action, sub-navigation), then
    tables and forms on raised panels, each headed by its section title. Forms keep a readable
@@ -61,11 +63,21 @@
 .manage--setup .manage__section-head h2, .manage--setup section > h2 { margin-block-end: var(--rop-space-3); font-size: var(--rop-font-lg); }
 .manage--setup .rop-table-wrap {
   margin-block-end: var(--rop-space-5); padding: var(--rop-space-1) var(--rop-space-4);
-  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
+  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
+}
+/* Filters and notes that stand between panels sit on a small panel of their own. */
+.manage__period, .manage__custom, .reports__intro,
+.manage--setup section > .rop-field, .manage--setup section > label.manage__row, .manage--setup section > p:not(.rop-state) {
+  inline-size: fit-content; max-inline-size: 100%; margin-block-end: var(--rop-space-3); padding: var(--rop-space-2) var(--rop-space-3);
+  border-radius: var(--rop-radius); background: var(--rop-panel); box-shadow: var(--rop-shadow-sm);
+}
+.manage--setup section > .rop-field { inline-size: min(24rem, 100%); padding-block-end: var(--rop-space-3); }
+.manage--setup section > .rop-state:not(.rop-state--error), .reports [role='tabpanel'] > .rop-state:not(.rop-state--error) {
+  margin-block-end: var(--rop-space-5); border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
 }
 .manage--setup .manage__form:not(dialog .manage__form) {
   max-inline-size: 46rem; margin-block-end: var(--rop-space-5); padding: var(--rop-space-4);
-  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
+  border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
 }
 .manage--setup .manage__form:not(dialog .manage__form) fieldset {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--rop-space-3); align-items: start;
@@ -79,12 +91,12 @@
 
 /* Floor plan: each area drawn as the floor shows it, tables on a deeper paper; tap a table to edit it. */
 .manage__canvases { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: var(--rop-space-4); margin-block-end: var(--rop-space-5); }
-.manage__canvas { padding: var(--rop-space-4); border-radius: var(--rop-radius-xl); background: var(--rop-zakhrafa-on-light) 0 0 / 56px, linear-gradient(155deg, var(--rop-brand-tint), var(--rop-surface)); box-shadow: inset 0 1px 3px var(--rop-border); }
+.manage__canvas { padding: var(--rop-space-4); border-radius: var(--rop-radius-xl); background: var(--rop-panel-selected); box-shadow: inset 0 1px 3px var(--rop-border); }
 .manage--setup .manage__canvas > h2 { margin: 0 0 var(--rop-space-3); font-size: var(--rop-font); }
 .manage__grid { gap: var(--rop-space-2); }
 .manage__grid-cell {
   display: grid; place-items: center; gap: 2px; min-block-size: 4.5rem; padding: var(--rop-space-2);
-  border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-raised);
+  border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-panel);
   color: var(--rop-text); font: inherit; cursor: pointer; box-shadow: var(--rop-shadow-sm);
   transition: transform var(--rop-base) var(--rop-ease), box-shadow var(--rop-base) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease);
 }

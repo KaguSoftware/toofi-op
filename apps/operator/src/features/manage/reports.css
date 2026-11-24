@@ -4,7 +4,7 @@
 .reports > .rop-segmented { display: flex; inline-size: fit-content; }
 .reports__head { display: grid; gap: 2px; margin-block-end: var(--rop-space-3); }
 .reports__head h2 { margin: 0; }
-.reports__intro { margin-block-end: var(--rop-space-4); max-inline-size: 70ch; }
+.reports .reports__intro { max-inline-size: 70ch; }
 .reports__head .manage__note { max-inline-size: 75ch; }
 .reports__footnote { margin-block-start: var(--rop-space-2); max-inline-size: 75ch; }
 .reports__subhead { margin-block: var(--rop-space-4) var(--rop-space-2); font-size: var(--rop-font-sm); font-weight: 600; color: var(--rop-text-muted); }

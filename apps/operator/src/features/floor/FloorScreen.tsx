@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { formatIQD } from '@rop/i18n';
@@ -24,6 +24,7 @@ import { useBroadcast } from '../../lib/realtime';
 import { supabase } from '../../lib/supabase';
 import {
   clampCovers,
+  columnCount,
   groupByArea,
   gridPlacement,
   isLongOpen,
@@ -64,7 +65,6 @@ export function FloorScreen() {
   const areas = useQuery({ queryKey: QK.floorAreas(), queryFn: fetchAreas });
   const status = useQuery({ queryKey: QK.floorStatus(), queryFn: fetchStatus });
 
-  const [areaId, setAreaId] = useState<string | null>(null);
   const [pending, setPending] = useState<FloorRow | null>(null);
   const [covers, setCovers] = useState('4');
   const [opening, setOpening] = useState(false);
@@ -75,7 +75,7 @@ export function FloorScreen() {
     () => groupByArea(areas.data ?? [], status.data ?? []),
     [areas.data, status.data],
   );
-  const current = groups.find((g) => g.area.id === areaId) ?? groups[0];
+  const cols = columnCount(status.data ?? []);
   // Minutes are recomputed on every render and refetch; no timer needed.
   const now = new Date();
   const summary = summarize(status.data ?? [], now);
@@ -157,26 +157,6 @@ export function FloorScreen() {
             )}
           </>
         }
-        actions={
-          <div
-            className="rop-segmented floor__areas"
-            role="tablist"
-            aria-label={tr('floor.areasLabel')}
-          >
-            {groups.map((g) => (
-              <button
-                key={g.area.id}
-                type="button"
-                role="tab"
-                className="rop-btn floor__area"
-                aria-selected={g.area.id === current?.area.id}
-                onClick={() => setAreaId(g.area.id)}
-              >
-                {locale === 'ar' ? g.area.name_ar : g.area.name_en}
-              </button>
-            ))}
-          </div>
-        }
       >
         <FloorNav />
       </PageHeader>
@@ -191,81 +171,89 @@ export function FloorScreen() {
         </div>
       )}
 
-      {current && current.tables.length === 0 && <EmptyState message={tr('floor.noTables')} />}
-      <div className="floor__grid rop-cascade" role="tabpanel" key={current?.area.id}>
-        {current?.tables.map((row) => {
-          const free = tableIsFree(row);
-          const mins = row.opened_at ? minutesOpen(row.opened_at, now) : 0;
-          const { hours, minutes } = splitMinutes(mins);
-          const long = !free && isLongOpen(mins);
-          const mine = !free && isMine(row, staff?.id);
-          const time =
-            hours > 0
-              ? tr('floor.timeHours', { hours, minutes })
-              : tr('floor.timeMinutes', { minutes });
-          const busyLabel = [
-            tr('floor.tableBusy', { label: row.label, guests: row.covers ?? 0 }),
-            tr('floor.due', { amount: formatIQD(row.due ?? 0, locale) }),
-            hours > 0
-              ? tr('floor.openHours', { hours, minutes })
-              : tr('floor.openMinutes', { minutes }),
-            ...(mine ? [tr('floor.yours')] : []),
-            ...(long ? [tr('floor.longOpen')] : []),
-          ].join(', ');
-          return (
-            <button
-              key={row.table_id}
-              type="button"
-              className="floor__table"
-              data-state={free ? 'free' : 'occupied'}
-              data-mine={mine || undefined}
-              data-long={long || undefined}
-              style={gridPlacement(row)}
-              aria-label={
-                free ? tr('floor.tableFree', { label: row.label, seats: row.seats }) : busyLabel
-              }
-              onClick={() => pick(row)}
-            >
-              <span className="floor__top">
-                <span className="floor__label">{row.label}</span>
-                {!free && (
-                  <span className="rop-badge floor__time" data-tone={long ? 'warning' : undefined}>
-                    <Icon name="clock" />
-                    {time}
-                  </span>
-                )}
-              </span>
-              {free ? (
-                <>
-                  <span className="floor__meta">{tr('floor.seats', { count: row.seats })}</span>
-                  <span className="floor__state">
-                    <span className="rop-dot" />
-                    {tr('floor.free')}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <span className="floor__meta">
-                    <span>{tr('floor.guests', { count: row.covers ?? 0 })}</span>
-                    {mine ? (
-                      <span className="floor__mine">
-                        <Icon name="person" size={16} />
-                        {tr('floor.yours')}
+      {groups.map((g) => (
+        <section key={g.area.id} className="floor__area" aria-labelledby={`area-${g.area.id}`}>
+          <h2 id={`area-${g.area.id}`}>{locale === 'ar' ? g.area.name_ar : g.area.name_en}</h2>
+          {g.tables.length === 0 && <EmptyState message={tr('floor.noTables')} />}
+          <div
+            className="floor__grid rop-cascade"
+            style={{ '--floor-cols': cols } as CSSProperties}
+          >
+            {g.tables.map((row) => {
+              const free = tableIsFree(row);
+              const mins = row.opened_at ? minutesOpen(row.opened_at, now) : 0;
+              const { hours, minutes } = splitMinutes(mins);
+              const long = !free && isLongOpen(mins);
+              const mine = !free && isMine(row, staff?.id);
+              const time =
+                hours > 0
+                  ? tr('floor.timeHours', { hours, minutes })
+                  : tr('floor.timeMinutes', { minutes });
+              const busyLabel = [
+                tr('floor.tableBusy', { label: row.label, guests: row.covers ?? 0 }),
+                tr('floor.due', { amount: formatIQD(row.due ?? 0, locale) }),
+                hours > 0
+                  ? tr('floor.openHours', { hours, minutes })
+                  : tr('floor.openMinutes', { minutes }),
+                ...(mine ? [tr('floor.yours')] : []),
+                ...(long ? [tr('floor.longOpen')] : []),
+              ].join(', ');
+              return (
+                <button
+                  key={row.table_id}
+                  type="button"
+                  className="floor__table"
+                  data-state={free ? 'free' : 'occupied'}
+                  data-mine={mine || undefined}
+                  data-long={long || undefined}
+                  style={gridPlacement(row)}
+                  aria-label={
+                    free ? tr('floor.tableFree', { label: row.label, seats: row.seats }) : busyLabel
+                  }
+                  onClick={() => pick(row)}
+                >
+                  <span className="floor__top">
+                    <span className="floor__label">{row.label}</span>
+                    {!free && (
+                      <span className="rop-badge floor__time" data-tone={long ? 'warning' : undefined}>
+                        <Icon name="clock" />
+                        {time}
                       </span>
-                    ) : (
-                      row.waiter_name && <span>{row.waiter_name}</span>
                     )}
                   </span>
-                  <span className="floor__due">
-                    <span className="floor__due-label">{tr('tab.due')}</span>
-                    <Money amount={row.due ?? 0} />
-                  </span>
-                </>
-              )}
-            </button>
-          );
-        })}
-      </div>
+                  {free ? (
+                    <>
+                      <span className="floor__meta">{tr('floor.seats', { count: row.seats })}</span>
+                      <span className="floor__state">
+                        <span className="rop-dot" />
+                        {tr('floor.free')}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="floor__meta">
+                        <span>{tr('floor.guests', { count: row.covers ?? 0 })}</span>
+                        {mine ? (
+                          <span className="floor__mine">
+                            <Icon name="person" size={16} />
+                            {tr('floor.yours')}
+                          </span>
+                        ) : (
+                          row.waiter_name && <span>{row.waiter_name}</span>
+                        )}
+                      </span>
+                      <span className="floor__due">
+                        <span className="floor__due-label">{tr('tab.due')}</span>
+                        <Money amount={row.due ?? 0} />
+                      </span>
+                    </>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))}
 
       <Modal
         open={pending !== null}

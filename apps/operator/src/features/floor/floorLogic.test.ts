@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   clampCovers,
+  columnCount,
   groupByArea,
   gridPlacement,
   isLongOpen,
@@ -50,6 +51,13 @@ describe('groupByArea', () => {
 describe('gridPlacement', () => {
   it('maps grid_x/grid_y (0-based) to CSS grid lines (1-based)', () => {
     expect(gridPlacement(row({ grid_x: 2, grid_y: 3 }))).toEqual({ gridColumn: 3, gridRow: 4 });
+  });
+});
+
+describe('columnCount', () => {
+  it('is the widest area, at least one', () => {
+    expect(columnCount([row({ area_id: 'a1', grid_x: 1 }), row({ area_id: 'a2', grid_x: 4 })])).toBe(5);
+    expect(columnCount([])).toBe(1);
   });
 });
 

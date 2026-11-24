@@ -51,6 +51,10 @@ export function gridPlacement(r: Pick<FloorRow, 'grid_x' | 'grid_y'>): { gridCol
   return { gridColumn: r.grid_x + 1, gridRow: r.grid_y + 1 };
 }
 
+/** Columns the widest area needs. Every area uses it, so tables line up down the page. */
+export const columnCount = (rows: readonly Pick<FloorRow, 'grid_x'>[]): number =>
+  rows.reduce((n, r) => Math.max(n, r.grid_x + 1), 1);
+
 export function minutesOpen(openedAt: string, now: Date): number {
   return Math.max(0, Math.floor((now.getTime() - new Date(openedAt).getTime()) / 60000));
 }

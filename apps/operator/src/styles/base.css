@@ -78,9 +78,17 @@
   --rop-grad-olive: linear-gradient(155deg, oklch(0.55 0.1 118), oklch(0.43 0.085 124));
   /* Arabic geometric ornament: an eight-point-star lattice, a border strip, a single star. */
   --rop-zakhrafa-on-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke-width='1'%3E%3Cg stroke='%238C9A4B' stroke-opacity='.26'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3Ccircle cx='28' cy='28' r='4' stroke='%23C98A5E' stroke-opacity='0.52'/%3E%3C/g%3E%3C/svg%3E");
-  --rop-zakhrafa-on-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke-width='1'%3E%3Cg stroke='%231E3A2F' stroke-opacity='.07'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3Ccircle cx='28' cy='28' r='4' stroke='%23B84C2E' stroke-opacity='0.14'/%3E%3C/g%3E%3C/svg%3E");
   --rop-zakhrafa-strip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 7h11M25 7h22M61 7h11' stroke='%23C98A5E' stroke-opacity='.5' stroke-width='1'/%3E%3Cpath d='M18 1.5l1.7 3.8 3.8 1.7-3.8 1.7L18 12.5l-1.7-3.8L12.5 7l3.8-1.7z' fill='%23C98A5E' fill-opacity='.85'/%3E%3Cpath d='M54 1.5l1.7 3.8 3.8 1.7-3.8 1.7L54 12.5l-1.7-3.8L48.5 7l3.8-1.7z' fill='%238C9A4B' fill-opacity='.95'/%3E%3C/svg%3E");
   --rop-zakhrafa-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%238C9A4B' stroke-width='1.5'%3E%3Crect x='10' y='10' width='20' height='20'/%3E%3Crect x='10' y='10' width='20' height='20' transform='rotate%2845 20 20%29'/%3E%3C/g%3E%3Ccircle cx='20' cy='20' r='4' fill='%23C98A5E' fill-opacity='.6'/%3E%3C/svg%3E");
+
+  /* The woven eight-fold star pattern (Andalusian and Moroccan) behind every screen: a warm sand just deeper than the cream, so it is felt, not read.
+     Every surface that lies on the page is a --rop-panel*, all at --rop-panel-opacity, so a trace of it shows through; text stays above 4.5:1. */
+  --rop-zakhrafa-page: oklch(0.885 0.032 82);
+  --rop-panel-opacity: 80%;
+  --rop-panel: color-mix(in oklab, var(--rop-raised) var(--rop-panel-opacity), transparent);
+  --rop-panel-sunk: color-mix(in oklab, var(--rop-surface-2) var(--rop-panel-opacity), transparent);
+  --rop-panel-selected: color-mix(in oklab, var(--rop-brand-tint) var(--rop-panel-opacity), transparent);
+  --rop-panel-danger: color-mix(in oklab, var(--rop-danger-tint) var(--rop-panel-opacity), transparent);
 
   /* Older names, kept so every screen follows: selection and ink now speak lapis. */
   --rop-selected: var(--rop-brand-tint);
@@ -109,7 +117,7 @@
   --rop-danger-text: oklch(0.98 0.01 15);
   --rop-danger-tint: oklch(0.95 0.03 15);
   --rop-danger-border: oklch(0.8 0.1 15);
-  --rop-grad-success: linear-gradient(155deg, oklch(0.94 0.045 112), oklch(0.9 0.055 120));
+  --rop-grad-success: linear-gradient(155deg, color-mix(in oklab, oklch(0.94 0.045 112) var(--rop-panel-opacity), transparent), color-mix(in oklab, oklch(0.9 0.055 120) var(--rop-panel-opacity), transparent));
   --rop-on-success-tint: oklch(0.3 0.06 120);
   --rop-shadow-success: 0 6px 14px -6px oklch(0.45 0.09 120 / 0.8);
   --rop-on-warning: oklch(0.25 0.06 60);
@@ -148,6 +156,16 @@ body {
   font-variant-numeric: tabular-nums;
   -webkit-text-size-adjust: 100%;
 }
+/* Woven eight-point stars behind the content. Fixed, so it stays still while a screen scrolls. The mask is
+   inlined because the desktop app loads from file://, where a mask file would be blocked. */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--rop-zakhrafa-page);
+  --mask: url('./zakhrafa-page.svg?inline') 0 0 / 300px;
+  -webkit-mask: var(--mask); mask: var(--mask);
+  mask-mode: luminance;
+}
+@media print { body::before { display: none; } }
 h1 { font-size: var(--rop-font-xl); font-weight: 600; line-height: 1.2; margin-block: 0 var(--rop-space-4); }
 h2 { font-size: var(--rop-font-lg); font-weight: 600; line-height: 1.3; margin-block: 0 var(--rop-space-2); }
 h3 { font-size: var(--rop-font); font-weight: 600; margin-block: 0 var(--rop-space-2); }
@@ -172,7 +190,7 @@ strong, b { font-weight: 600; }
   min-block-size: var(--rop-target); min-inline-size: var(--rop-target);
   padding: var(--rop-space-1) var(--rop-space-3);
   border: 1px solid var(--rop-border); border-radius: var(--rop-radius);
-  background: var(--rop-raised); color: var(--rop-text);
+  background: var(--rop-panel); color: var(--rop-text);
   font: inherit; font-weight: 500; line-height: 1.25; text-decoration: none; cursor: pointer;
   box-shadow: var(--rop-shadow-sm);
   transition: background-color var(--rop-fast) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease), color var(--rop-fast) var(--rop-ease),
@@ -198,7 +216,7 @@ strong, b { font-weight: 600; }
 /* Segmented control: a horizontal set of options on a recessed track; the chosen one is raised. */
 .rop-segmented {
   display: inline-flex; flex-wrap: wrap; gap: 2px; max-inline-size: 100%;
-  padding: 3px; border-radius: calc(var(--rop-radius) + 3px); background: var(--rop-surface-2);
+  padding: 3px; border-radius: calc(var(--rop-radius) + 3px); background: var(--rop-panel-sunk);
   box-shadow: inset 0 1px 2px oklch(0.25 0.04 167 / 0.1);
 }
 .rop-segmented > .rop-btn, .rop-segmented > a {
@@ -226,7 +244,7 @@ strong, b { font-weight: 600; }
 input, select, textarea {
   min-block-size: var(--rop-target); padding-inline: var(--rop-space-3);
   border: 1px solid var(--rop-border-strong); border-radius: var(--rop-radius);
-  background: var(--rop-raised); color: var(--rop-text);
+  background: var(--rop-panel); color: var(--rop-text);
   font: inherit; inline-size: 100%;
   transition: border-color var(--rop-fast) var(--rop-ease), box-shadow var(--rop-fast) var(--rop-ease);
 }
@@ -280,8 +298,12 @@ p.rop-state[role='status']::before {
   animation: rop-spin 800ms linear infinite;
 }
 .rop-state p { margin-block: 0 var(--rop-space-3); }
+/* A state that stands on the page itself, not inside a panel, is a panel too. */
+.rop-main > .rop-state:not(.rop-state--error), .rop-main > section > .rop-state:not(.rop-state--error) {
+  border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
+}
 .rop-state--empty::before { content: ''; display: block; inline-size: 2.5rem; block-size: 2.5rem; margin: 0 auto var(--rop-space-3); background: var(--rop-zakhrafa-star) center / contain no-repeat; opacity: 0.9; }
-.rop-state--error { color: var(--rop-text); background: var(--rop-danger-tint); border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius); }
+.rop-state--error { color: var(--rop-text); background: var(--rop-panel-danger); border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius); }
 .rop-state--error h2 { color: var(--rop-danger); }
 .rop-table-wrap { overflow-x: auto; }
 .rop-table { inline-size: 100%; min-inline-size: max-content; border-collapse: collapse; }
@@ -397,7 +419,7 @@ p.rop-state[role='status']::before {
   position: sticky; inset-block-start: 0; z-index: 5;
   display: flex; align-items: center; gap: var(--rop-space-3);
   min-block-size: var(--rop-bar); padding-inline: var(--rop-space-3);
-  background: var(--rop-zakhrafa-on-dark) 0 0 / 56px, var(--rop-grad-rail); color: var(--rop-on-brand); box-shadow: 0 4px 16px -8px oklch(0.2 0.04 167 / 0.6);
+  background: var(--rop-grad-rail); color: var(--rop-on-brand); box-shadow: 0 4px 16px -8px oklch(0.2 0.04 167 / 0.6);
 }
 .rop-brand { display: flex; align-items: center; gap: var(--rop-space-2); margin: 0; font-weight: 600; white-space: nowrap; }
 .rop-brand__mark {
@@ -517,7 +539,7 @@ p.rop-state[role='status']::before {
 
 .rop-login__panel {
   display: grid; gap: var(--rop-space-4); padding: var(--rop-space-5);
-  border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-lg);
+  border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-lg);
   animation: rop-rise var(--rop-slow) var(--rop-ease) backwards;
 }
 .rop-login__panel { position: relative; overflow: hidden; padding-block-start: calc(var(--rop-space-5) + 4.5rem); }

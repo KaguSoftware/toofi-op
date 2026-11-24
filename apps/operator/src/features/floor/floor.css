@@ -9,13 +9,15 @@
 .floor__notice {
   display: flex; align-items: flex-start; gap: var(--rop-space-3);
   padding: var(--rop-space-3) var(--rop-space-4); margin-block-end: var(--rop-space-4);
-  border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius-lg); background: var(--rop-danger-tint);
+  border: 1px solid var(--rop-danger-border); border-radius: var(--rop-radius-lg); background: var(--rop-panel-danger);
 }
 .floor__notice > .rop-icon { color: var(--rop-danger); margin-block-start: 2px; }
 .floor__notice h2 { margin: 0; font-size: var(--rop-font); color: var(--rop-danger); }
 .floor__notice p { margin: 0; }
 
-.floor__grid { display: grid; grid-auto-columns: minmax(9rem, 1fr); grid-auto-rows: minmax(9rem, auto); gap: var(--rop-space-3); }
+/* Areas follow one another down the page; they share a column count so tables line up. */
+.floor__area + .floor__area { margin-block-start: var(--rop-space-5); }
+.floor__grid { display: grid; grid-template-columns: repeat(var(--floor-cols, 1), minmax(9rem, 1fr)); grid-auto-rows: minmax(9rem, auto); gap: var(--rop-space-3); }
 /* Phones: the floor-plan columns do not fit, so tables flow two to a row in reading order. */
 @media (max-width: 40rem) {
   .floor__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -27,7 +29,7 @@
   display: flex; flex-direction: column; align-items: stretch; gap: var(--rop-space-1);
   min-block-size: 9rem; padding: var(--rop-space-3) var(--rop-space-4);
   border: 1px solid var(--rop-border); border-radius: var(--rop-radius-xl);
-  background: var(--rop-raised); color: var(--rop-text); font: inherit; text-align: start; cursor: pointer;
+  background: var(--rop-panel); color: var(--rop-text); font: inherit; text-align: start; cursor: pointer;
   box-shadow: var(--rop-shadow-sm);
   transition: transform var(--rop-base) var(--rop-ease), box-shadow var(--rop-base) var(--rop-ease), border-color var(--rop-fast) var(--rop-ease);
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;

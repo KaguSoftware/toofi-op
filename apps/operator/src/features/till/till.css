@@ -22,11 +22,11 @@
 .rop-till-tabs { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--rop-space-2); }
 .rop-till-tabs .rop-btn { justify-content: space-between; gap: var(--rop-space-3); min-block-size: 3.75rem; padding-inline: var(--rop-space-4); }
 .rop-till-tabs .rop-btn strong { font-size: var(--rop-font-lg); font-weight: 600; }
-.rop-till-tabs .rop-btn[aria-pressed='true'] { background: var(--rop-brand-tint); border-color: var(--rop-brand); color: var(--rop-brand-ink); box-shadow: inset 0 0 0 1px var(--rop-brand), var(--rop-shadow-md); font-weight: 500; }
+.rop-till-tabs .rop-btn[aria-pressed='true'] { background: var(--rop-panel-selected); border-color: var(--rop-brand); color: var(--rop-brand-ink); box-shadow: inset 0 0 0 1px var(--rop-brand), var(--rop-shadow-md); font-weight: 500; }
 .rop-till-tabs .rop-btn[aria-pressed='true'] .rop-money { color: var(--rop-brand-ink); font-weight: 600; }
 .rop-till-tabs .rop-money, .rop-till-tabs time { color: var(--rop-text-muted); font-weight: 400; }
 .rop-till-detail { min-inline-size: 0; }
-.rop-till-detail > .rop-state { border: 1px dashed var(--rop-border-hover); border-radius: var(--rop-radius-lg); padding-block: var(--rop-space-6); }
+.rop-till-detail > .rop-state:not(.rop-state--error) { background: var(--rop-panel); border: 1px dashed var(--rop-border-hover); border-radius: var(--rop-radius-lg); padding-block: var(--rop-space-6); }
 
 /* The bill */
 .rop-till-bill__head { display: flex; justify-content: space-between; align-items: center; gap: var(--rop-space-3); margin-block-end: var(--rop-space-3); }
@@ -36,7 +36,7 @@
 .rop-till-bill__side { display: grid; gap: var(--rop-space-3); min-inline-size: 0; }
 
 /* The check: lines, then totals under a dashed rule, the amount due closing it. */
-.rop-till-check { padding: var(--rop-space-2) var(--rop-space-4) var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); }
+.rop-till-check { padding: var(--rop-space-2) var(--rop-space-4) var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md); }
 .rop-till-check .rop-table th, .rop-till-check .rop-table td { padding-inline: 0; }
 .rop-till-check .rop-table td { border-block-end-style: dashed; }
 .rop-till-check .rop-table th + th, .rop-till-check .rop-table td + td { padding-inline-start: var(--rop-space-3); }
@@ -54,7 +54,7 @@
 .rop-till-actions .rop-btn .rop-icon { transition: transform var(--rop-base) var(--rop-ease); }
 
 /* Split: a panel that unfolds under the check. Its title repeats the toggle, so only screen readers get it. */
-.rop-till-split { display: grid; gap: var(--rop-space-3); justify-items: start; padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); animation: rop-rise var(--rop-base) var(--rop-ease) backwards; }
+.rop-till-split { display: grid; gap: var(--rop-space-3); justify-items: start; padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md); animation: rop-rise var(--rop-base) var(--rop-ease) backwards; }
 .rop-till-split > h2 { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .rop-till-split > div:not([role]) { display: grid; gap: var(--rop-space-2); inline-size: 100%; }
 /* A long share label wraps as ordinary text instead of as separate flex items. */
@@ -64,7 +64,7 @@
 .rop-till-picklist, .rop-till-payments { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--rop-space-1); inline-size: 100%; }
 /* Refunds: each payment is a small card; its two fields sit side by side with Refund under them. */
 .rop-till-payments { gap: var(--rop-space-2); }
-.rop-till-payments li { display: grid; gap: var(--rop-space-3); padding: var(--rop-space-3) var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); }
+.rop-till-payments li { display: grid; gap: var(--rop-space-3); padding: var(--rop-space-3) var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md); }
 .rop-till-payments li > p { margin: 0; }
 .rop-till-payments li > p:first-child { font-weight: 600; }
 .rop-till-payments form { grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); align-items: start; }
@@ -82,7 +82,7 @@
 .rop-till-settled p { margin: 0; color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
 
 /* Payment pane: what is due first and largest, then how, how much, and the change. */
-.rop-till-pay { display: grid; gap: var(--rop-space-3); padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); }
+.rop-till-pay { display: grid; gap: var(--rop-space-3); padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md); }
 .rop-till-pay h2 { margin: 0; font-size: var(--rop-font-sm); font-weight: 500; color: var(--rop-text-muted); }
 .rop-till-pay > p { margin: 0; }
 /* The amount due sits on a charcoal plate with the copper star lattice: the number the whole till is about. */
@@ -141,7 +141,7 @@
 .rop-shift__layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--rop-space-4); align-items: start; }
 .rop-shift__main > section, .rop-shift__side > section {
   display: grid; gap: var(--rop-space-3); justify-items: start;
-  padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md);
+  padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md);
 }
 .rop-shift__main > section > *, .rop-shift__side > section > .rop-form { inline-size: 100%; }
 .rop-shift__main > section > .rop-btn:last-of-type { min-block-size: 3.5rem; font-size: var(--rop-font-lg); }
@@ -159,7 +159,7 @@
 .rop-shift__others li p { display: grid; }
 .rop-shift__others li p span { font-size: var(--rop-font-sm); color: var(--rop-text-muted); }
 
-.rop-shift-result { display: grid; gap: var(--rop-space-3); margin-block-end: var(--rop-space-4); padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-raised); box-shadow: var(--rop-shadow-md); max-inline-size: 36rem; animation: rop-dialog-in var(--rop-slow) var(--rop-ease); }
+.rop-shift-result { display: grid; gap: var(--rop-space-3); margin-block-end: var(--rop-space-4); padding: var(--rop-space-4); border: 0; border-radius: var(--rop-radius-xl); background: var(--rop-panel); box-shadow: var(--rop-shadow-md); max-inline-size: 36rem; animation: rop-dialog-in var(--rop-slow) var(--rop-ease); }
 .rop-shift-result h2 { margin: 0; font-size: var(--rop-font-lg); }
 .rop-shift-result dl { display: grid; grid-template-columns: 1fr auto; gap: var(--rop-space-1) var(--rop-space-4); margin: 0; }
 .rop-shift-result dt { color: var(--rop-text-muted); }

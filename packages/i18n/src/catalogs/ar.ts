@@ -78,7 +78,6 @@ export const ar: Messages = {
     sections: 'أقسام الصالة',
     tables: 'الطاولات',
     bills: 'الفواتير',
-    areasLabel: 'المناطق',
     noAreas: 'لم يتم إعداد مخطط الصالة بعد. اسأل المدير.',
     noTables: 'لا توجد طاولات في هذه المنطقة.',
     free: 'فارغة',
