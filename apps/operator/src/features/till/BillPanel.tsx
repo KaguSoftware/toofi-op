@@ -5,7 +5,7 @@ import { formatDateTime, formatIQD } from '@rop/i18n';
 import { Button, DataTable, ErrorState, Icon, Loading, Money, useToast, type Column } from '../../components';
 import { useLocale } from '../../lib/i18n';
 import { printReceipt } from '../../lib/print';
-import { QK } from '../../lib/queryKeys';
+import { QK, refreshTabs } from '../../lib/queryKeys';
 import { DiscountControl } from './DiscountControl';
 import { PaymentPane } from './PaymentPane';
 import { RefundPanel } from './RefundPanel';
@@ -14,15 +14,17 @@ import { loadSplit, markLinesPaid, pruneSplit, saveSplit, type SplitState } from
 import { fetchBill, fetchReceiptSettings, type Bill, type BillLine } from './tillData';
 import { buildReceiptHtml } from './receiptLogic';
 import type { SettleResult } from './tillLogic';
+import './till.css';
 
 export interface BillPanelProps {
   tabId: string;
   role: StaffRole | null;
   shiftOpen: boolean;
   onBack: () => void;
+  backLabel: string;
 }
 
-export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
+export function BillPanel({ tabId, role, shiftOpen, onBack, backLabel }: BillPanelProps) {
   const { tr, locale } = useLocale();
   const toast = useToast();
   const qc = useQueryClient();
@@ -40,7 +42,7 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
       saveSplit(localStorage, tabId, next);
       return next;
     });
-  const refresh = () => void qc.invalidateQueries({ queryKey: ['till'] });
+  const refresh = () => refreshTabs(qc);
 
   if (q.isPending) return <Loading />;
   if (q.isError) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
@@ -99,7 +101,7 @@ export function BillPanel({ tabId, role, shiftOpen, onBack }: BillPanelProps) {
         <h2 id="till-bill-title">
           {tr('till.bill.title')}: {title}
         </h2>
-        <Button onClick={onBack}>{tr('till.back')}</Button>
+        <Button onClick={onBack}>{backLabel}</Button>
       </header>
 
       <div className="rop-till-bill__cols">

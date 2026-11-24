@@ -54,7 +54,7 @@ test('Arabic: waiter flow, an error toast in Arabic, then the cashier settles', 
   await cashierPage.goto('/till/shift');
   await cashierPage.locator('section[aria-labelledby=shift-open-title] button.rop-btn--primary').click();
   await expect(cashierPage.locator('section[aria-labelledby=shift-close-title]')).toBeVisible();
-  await cashierPage.goto('/till');
+  await cashierPage.goto('/floor/bills');
   await cashierPage.locator('.rop-till-tabs button', { hasText: 'T2' }).click();
   const pay = cashierPage.locator('.rop-till-pay');
   await expect(pay.locator('input[type=text]')).toHaveValue('15000');

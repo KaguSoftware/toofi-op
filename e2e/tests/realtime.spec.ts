@@ -12,7 +12,7 @@ test('a waiter sending an order updates the cashier till without a reload', asyn
   await setLang(cashierCtx, 'en');
   const cashier = await cashierCtx.newPage();
   await signIn(cashier, 'cashier');
-  await cashier.goto('/till');
+  await cashier.goto('/floor/bills');
   const row = cashier.locator('.rop-till-tabs button', { hasText: 'T8' });
   await expect(row).toBeVisible();
   await expect(row).not.toContainText('4,000');

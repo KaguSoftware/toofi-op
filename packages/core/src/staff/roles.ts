@@ -29,6 +29,7 @@ export function isStaffRole(value: unknown): value is StaffRole {
  */
 export const ROUTE_ROLES: Readonly<Record<string, readonly StaffRole[]>> = {
   '/floor': ALL,
+  '/floor/bills': CASHIER_UP,
   '/tab': ALL,
   '/till': CASHIER_UP,
   '/manage': MANAGER_UP,
@@ -119,7 +120,7 @@ export function needsManagerPin(role: StaffRole | null | undefined, capability: 
 
 const HOME: Record<StaffRole, string> = {
   waiter: '/floor',
-  cashier: '/till',
+  cashier: '/floor',
   manager: '/manage',
   owner: '/manage',
 };

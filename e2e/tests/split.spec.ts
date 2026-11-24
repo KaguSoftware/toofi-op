@@ -15,7 +15,7 @@ test('split by item: paid lines stay paid, also after a reload', async ({ page }
   await page.locator('section[aria-labelledby=shift-open-title]').getByRole('button', { name: 'Open shift' }).click();
   await expect(page.locator('section[aria-labelledby=shift-close-title]')).toBeVisible();
 
-  await page.goto('/till');
+  await page.goto('/floor/bills');
   await page.locator('.rop-till-tabs button', { hasText: 'T6' }).click();
   await page.getByRole('button', { name: 'Split the bill' }).click();
   await page.getByRole('button', { name: 'By item' }).click();

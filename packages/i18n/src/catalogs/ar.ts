@@ -41,7 +41,6 @@ export const ar: Messages = {
     main: 'التنقل الرئيسي',
     skipToContent: 'انتقل إلى المحتوى',
     floor: 'الصالة',
-    till: 'الصندوق',
     shift: 'الوردية',
     manage: 'التقارير',
     day: 'اليوم',
@@ -76,6 +75,9 @@ export const ar: Messages = {
   },
   floor: {
     title: 'الصالة',
+    sections: 'أقسام الصالة',
+    tables: 'الطاولات',
+    bills: 'الفواتير',
     areasLabel: 'المناطق',
     noAreas: 'لم يتم إعداد مخطط الصالة بعد. اسأل المدير.',
     noTables: 'لا توجد طاولات في هذه المنطقة.',
@@ -105,6 +107,8 @@ export const ar: Messages = {
   tab: {
     title: 'الحساب',
     backToFloor: 'العودة إلى الصالة',
+    backToOrder: 'العودة إلى الطلب',
+    collect: 'تحصيل الدفع',
     table: 'الطاولة {label}',
     noTable: 'بدون طاولة',
     opened: 'فُتحت {time}',
@@ -178,7 +182,6 @@ export const ar: Messages = {
     cancelled: 'تم إلغاء الفاتورة.',
   },
   till: {
-    title: 'الصندوق',
     shiftTitle: 'وردية الصندوق',
     back: 'العودة إلى القائمة',
     search: 'ابحث برقم الطاولة',

@@ -56,7 +56,7 @@ test('screenshots of every screen', async ({ page }, testInfo) => {
   await page.keyboard.press('Escape');
 
   await visit('/till/shift', 'till-shift');
-  await page.goto('/till');
+  await page.goto('/floor/bills');
   await page.locator('.rop-till-tabs button').first().click();
   await shot(page, lang, 'till', '.rop-till-bill');
   await page.locator('.rop-till-list [aria-pressed]').nth(1).click();

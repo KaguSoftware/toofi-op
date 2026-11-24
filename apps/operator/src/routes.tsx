@@ -44,16 +44,23 @@ const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', com
 const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: '/login', component: LoginScreen });
 const shellRoutes = [indexRoute, loginRoute];
 
-// ---- floor: /floor ----
+// ---- floor: /floor, /floor/bills ----
 const floorRoute = createRoute({ getParentRoute: () => rootRoute, path: '/floor', component: FloorScreen });
-const floorRoutes = [floorRoute];
+const billsRoute = createRoute({ getParentRoute: () => rootRoute, path: '/floor/bills', component: TillScreen });
+const floorRoutes = [floorRoute, billsRoute];
 
 // ---- tab: /tab/$tabId ----
 const tabRoute = createRoute({ getParentRoute: () => rootRoute, path: '/tab/$tabId', component: TabScreen });
 const tabRoutes = [tabRoute];
 
-// ---- till: /till, /till/shift ----
-const tillRoute = createRoute({ getParentRoute: () => rootRoute, path: '/till', component: TillScreen });
+// ---- till: /till/shift (bills and payment live under the floor; /till is the old address) ----
+const tillRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/till',
+  beforeLoad: () => {
+    throw redirect({ to: '/floor/bills' });
+  },
+});
 const shiftRoute = createRoute({ getParentRoute: () => rootRoute, path: '/till/shift', component: ShiftScreen });
 const tillRoutes = [tillRoute, shiftRoute];
 

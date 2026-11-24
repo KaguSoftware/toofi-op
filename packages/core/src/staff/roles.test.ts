@@ -30,6 +30,7 @@ describe('canAccess (SPEC routes)', () => {
   const table: Array<[route: string, allowed: StaffRole[]]> = [
     ['/floor', ['waiter', 'cashier', 'manager', 'owner']],
     ['/tab', ['waiter', 'cashier', 'manager', 'owner']],
+    ['/floor/bills', ['cashier', 'manager', 'owner']],
     ['/till', ['cashier', 'manager', 'owner']],
     ['/manage', ['manager', 'owner']],
     ['/stock', ['manager', 'owner']],
@@ -66,7 +67,7 @@ describe('canAccess (SPEC routes)', () => {
 
   it('lists every SPEC route', () => {
     expect(Object.keys(ROUTE_ROLES).sort()).toEqual(
-      ['/floor', '/manage', '/manage/staff', '/stock', '/tab', '/till'].sort(),
+      ['/floor', '/floor/bills', '/manage', '/manage/staff', '/stock', '/tab', '/till'].sort(),
     );
   });
 });
@@ -115,7 +116,7 @@ describe('can / needsManagerPin (SPEC role table)', () => {
 describe('homeRouteFor', () => {
   it('sends each role to a screen it can open', () => {
     expect(homeRouteFor('waiter')).toBe('/floor');
-    expect(homeRouteFor('cashier')).toBe('/till');
+    expect(homeRouteFor('cashier')).toBe('/floor');
     expect(homeRouteFor('manager')).toBe('/manage');
     expect(homeRouteFor('owner')).toBe('/manage');
     for (const role of STAFF_ROLES) expect(canAccess(role, homeRouteFor(role))).toBe(true);

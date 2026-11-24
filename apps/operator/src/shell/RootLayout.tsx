@@ -11,7 +11,6 @@ import { KioskControls } from './KioskControls';
 /** One icon per destination; the label under it carries the name. */
 const NAV_ICONS: Record<string, IconName> = {
   '/floor': 'floor',
-  '/till': 'till',
   '/till/shift': 'shift',
   '/manage': 'reports',
   '/manage/day': 'day',
@@ -69,7 +68,7 @@ export function RootLayout() {
                   {tr(group.labelKey)}
                 </p>
                 {group.items.map((item) => (
-                  <Link key={item.to} to={item.to} activeOptions={{ exact: item.to !== '/stock' }}>
+                  <Link key={item.to} to={item.to} activeOptions={{ exact: item.to !== '/stock' && item.to !== '/floor' }}>
                     <Icon name={NAV_ICONS[item.to] ?? 'floor'} />
                     <span className="rop-nav__label">{tr(item.labelKey)}</span>
                   </Link>

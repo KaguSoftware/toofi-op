@@ -19,7 +19,7 @@ import { useAuth } from '../../lib/auth';
 import { errorMessage } from '../../lib/errors';
 import { newIdem } from '../../lib/idem';
 import { useLocale } from '../../lib/i18n';
-import { QK } from '../../lib/queryKeys';
+import { QK, refreshTabs } from '../../lib/queryKeys';
 import { useBroadcast } from '../../lib/realtime';
 import { supabase } from '../../lib/supabase';
 import {
@@ -35,6 +35,7 @@ import {
   type FloorArea,
   type FloorRow,
 } from './floorLogic';
+import { FloorNav } from './FloorNav';
 import './floor.css';
 
 async function fetchAreas(): Promise<FloorArea[]> {
@@ -101,7 +102,7 @@ export function FloorScreen() {
       });
       setDayClosed(false);
       setPending(null);
-      void qc.invalidateQueries({ queryKey: ['floor'] });
+      refreshTabs(qc);
       void navigate({ to: '/tab/$tabId', params: { tabId: res.tab_id } });
     } catch (err) {
       if (err instanceof AppRpcError && err.code === 'DAY_NOT_OPEN') {
@@ -176,7 +177,9 @@ export function FloorScreen() {
             ))}
           </div>
         }
-      />
+      >
+        <FloorNav />
+      </PageHeader>
 
       {dayClosed && (
         <div role="alert" className="floor__notice">

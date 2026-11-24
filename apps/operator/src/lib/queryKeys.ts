@@ -1,3 +1,5 @@
+import type { QueryClient } from '@tanstack/react-query';
+
 // Every React Query key lives here, so a realtime signal can invalidate by prefix.
 // Pattern: QK.<name>(...args) returns a tuple whose first item is the area name
 // ('floor', 'tab', 'till', 'manage', 'stock'). Each screen agent adds keys in its own block.
@@ -30,3 +32,12 @@ export const TOPIC_PREFIXES: Readonly<Record<string, readonly (readonly string[]
   tabs: [['floor'], ['tab'], ['till']],
   stock: [['stock']],
 };
+
+/**
+ * After this device writes to a tab: the floor, the tab and the bill all show the same money,
+ * so all of them refetch. Realtime is for other devices; a missed echo must not leave our own
+ * screens on the old figures.
+ */
+export function refreshTabs(qc: QueryClient): void {
+  for (const prefix of TOPIC_PREFIXES.tabs ?? []) void qc.invalidateQueries({ queryKey: [...prefix] });
+}

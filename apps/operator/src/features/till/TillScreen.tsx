@@ -1,35 +1,33 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
 import { formatTime } from '@rop/i18n';
 import { Button, EmptyState, ErrorState, Icon, Loading, Money, PageHeader } from '../../components';
 import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
-import { stationId } from '../../lib/idem';
 import { QK } from '../../lib/queryKeys';
 import { useBroadcast } from '../../lib/realtime';
+import { FloorNav } from '../floor/FloorNav';
 import { BillPanel } from './BillPanel';
-import { fetchOpenTabs, fetchSettledToday, fetchShiftStatus } from './tillData';
+import { ShiftBadge, useShiftOpen } from './ShiftBadge';
+import { fetchOpenTabs, fetchSettledToday } from './tillData';
 import { filterByLabel } from './tillLogic';
 import './till.css';
 
 type View = 'open' | 'settled';
 
+/** The bills view of the floor: every open bill, and today's settled ones for a reprint or a refund. */
 export function TillScreen() {
   const { tr, locale } = useLocale();
   const { staff } = useAuth();
   const [view, setView] = useState<View>('open');
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
-  const device = stationId();
 
   useBroadcast(staff ? `tabs:${staff.venueId}` : null);
 
   const open = useQuery({ queryKey: QK.tillOpenTabs(), queryFn: fetchOpenTabs, enabled: view === 'open' });
   const settled = useQuery({ queryKey: QK.tillSettled(), queryFn: fetchSettledToday, enabled: view === 'settled' });
-  const shift = useQuery({ queryKey: QK.tillShiftStatus(device), queryFn: () => fetchShiftStatus(device) });
-  // While the status is unknown, do not claim there is no shift.
-  const shiftOpen = shift.data ? shift.data.open : true;
+  const shift = useShiftOpen();
 
   const labelOf = (l: string | null) => (l ? tr('till.table', { label: l }) : tr('till.noTable'));
   const switchView = (v: View) => {
@@ -54,25 +52,14 @@ export function TillScreen() {
   return (
     <section className="rop-till">
       <PageHeader
-        title={tr('till.title')} icon="till"
-        meta={
-          shift.data &&
-          (shift.data.open ? (
-            <span className="rop-badge" data-tone="success">
-              <span className="rop-dot" />
-              {tr('till.shiftOn')}
-            </span>
-          ) : (
-            <p role="status" className="rop-till-banner">
-              <Icon name="alert" size={18} />
-              <span>{tr('till.noShiftBanner')}</span> <Link to="/till/shift">{tr('till.openShiftLink')}</Link>
-            </p>
-          ))
-        }
-      />
+        title={tr('floor.bills')} icon="till"
+        meta={<ShiftBadge open={shift} />}
+      >
+        <FloorNav />
+      </PageHeader>
       <div className="rop-till-layout">
         <div className="rop-till-list">
-          <div className="rop-segmented" role="group" aria-label={tr('till.title')}>
+          <div className="rop-segmented" role="group" aria-label={tr('floor.bills')}>
             <Button aria-pressed={view === 'open'} onClick={() => switchView('open')}>
               {tr('till.openTabs')}
             </Button>
@@ -112,8 +99,10 @@ export function TillScreen() {
               key={selected}
               tabId={selected}
               role={staff?.role ?? null}
-              shiftOpen={shiftOpen}
+              // While the status is unknown, do not claim there is no shift.
+              shiftOpen={shift ?? true}
               onBack={() => setSelected(null)}
+              backLabel={tr('till.back')}
             />
           ) : (
             <EmptyState message={tr('till.selectTab')} />

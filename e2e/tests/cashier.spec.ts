@@ -22,7 +22,7 @@ test('cashier: shift, discount with PIN, even split cash+card, receipt, refund, 
   await open.getByRole('button').last().click();
   await expect(page.locator('section[aria-labelledby=shift-close-title]')).toBeVisible();
 
-  await page.goto('/till');
+  await page.goto('/floor/bills');
   await page.locator('.rop-till-tabs button', { hasText: 'T3' }).click();
   await expect(page.locator('.rop-till-bill')).toBeVisible();
   expect(await dueOf(page)).toBe(24000);

@@ -76,3 +76,6 @@
 .floor__covers { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--rop-space-2); }
 .floor__covers .rop-btn { min-block-size: 3.5rem; font-size: var(--rop-font-lg); }
 .floor__covers .rop-btn[aria-pressed='true'] { background: var(--rop-grad-brand); border-color: transparent; color: var(--rop-on-brand); box-shadow: var(--rop-shadow-brand); }
+
+/* Tables and bills: the two views of the floor, under the title. */
+.floor__nav { justify-self: start; }

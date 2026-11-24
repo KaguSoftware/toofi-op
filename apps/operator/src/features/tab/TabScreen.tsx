@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from '@tanstack/react-router';
-import { needsManagerPin } from '@rop/core';
+import { can, needsManagerPin } from '@rop/core';
 import { formatTime } from '@rop/i18n';
 import { ConfirmDialog, EmptyState, ErrorState, Button, Icon, Loading, Money, PageHeader, PinReasonModal, useToast } from '../../components';
 import { appRpc } from '../../lib/appRpc';
@@ -10,9 +10,11 @@ import { errorMessage } from '../../lib/errors';
 import { newIdem } from '../../lib/idem';
 import { isUnclearFailure } from '../../lib/unclearLogic';
 import { useLocale } from '../../lib/i18n';
-import { QK } from '../../lib/queryKeys';
+import { QK, refreshTabs } from '../../lib/queryKeys';
 import { useBroadcast } from '../../lib/realtime';
 import { supabase } from '../../lib/supabase';
+import { BillPanel } from '../till/BillPanel';
+import { ShiftBadge, useShiftOpen } from '../till/ShiftBadge';
 import { BasketPanel } from './BasketPanel';
 import {
   addLine,
@@ -118,6 +120,16 @@ export function TabScreen() {
   return tabId ? <TabView key={tabId} tabId={tabId} /> : null;
 }
 
+function BackToFloor() {
+  const { tr } = useLocale();
+  return (
+    <Link to="/floor" className="rop-btn rop-btn--ghost tab__back" aria-label={tr('tab.backToFloor')}>
+      <Icon name="back" />
+      <span>{tr('nav.floor')}</span>
+    </Link>
+  );
+}
+
 type Dialog = null | 'transfer' | 'merge' | 'cancel';
 
 function TabView({ tabId }: { tabId: string }) {
@@ -148,8 +160,13 @@ function TabView({ tabId }: { tabId: string }) {
   const [voidLine, setVoidLine] = useState<SentLine | null>(null);
   const [busy, setBusy] = useState(false);
   const [dialogError, setDialogError] = useState<string | null>(null);
+  // The tab as it was when payment started: settling takes it off the open list, but its
+  // change and receipt must stay on screen.
+  const [paying, setPaying] = useState<OpenTab | null>(null);
 
   const role = staff?.role ?? null;
+  const mayCollect = can(role, 'takePayment');
+  const shiftOpen = useShiftOpen(mayCollect);
   const tab = openTabs.data?.find((t) => t.tab_id === tabId);
   const sent = lines.data ?? [];
   const active = hasActiveLines(sent);
@@ -161,7 +178,7 @@ function TabView({ tabId }: { tabId: string }) {
     setBasket(next);
     saveBasket(localStorage, tabId, next);
   }
-  const refresh = () => void qc.invalidateQueries({ queryKey: ['tab'] }).then(() => qc.invalidateQueries({ queryKey: ['floor'] }));
+  const refresh = () => refreshTabs(qc);
 
   /** Re-read the tab's lines: a new order means the send landed; otherwise unlock and keep the key. */
   async function checkSend() {
@@ -260,6 +277,26 @@ function TabView({ tabId }: { tabId: string }) {
     }
   }
 
+  // Before the loading and error states: a failed background refetch must not unmount a payment.
+  if (paying) {
+    return (
+      <section className="rop-till">
+        <PageHeader
+          className="tab__header"
+          lead={<BackToFloor />}
+          title={paying.table_label ? tr('tab.table', { label: paying.table_label }) : tr('tab.noTable')}
+          meta={<ShiftBadge open={shiftOpen} />}
+        />
+        <BillPanel
+          tabId={tabId}
+          role={role}
+          shiftOpen={shiftOpen ?? true} // while the status is unknown, do not claim there is no shift
+          onBack={() => (tab ? setPaying(null) : void navigate({ to: '/floor' }))}
+          backLabel={tr(tab ? 'tab.backToOrder' : 'tab.backToFloor')}
+        />
+      </section>
+    );
+  }
   if (openTabs.isPending || lines.isPending) return <Loading />;
   const failed = openTabs.error ?? lines.error;
   if (failed) {
@@ -302,12 +339,7 @@ function TabView({ tabId }: { tabId: string }) {
     <section className="tab">
       <PageHeader
         className="tab__header"
-        lead={
-          <Link to="/floor" className="rop-btn rop-btn--ghost tab__back" aria-label={tr('tab.backToFloor')}>
-            <Icon name="back" />
-            <span>{tr('nav.floor')}</span>
-          </Link>
-        }
+        lead={<BackToFloor />}
         title={tab.table_label ? tr('tab.table', { label: tab.table_label }) : tr('tab.noTable')}
         meta={
           <>
@@ -484,6 +516,17 @@ function TabView({ tabId }: { tabId: string }) {
                 <dd>…</dd>
               )}
             </dl>
+            {mayCollect && (
+              <Button
+                className="tab__collect"
+                disabled={!active || !canLeave}
+                title={canLeave ? undefined : tr('tab.sendFirst')}
+                onClick={() => setPaying(tab)}
+              >
+                <Icon name="cash" size={20} />
+                {tr('tab.collect')}
+              </Button>
+            )}
           </section>
         </div>
       </div>

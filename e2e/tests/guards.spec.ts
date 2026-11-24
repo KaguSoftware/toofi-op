@@ -5,7 +5,7 @@ import { setLang, signIn } from '../support/ui';
 test.beforeAll(resetDb);
 
 for (const [role, blocked] of [
-  ['waiter', ['/till', '/manage', '/stock', '/manage/staff']],
+  ['waiter', ['/floor/bills', '/till', '/till/shift', '/manage', '/stock', '/manage/staff']],
   ['cashier', ['/manage', '/manage/staff', '/stock']],
   ['manager', ['/manage/staff']],
 ] as const) {
@@ -21,6 +21,6 @@ for (const [role, blocked] of [
 }
 
 test('signed out visitors land on the login page', async ({ page }) => {
-  await page.goto('/till');
+  await page.goto('/floor/bills');
   await expect(page).toHaveURL(/\/login/);
 });

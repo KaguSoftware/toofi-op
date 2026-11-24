@@ -5,7 +5,7 @@ const tos = (role: Parameters<typeof navFor>[0]) => navFor(role).map((i) => i.to
 
 describe('navFor', () => {
   it('waiter sees only the floor', () => expect(tos('waiter')).toEqual(['/floor']));
-  it('cashier adds till and shift', () => expect(tos('cashier')).toEqual(['/floor', '/till', '/till/shift']));
+  it('cashier adds the shift', () => expect(tos('cashier')).toEqual(['/floor', '/till/shift']));
   it('manager sees manage and stock but not staff', () => {
     expect(tos('manager')).toContain('/manage/day');
     expect(tos('manager')).toContain('/stock');
@@ -18,10 +18,10 @@ describe('navFor', () => {
 describe('navGroupsFor', () => {
   const shape = (role: Parameters<typeof navGroupsFor>[0]) => navGroupsFor(role).map((g) => [g.id, g.items.map((i) => i.to)]);
   it('waiter gets one group with the floor', () => expect(shape('waiter')).toEqual([['service', ['/floor']]]));
-  it('cashier stays inside service', () => expect(shape('cashier')).toEqual([['service', ['/floor', '/till', '/till/shift']]]));
+  it('cashier stays inside service', () => expect(shape('cashier')).toEqual([['service', ['/floor', '/till/shift']]]));
   it('manager gets service, business and setup without staff', () =>
     expect(shape('manager')).toEqual([
-      ['service', ['/floor', '/till', '/till/shift']],
+      ['service', ['/floor', '/till/shift']],
       ['business', ['/manage', '/manage/day', '/stock']],
       ['setup', ['/manage/menu', '/manage/floor']],
     ]));
@@ -41,9 +41,9 @@ describe('navLayoutFor', () => {
 });
 
 describe('guardRedirect', () => {
-  it('does not move anyone while loading', () => expect(guardRedirect('loading', null, '/till')).toBeNull());
+  it('does not move anyone while loading', () => expect(guardRedirect('loading', null, '/floor/bills')).toBeNull());
   it('sends signed-out visitors to /login', () => {
-    expect(guardRedirect('signedOut', null, '/till')).toBe('/login');
+    expect(guardRedirect('signedOut', null, '/floor/bills')).toBe('/login');
     expect(guardRedirect('signedOut', null, '/login')).toBeNull();
   });
   it('sends signed-in people home from / and /login', () => {
@@ -51,9 +51,10 @@ describe('guardRedirect', () => {
     expect(guardRedirect('ready', 'owner', '/login')).toBe('/manage');
   });
   it('sends a role away from a route it may not open', () => {
-    expect(guardRedirect('ready', 'waiter', '/till')).toBe('/floor');
+    expect(guardRedirect('ready', 'waiter', '/floor/bills')).toBe('/floor');
+    expect(guardRedirect('ready', 'waiter', '/till/shift')).toBe('/floor');
     expect(guardRedirect('ready', 'manager', '/manage/staff')).toBe('/manage');
-    expect(guardRedirect('ready', 'cashier', '/manage')).toBe('/till');
+    expect(guardRedirect('ready', 'cashier', '/manage')).toBe('/floor');
   });
   it('lets a role stay where it may be', () => {
     expect(guardRedirect('ready', 'waiter', '/tab/abc')).toBeNull();

@@ -47,7 +47,6 @@ const enLiteral = {
     main: 'Main navigation',
     skipToContent: 'Skip to content',
     floor: 'Floor',
-    till: 'Till',
     shift: 'Shift',
     manage: 'Reports',
     day: 'Day',
@@ -82,6 +81,9 @@ const enLiteral = {
   },
   floor: {
     title: 'Floor',
+    sections: 'Floor views',
+    tables: 'Tables',
+    bills: 'Bills',
     areasLabel: 'Areas',
     noAreas: 'No floor plan is set up yet. Ask a manager.',
     noTables: 'No tables in this area.',
@@ -111,6 +113,8 @@ const enLiteral = {
   tab: {
     title: 'Tab',
     backToFloor: 'Back to floor',
+    backToOrder: 'Back to the order',
+    collect: 'Collect payment',
     table: 'Table {label}',
     noTable: 'No table',
     opened: 'Opened {time}',
@@ -184,7 +188,6 @@ const enLiteral = {
     cancelled: 'Tab cancelled.',
   },
   till: {
-    title: 'Till',
     shiftTitle: 'Till shift',
     back: 'Back to list',
     search: 'Search by table',

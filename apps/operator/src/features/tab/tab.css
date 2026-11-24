@@ -134,6 +134,8 @@
 .item-sheet__qty output { min-inline-size: 3rem; text-align: center; font-size: var(--rop-font-lg); font-weight: 600; }
 .item-sheet__price { margin: 0; color: var(--rop-text-muted); }
 
+.tab__collect.rop-btn { inline-size: 100%; min-block-size: 3.25rem; margin-block-start: var(--rop-space-3); }
+
 /* Landscape tablets and the till: the ticket stays in view and the screen never scrolls as a page;
    items and sent lines scroll inside their zones. */
 @media (min-width: 56rem) {
@@ -150,7 +152,7 @@
     padding-block-end: var(--rop-space-3);
   }
   .tab__orders { flex: 1 1 auto; min-block-size: 0; overflow-y: auto; margin-inline: calc(-1 * var(--rop-space-4)); padding-inline: var(--rop-space-4); }
-  .tab__totals { flex: none; }
+  .tab__totals, .tab__collect { flex: none; }
   .basket { flex: none; }
   .basket__lines { max-block-size: 26dvh; }
 }

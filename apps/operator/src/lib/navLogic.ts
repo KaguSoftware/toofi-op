@@ -13,7 +13,6 @@ export interface NavItem {
 /** Every top-level link. Visibility comes from @rop/core canAccess; nothing is hard-coded per role. */
 export const NAV_ITEMS: readonly NavItem[] = [
   { to: '/floor', labelKey: 'nav.floor', group: 'service' },
-  { to: '/till', labelKey: 'nav.till', group: 'service' },
   { to: '/till/shift', labelKey: 'nav.shift', group: 'service' },
   { to: '/manage', labelKey: 'nav.manage', group: 'business' },
   { to: '/manage/day', labelKey: 'nav.day', group: 'business' },
