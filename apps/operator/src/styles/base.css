@@ -58,8 +58,6 @@
   --rop-on-charcoal-muted: oklch(0.8 0.02 80);
   --rop-shadow-charcoal: 0 10px 24px -10px oklch(0.15 0.005 286 / 0.7), inset 0 1px 0 oklch(1 0 0 / 0.08);
   --rop-grad-rail: linear-gradient(180deg, oklch(0.27 0.005 286), oklch(0.19 0.004 286));
-  /* The Rub el Hizb: an eight-point star from two squares, for header badges. */
-  --rop-star: polygon(50% 0%, 64.64% 14.64%, 85.36% 14.64%, 85.36% 35.36%, 100% 50%, 85.36% 64.64%, 85.36% 85.36%, 64.64% 85.36%, 50% 100%, 35.36% 85.36%, 14.64% 85.36%, 14.64% 64.64%, 0% 50%, 14.64% 35.36%, 14.64% 14.64%, 35.36% 14.64%);
   /* Terra Cotta (#B84C2E): the action colour. -ink is dark enough for text on cream. */
   --rop-terra: oklch(0.554 0.147 36);
   --rop-terra-ink: oklch(0.48 0.14 36);
@@ -378,27 +376,27 @@ p.rop-state[role='status']::before {
 }
 .rop-page-head__meta > * { display: inline-flex; align-items: center; gap: var(--rop-space-1); }
 .rop-page-head__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-2); }
-/* Header badge: an eight-point star (Rub el Hizb) in charcoal, set in a metal star a step larger:
-   olive on service screens, copper on business and setup screens. */
+/* Header badge, the doorplate: a charcoal rounded square set in a thin metal frame with a fainter
+   hairline inside it, like the brand mark. Metal is olive on service screens, copper on business and setup screens. */
 .rop-page-head__badge {
+  --metal: var(--rop-olive-bright);
   position: relative; display: inline-grid; place-items: center; flex: none;
   inline-size: 3.5rem; block-size: 3.5rem;
-  filter: drop-shadow(0 8px 12px oklch(0.15 0.005 286 / 0.35));
+  filter: drop-shadow(0 8px 12px oklch(0.15 0.005 286 / 0.3));
 }
+.rop-page-head__badge[data-tone='accent'] { --metal: var(--rop-copper); }
 .rop-page-head__badge::before {
-  content: ''; position: absolute; inset: 0; clip-path: var(--rop-star);
-  background: linear-gradient(160deg, oklch(0.8 0.1 116), var(--rop-olive-bright) 55%, oklch(0.52 0.09 122));
+  content: ''; position: absolute; inset: 0; border-radius: var(--rop-radius-lg); background: var(--metal);
 }
-.rop-page-head__badge[data-tone='accent']::before { background: linear-gradient(160deg, oklch(0.78 0.09 60), var(--rop-copper) 55%, oklch(0.55 0.09 50)); }
 .rop-page-head__icon {
-  position: relative; display: inline-grid; place-items: center; inline-size: calc(100% - 5px); block-size: calc(100% - 5px);
-  clip-path: var(--rop-star); background: var(--rop-zakhrafa-on-dark) center / 28px, var(--rop-grad-charcoal); color: var(--rop-olive-bright);
-  transition: transform var(--rop-slow) var(--rop-ease);
+  position: absolute; inset: 2px; display: grid; place-items: center;
+  border-radius: calc(var(--rop-radius-lg) - 2px); background: var(--rop-grad-charcoal); color: var(--metal);
 }
-.rop-page-head__badge[data-tone='accent'] .rop-page-head__icon { color: var(--rop-copper); }
-.rop-page-head__icon .rop-icon { inline-size: 1.5rem; block-size: 1.5rem; }
-.rop-main > * .rop-page-head__badge { animation: rop-badge-in var(--rop-slow) var(--rop-ease) backwards; }
-@keyframes rop-badge-in { from { opacity: 0; transform: rotate(-45deg) scale(0.7); } to { opacity: 1; transform: none; } }
+.rop-page-head__icon::after {
+  content: ''; position: absolute; inset: 3px; border-radius: calc(var(--rop-radius-lg) - 5px);
+  border: 1px solid var(--metal); opacity: 0.45;
+}
+.rop-page-head__icon .rop-icon { position: relative; inline-size: 1.5rem; block-size: 1.5rem; }
 /* An ornament strip closes every page header: a copper star between two fine rules, repeated. */
 .rop-page-head::after {
   content: ''; block-size: 14px; margin-block-start: calc(-1 * var(--rop-space-1));

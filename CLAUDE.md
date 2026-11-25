@@ -14,18 +14,18 @@ Read `docs/SPEC.md` (what we build, the schema contract, and who owns which file
 - The backend is Supabase Postgres. Business logic lives in SQL functions in the `app` schema.
 
 ## Backend rules (non-negotiable)
-1. **Clients never write tables.** Tables live in `public`, with row-level-security **select** policies only. Every write is an `app.*` function marked `security definer` with `set search_path = public`. Its first statement is a role check (`app.is_staff(...)`).
+1. **Clients never write tables.** Tables live in `public`, with row-level-security **select** policies only. Every write is an `app.*` function marked `security definer` with `set search_path = public`. Its first statement is a role check (`app.is_staff(...)`). **Exception:** the five guest functions (`guest_menu`, `open_table_session`, `raise_waiter_call`, `send_guest_order`, `guest_status`) are granted to `anon`; their first check is a valid table link token or a live table session instead. No guest write may insert into `tabs`, `orders`, `order_items` or `stock_movements`: a guest order waits in `guest_orders` until staff accept it.
 2. **The server owns every number.** Clients send item IDs, quantities and modifier IDs, never prices. The server prices each line, and the client only mirrors the totals for display.
 3. **Money is an integer number of IQD** stored in the `iqd` domain (bigint ≥ 0) or `iqd_signed`. Never numeric or float for money. Tax is in basis points, and prices include tax. Stock quantities are `numeric(12,3)`.
 4. **Money and stock history is append-only.** `payments`, `refunds`, `stock_movements` and `audit_log` cannot be updated or deleted: they have no grants plus the `app.forbid_mutation()` trigger. A correction is always a new row.
-5. **Idempotency.** Every write that creates a row or moves money takes `p_idempotency_key text` and calls `app.claim_replay(key)`. Replaying a key returns the original result. Keys are `{station}:{type}:{ulid}` (`@rop/core` `idemKey`).
+5. **Idempotency.** Every write that creates a row or moves money takes `p_idempotency_key text` and calls `app.claim_replay(key)`. Replaying a key returns the original result. Keys are `{station}:{type}:{ulid}` (`@rop/core` `idemKey`). Guest functions do not call `app.claim_replay` (it identifies callers by `auth.uid()`, which is NULL for guests); they replay through a unique `(guest_session_id, idempotency_key)`.
 6. **Errors are text codes**, for example `raise exception 'TAB_NOT_OPEN'`. Every code raised anywhere must be in `ERROR_CODE_KEYS` (`packages/i18n/src/errors.ts`) with EN and AR text. `pnpm --filter @rop/db check:error-codes` enforces this.
 7. **Manager PIN.** The client calls `app.verify_manager_pin(pin, action)`, which writes a short-lived grant; the money function then calls `app.consume_pin_grant(action)`. Never raise inside a PIN check, or the attempt row rolls back and the lockout stops counting.
 8. **Audit.** Every sensitive action calls `app.write_audit(...)`, recording who did it, who authorized it and the reason.
-9. **Lock order** (always take locks in this order): `day_sessions → tabs → orders → order_items → payments → refunds → till_shifts → ingredients → stock_movements`.
+9. **Lock order** (always take locks in this order): `day_sessions → guest_orders → waiter_calls → tabs → orders → order_items → payments → refunds → till_shifts → ingredients → stock_movements`.
 10. **Business date** comes from `app.business_date(now())` in the venue timezone (Asia/Baghdad), never the UTC date.
 11. Every branch-scoped table has `venue_id uuid not null default app.current_venue()`.
-12. Every new `app.*` function needs a `revoke all … from public` plus an explicit `grant execute … to authenticated`, and it must be listed in `packages/db/tests/rls-matrix.ts`.
+12. Every new `app.*` function needs a `revoke all … from public` plus an explicit `grant execute … to authenticated`, and it must be listed in `packages/db/tests/rls-matrix.ts`. A function granted to `anon` is listed instead, with a reason, in `packages/db/fixtures/rpc-public.json`; `check:rpc-registry` enforces both lists.
 13. **Migration hygiene:**
     - Body tags are named per function, e.g. `$open_tab$`.
     - To change a function's signature, drop the exact old signature, recreate it, and re-issue its grant.

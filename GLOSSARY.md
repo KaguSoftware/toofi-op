@@ -23,3 +23,9 @@
 | **Recipe line** | How much of an ingredient one unit of a menu item uses. | BOM |
 | **Movement** | An append-only row in the stock ledger. On-hand is the sum of movements. | transaction |
 | **Count** | A blind physical stock count; finalizing it writes `count_adjust` movements. | stocktake |
+| **Guest** | A diner who scans a table's QR code. A guest has no login and no staff role. | customer, user |
+| **Table link** | The QR code's token for one table. Replacing it closes that table's live table sessions. | QR code (that is the picture), URL |
+| **Table session** | A guest's temporary, login-free access to one table's menu, calls and orders. It expires after 90 minutes without activity. | login, guest account |
+| **Waiter call** | A guest's request for a waiter, with a reason: order, bill, water or help. One tap on **OK** by staff answers it. | ping, buzz |
+| **Guest order** | A basket a guest sent from their phone. It is only a request held in `guest_orders`: it becomes an **Order** on a tab when staff accept it. | order (until accepted), online order |
+| **Accept / Decline** | Staff's answer to a guest order. Accept opens the tab if the table is free and adds the lines; Decline closes the request and changes nothing else. | confirm, reject |

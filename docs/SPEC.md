@@ -8,6 +8,7 @@
 | Manager: business day open and close, discounts, refunds, analytics panel, menu/floor/staff admin | Offline mode (writes carry idempotency keys, so it can be added later) |
 | Stock: ingredients, recipes, sales deduct stock automatically, deliveries, waste, counts, low-stock list, margins | Batches/expiry, multiple stores, supplier ordering |
 | EN + AR (RTL), IQD, Asia/Baghdad | Multi-branch UI (the schema is ready for it) |
+| Guest QR menu: a guest scans the table's code, browses the menu, calls a waiter, or sends an order that staff accept | Paying from the phone, the guest seeing the bill, the guest cancelling an accepted order, photos and descriptions |
 
 ## Roles
 `waiter`, `cashier`, `manager`, `owner`. Each listed role also gets everything granted to the roles to its left, except where noted.
@@ -22,8 +23,13 @@
 | Open and close the business day, analytics, stock | | | ✓ | ✓ |
 | Admin for menu, floor and stock items | | | ✓ | ✓ |
 | Staff admin, venue settings, set PINs | | | | ✓ |
+| Answer a waiter call, accept or decline a guest order | ✓ | ✓ | ✓ | ✓ |
+| Print table QR cards, switch guest calls or guest ordering on and off (whole venue or one table) | | | ✓ | ✓ |
+| Replace a table's QR code | | | | ✓ |
 
 "PIN" means the action needs a **manager PIN** (from a manager or owner) through `verify_manager_pin` → `consume_pin_grant`. When the actor is a manager or owner, the function records them as the authorizer with no extra PIN.
+
+A **guest** has no role and no login. Guests reach only the five guest functions, through a table link or a table session.
 
 ## Core flows
 1. **Day.**
@@ -50,9 +56,17 @@
    - A sale writes a `sale` movement for each recipe line; voiding a line writes a `void_return`.
    - Stock is adjusted only by `finalize_count` (`count_adjust`), `record_waste` (`waste`) and `receive_delivery` (`delivery`).
    - On-hand = the sum of movements. It may go negative. When on-hand drops to or below `reorder_point`, a low-stock entry appears in the `v_low_stock` view.
+8. **Guest.**
+   - A guest scans the QR code on a table. The guest site calls `open_table_session(token)` and gets a table session. The guest sees the menu from `guest_menu()` in Arabic or English.
+   - The guest taps a reason and calls a waiter (`raise_waiter_call`), or sends a basket (`send_guest_order`). The server prices the lines and ignores any price the client sends. The order waits as `pending` in `guest_orders`; no tab, order or stock row exists yet.
+   - Every operator screen shows the open calls and pending orders (`guest_inbox`). Staff tap **OK** on a call (`answer_waiter_call`).
+   - For an order, staff tap **OK** (`accept_guest_order(id, covers, idem)`) or **Decline** (`decline_guest_order`). Accept opens a tab with `open_tab` if the table is free (covers are then required) and adds the lines with `add_items`, as the staff member who accepted. Pricing, audit and stock then work as for a waiter's order.
+   - The guest's phone shows the result through `guest_status`.
+   - A table has one open call at a time, and a new call waits 120 seconds after the last one was raised. A table can hold 3 pending orders. Without an open business day, guest calls and orders raise `DAY_NOT_OPEN`.
+   - A pending order whose business day has closed reads as `expired` to the guest and can no longer be accepted (`GUEST_ORDER_EXPIRED`). The status is derived; `close_day` does not touch `guest_orders`.
 
-## Schema contract (Phase 0 creates all tables; Phase 1 adds functions, triggers and views)
-Enums: `staff_role(waiter,cashier,manager,owner)`, `tab_status(open,settled,void)`, `payment_method(cash,card)`, `stock_unit(g,ml,pc)`, `movement_kind(delivery,sale,void_return,waste,count_adjust)`, `adjustment_kind(discount_percent,discount_amount)`.
+## Schema contract (Phase 0 creates all tables; Phase 1 adds functions, triggers and views; the guest tables arrive later, in band 0140+)
+Enums: `staff_role(waiter,cashier,manager,owner)`, `tab_status(open,settled,void)`, `payment_method(cash,card)`, `stock_unit(g,ml,pc)`, `movement_kind(delivery,sale,void_return,waste,count_adjust)`, `adjustment_kind(discount_percent,discount_amount)`, `waiter_call_reason(order,bill,water,help)`, `guest_order_status(pending,accepted,declined)`.
 
 Unless noted, every table has `id uuid pk default gen_random_uuid()`, `venue_id uuid not null default app.current_venue()` and `created_at timestamptz not null default now()`.
 
@@ -96,10 +110,18 @@ Unless noted, every table has `id uuid pk default gen_random_uuid()`, `venue_id 
   - `stock_counts` (started_by, started_at, finalized_by, finalized_at).
   - `stock_count_lines` (count_id, ingredient_id, expected, counted, on_hand_at_save; expected and on_hand_at_save are not client-readable).
   - `stock_movements` (ingredient_id, kind, qty numeric signed, unit_cost, ref_table, ref_id, actor_id).
+- **Guest QR menu** (added in band 0140+):
+  - `venue_settings` gains `guest_calls_enabled boolean not null default true` and `guest_orders_enabled boolean not null default true`.
+  - `table_links` (table_id unique, token text unique not null, guest_enabled default true, rotated_at). One row per `dining_tables` row, created by an insert trigger. The token is 16 random bytes as base64url (22 characters).
+  - `app.guest_sessions` (id, table_id, last_activity_at, expires_at, closed_at). The id is the guest's bearer credential. A session lives 90 minutes from its last activity.
+  - `waiter_calls` (table_id, day_session_id, guest_session_id null, reason, called_at, answered_at, answered_by, idempotency_key; unique on table + day session where `answered_at` is null; unique on guest session + idempotency key).
+  - `guest_orders` (table_id, day_session_id, guest_session_id null, status, items jsonb, quote jsonb, quoted_total iqd, sent_at, decided_at, decided_by, tab_id null, order_id null, idempotency_key; unique on guest session + idempotency key). `items` has the same shape as `add_items` input.
 
 Every table has RLS enabled and a select policy for any active staff at the venue (`app.staff_role() is not null`), except:
 - `audit_log` and `till_shifts` of other staff: manager and above.
 - `ingredients` cost columns: these are readable by all staff in v1, which is accepted.
+- `table_links.token`: not client-readable (a column grant leaves it out, like `staff.pin_hash`). Managers and owners read tokens only through `app.table_qr_tokens()`.
+- `app.guest_sessions`: no client grants at all, like `app.pin_grants`.
 
 ## Migration number bands (filename `2026112000NNNN_<name>.sql`)
 | Band | Owner | Content |
@@ -108,7 +130,8 @@ Every table has RLS enabled and a select policy for any active staff at the venu
 | 0020–0039 | backend-money | Day, tab, order, payment, split, discount, refund, shift functions and `compute_tab_totals` |
 | 0040–0059 | backend-stock-analytics | Stock triggers, stock functions, views, analytics/report functions, realtime broadcast triggers |
 | 0060–0079 | backend-catalog-seed | Floor/menu/modifier/tax/staff admin functions, plus `supabase/seed.sql` |
-| 0080+ | fixes after Phase 1 | |
+| 0080–0139 | fixes after Phase 1 | |
+| 0140+ | guest QR menu | Guest enums, `table_links`, `app.guest_sessions`, `waiter_calls`, `guest_orders`, guest and staff functions, realtime signals, housekeeping |
 
 Each agent also owns its own test files `packages/db/tests/<area>.test.ts` and appends its entries to `rls-matrix.ts` and `ERROR_CODE_KEYS`. Those last two are shared files: **append only**, under a comment header with the agent's name, and the orchestrator resolves merge conflicts.
 
