@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CATEGORY_ICONS, can } from '@rop/core';
 import { Button, DataTable, ErrorState, Icon, Loading, Money, PageHeader, type Column } from '../../components';
-import { appRpc, type AppFunctionName } from '../../lib/appRpc';
+import { appRpc } from '../../lib/appRpc';
 import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
 import { QK } from '../../lib/queryKeys';
@@ -27,10 +27,6 @@ async function fetchMenu() {
   return { cats, items, taxes, groups, mods, links };
 }
 export type MenuData = Awaited<ReturnType<typeof fetchMenu>>;
-
-// Ticket 02's function: packages/db/src/types.gen.ts has not been regenerated for it yet, so the name is cast.
-// Drop the cast after the next `pnpm db:types`.
-const SET_ICON = 'set_menu_category_icon' as AppFunctionName;
 
 type Tab = 'items' | 'modifiers' | 'tax';
 
@@ -152,7 +148,7 @@ function CategoryDialog({ cat, nextSort, onClose }: { cat: Cat | null; nextSort:
       });
       // A new category starts as a plain dish, so only a different choice needs the setter.
       if (icon !== (cat?.icon ?? CATEGORY_ICONS[0])) {
-        await appRpc(SET_ICON, { p_category_id: cat?.id ?? id, p_icon: icon });
+        await appRpc('set_menu_category_icon', { p_category_id: cat?.id ?? id, p_icon: icon });
       }
       return id;
     }, 'manage.saved');

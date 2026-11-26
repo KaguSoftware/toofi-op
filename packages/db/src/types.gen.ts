@@ -335,8 +335,14 @@ export type Database = {
 "set_menu_category_active":
 { Args: { "p_active": boolean,"p_id": string }; Returns: undefined
                            },
+"set_menu_category_icon":
+{ Args: { "p_category_id": string,"p_icon": string }; Returns: Json
+                           },
 "set_menu_item_active":
 { Args: { "p_active": boolean,"p_id": string }; Returns: undefined
+                           },
+"set_menu_item_photo":
+{ Args: { "p_item_id": string,"p_photo_path": string }; Returns: Json
                            },
 "set_modifier_active":
 { Args: { "p_active": boolean,"p_id": string }; Returns: undefined
@@ -797,14 +803,14 @@ isOneToOne: false
                   ]
                 },"menu_categories": {
                   Row: {
-                    "created_at": string,"id": string,"is_active": boolean,"name_ar": string,"name_en": string,"sort": number,"venue_id": string
+                    "created_at": string,"icon": string,"id": string,"is_active": boolean,"name_ar": string,"name_en": string,"sort": number,"venue_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"is_active"?: boolean,"name_ar": string,"name_en": string,"sort"?: number,"venue_id"?: string
+                    "created_at"?: string,"icon"?: string,"id"?: string,"is_active"?: boolean,"name_ar": string,"name_en": string,"sort"?: number,"venue_id"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"is_active"?: boolean,"name_ar"?: string,"name_en"?: string,"sort"?: number,"venue_id"?: string
+                    "created_at"?: string,"icon"?: string,"id"?: string,"is_active"?: boolean,"name_ar"?: string,"name_en"?: string,"sort"?: number,"venue_id"?: string
                   }
                   Relationships: [
                     {
@@ -855,14 +861,14 @@ isOneToOne: false
                   ]
                 },"menu_items": {
                   Row: {
-                    "category_id": string,"created_at": string,"id": string,"is_active": boolean,"name_ar": string,"name_en": string,"price": number,"sort": number,"tax_group_id": string,"venue_id": string
+                    "category_id": string,"created_at": string,"id": string,"is_active": boolean,"name_ar": string,"name_en": string,"photo_path": string | null,"price": number,"sort": number,"tax_group_id": string,"venue_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "category_id": string,"created_at"?: string,"id"?: string,"is_active"?: boolean,"name_ar": string,"name_en": string,"price": number,"sort"?: number,"tax_group_id": string,"venue_id"?: string
+                    "category_id": string,"created_at"?: string,"id"?: string,"is_active"?: boolean,"name_ar": string,"name_en": string,"photo_path"?: string | null,"price": number,"sort"?: number,"tax_group_id": string,"venue_id"?: string
                   }
                   Update: {
-                    "category_id"?: string,"created_at"?: string,"id"?: string,"is_active"?: boolean,"name_ar"?: string,"name_en"?: string,"price"?: number,"sort"?: number,"tax_group_id"?: string,"venue_id"?: string
+                    "category_id"?: string,"created_at"?: string,"id"?: string,"is_active"?: boolean,"name_ar"?: string,"name_en"?: string,"photo_path"?: string | null,"price"?: number,"sort"?: number,"tax_group_id"?: string,"venue_id"?: string
                   }
                   Relationships: [
                     {

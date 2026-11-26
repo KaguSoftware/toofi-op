@@ -3,16 +3,12 @@
 // object is removed only after the new path is recorded, so a failure never leaves a dish with a
 // path that points at nothing.
 import { ulid } from 'ulid';
-import type { AppFunctionName } from '../../lib/appRpc';
 import { appRpc } from '../../lib/appRpc';
 import { supabase } from '../../lib/supabase';
 import { menuPhotoPath } from './photoLogic';
 import { resizeToWebp } from './photoResize';
 
 const BUCKET = 'menu-photos';
-// Ticket 02's function: packages/db/src/types.gen.ts has not been regenerated for it yet, so the name is cast.
-// Drop the cast after the next `pnpm db:types`.
-const SET_PHOTO = 'set_menu_item_photo' as AppFunctionName;
 
 /** Best effort: a leftover object is harmless, a failed cleanup must not fail the save. */
 async function removeObject(path: string): Promise<void> {
@@ -29,7 +25,7 @@ export async function uploadItemPhoto(args: { file: File; venueId: string; itemI
   const { error } = await supabase.storage.from(BUCKET).upload(path, blob, { contentType: 'image/webp', cacheControl: '31536000', upsert: false });
   if (error) throw new Error(error.message);
   try {
-    await appRpc(SET_PHOTO, { p_item_id: args.itemId, p_photo_path: path });
+    await appRpc('set_menu_item_photo', { p_item_id: args.itemId, p_photo_path: path });
   } catch (e) {
     await removeObject(path);
     throw e;
@@ -39,6 +35,6 @@ export async function uploadItemPhoto(args: { file: File; venueId: string; itemI
 }
 
 export async function removeItemPhoto(args: { itemId: string; oldPath: string }): Promise<void> {
-  await appRpc(SET_PHOTO, { p_item_id: args.itemId, p_photo_path: null });
+  await appRpc('set_menu_item_photo', { p_item_id: args.itemId, p_photo_path: null });
   await removeObject(args.oldPath);
 }
