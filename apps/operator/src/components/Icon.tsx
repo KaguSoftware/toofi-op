@@ -157,6 +157,30 @@ const PATHS = {
     <>
       <path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 7H4c0-1 2-2 2-7Z" />
       <path d="M10 20a2 2 0 0 0 4 0" />
+  // --- menu category icons (ticket 07): one per key of CATEGORY_ICONS in @rop/core ---
+  catDish: (
+    <>
+      <circle cx="12" cy="12" r="6.5" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M3.5 4.5v5M2 4.5v3.5a1.5 1.5 0 0 0 3 0V4.5M20.5 4.5c-1.5 1-2 3-2 5h2v10" />
+    </>
+  ),
+  catMezze: <path d="M3 11h18c0 5-4 8.5-9 8.5S3 16 3 11ZM8 21.5h8M9 4.5c-.8 1 .8 2 0 3M13 4.5c-.8 1 .8 2 0 3" />,
+  catGrill: <path d="M12 3c.6 2.6 5 4.6 5 9.8a5 5 0 0 1-10 0c0-2 .9-3.5 2-4.6.2 1.5.9 2.5 1.8 3C10.8 8.6 10.4 6 12 3Z" />,
+  catMain: <path d="M3 18h18M5 18a7 7 0 0 1 14 0M12 11V9M10.5 9h3" />,
+  catSandwich: (
+    <>
+      <path d="M4 10a8 5 0 0 1 16 0H4Z" />
+      <path d="M3.5 13.5h17M4 17h16" />
+      <path d="M5.5 17a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2" />
+    </>
+  ),
+  catDessert: <path d="M7 12h10l-1.5 8h-7L7 12ZM6 12a6 6 0 0 1 12 0M12 4v2" />,
+  catHotDrink: <path d="M5 10h11v4a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5v-4ZM16 11h1.2a2.4 2.4 0 0 1 0 4.8H16M8 4v3M12 4v3M4 21.5h13" />,
+  catColdDrink: (
+    <>
+      <path d="M6.5 8h11l-1.2 12a1 1 0 0 1-1 .9H8.7a1 1 0 0 1-1-.9L6.5 8Z" />
+      <path d="M7 12.5h10M13 8l2-5h3" />
     </>
   ),
 } satisfies Record<string, ReactElement>;
