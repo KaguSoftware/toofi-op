@@ -15,6 +15,8 @@ const LOCAL_ANON_KEY =
 export const SUPABASE_URL = process.env.SUPABASE_URL ?? 'http://127.0.0.1:55421';
 // E2E_OPERATOR_URL points the suite at a dev server on another port (5174 may be taken).
 export const OPERATOR_URL = process.env.E2E_OPERATOR_URL ?? 'http://localhost:5174';
+// The guest menu site (apps/menu) is fixed to port 5180, like the staff app is to 5174.
+export const MENU_URL = process.env.E2E_MENU_URL ?? 'http://localhost:5180';
 
 export default defineConfig({
   testDir: './tests',
@@ -33,16 +35,28 @@ export default defineConfig({
     },
     {
       name: 'ar',
-      testMatch: [/\.ar\.spec\.ts/, /screenshots\.spec\.ts/],
+      testMatch: [/\.ar\.spec\.ts/, /screenshots\.spec\.ts/, /guest-qr\.spec\.ts/],
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 }, locale: 'ar-IQ' },
     },
   ],
-  webServer: {
-    command: 'pnpm --filter @rop/operator dev',
-    url: OPERATOR_URL,
-    cwd: ROOT,
-    reuseExistingServer: !!process.env.E2E_REUSE_SERVER,
-    timeout: 60_000,
-    env: { VITE_SUPABASE_URL: SUPABASE_URL, VITE_SUPABASE_ANON_KEY: LOCAL_ANON_KEY },
-  },
+  webServer: [
+    {
+      command: 'pnpm --filter @rop/operator dev',
+      url: OPERATOR_URL,
+      cwd: ROOT,
+      reuseExistingServer: !!process.env.E2E_REUSE_SERVER,
+      timeout: 60_000,
+      // VITE_MENU_URL is the address the printed cards carry; the guest spec never prints.
+      env: { VITE_SUPABASE_URL: SUPABASE_URL, VITE_SUPABASE_ANON_KEY: LOCAL_ANON_KEY, VITE_MENU_URL: MENU_URL },
+    },
+    {
+      // The guest site's server talks to Supabase with the anon key; the browser never does.
+      command: 'pnpm --filter @rop/menu dev',
+      url: MENU_URL,
+      cwd: ROOT,
+      reuseExistingServer: !!process.env.E2E_REUSE_SERVER,
+      timeout: 120_000,
+      env: { SUPABASE_URL, SUPABASE_ANON_KEY: LOCAL_ANON_KEY },
+    },
+  ],
 });
