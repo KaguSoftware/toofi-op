@@ -66,8 +66,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
-  # The guest QR menu site (apps/menu): a production build. Lint, typecheck and test run in
-  # the jobs above through turbo. The build never calls the database (every page is dynamic).
+  # The guest QR menu site (apps/menu): a production build. Its lint, typecheck and unit tests
+  # run in the lint, typecheck and test jobs above, because turbo covers every package. The
+  # build never calls the database (every page is dynamic).
   menu:
     needs: install
     runs-on: ubuntu-latest
@@ -121,6 +122,38 @@ jobs:
         run: pnpm --filter @rop/db check:error-codes
       - name: Every client-callable RPC is registered
         run: pnpm --filter @rop/db check:rpc-registry
+
+  # End to end: the staff app (5174) and the guest site (5180) in a real browser against the
+  # local Supabase stack, in English and Arabic. Playwright starts both dev servers itself and
+  # every spec resets the database, so this job owns its own stack.
+  e2e:
+    needs: install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: supabase/setup-cli@689adcfb80d947100a1eab127289b97d1fb07b13 # v3.2.0
+        with:
+          version: 3.2.0
+      - name: Start the local Supabase stack
+        run: |
+          for attempt in 1 2 3; do
+            pnpm db:start && exit 0
+            pnpm db:stop --no-backup || true
+            sleep 15
+          done
+          exit 1
+      - name: Reset (apply every migration and the seed)
+        run: pnpm db:reset
+      - name: Install the browser
+        run: pnpm exec playwright install --with-deps chromium
+      - name: End-to-end tests (staff app and guest site, EN and AR)
+        run: pnpm e2e
 
   # The desktop shell on the platform it ships to: typecheck, tests, the
   # hardening lock, and an unpacked build (renderer + shell, no installer).
