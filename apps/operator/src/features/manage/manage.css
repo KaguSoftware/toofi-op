@@ -114,10 +114,11 @@
 .manage__photo-count[data-missing='true'] { color: var(--rop-warning-ink); }
 .manage__icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: var(--rop-space-2); padding: 0; border: 0; }
 .manage__icons legend { padding: 0; margin-block-end: var(--rop-space-2); font-weight: 600; }
-.manage__icon-choice {
-  position: relative; display: grid; justify-items: center; gap: var(--rop-space-1); min-block-size: var(--rop-target);
-  padding: var(--rop-space-2); border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-panel);
-  font-size: var(--rop-font-sm); text-align: center; cursor: pointer;
+/* Doubled class: base.css styles every label that holds a radio as an inline-flex row with an end margin; the tile must win. */
+.manage__icons .manage__icon-choice {
+  position: relative; display: grid; justify-items: center; align-content: center; gap: var(--rop-space-1); min-block-size: var(--rop-target);
+  margin-inline-end: 0; padding: var(--rop-space-2); border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-panel);
+  font-size: var(--rop-font-sm); text-align: center; overflow-wrap: anywhere; cursor: pointer;
 }
 .manage__icon-choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
 .manage__icon-choice:has(input:checked) { background: var(--rop-panel-selected); border-color: var(--rop-brand-tint-2); color: var(--rop-brand-ink); font-weight: 600; }
