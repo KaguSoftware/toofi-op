@@ -10,3 +10,4 @@ export * from './time/tz';
 export * from './idem/idemKey';
 export * from './staff/roles';
 export * from './status/tab';
+export * from './menu/categoryIcons';
