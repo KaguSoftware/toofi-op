@@ -10,6 +10,10 @@
   --rop-row-ornament-opacity: 0.14;
   /* The call-waiter button's edge: invisible on charcoal in light, a visible line in dark. */
   --rop-charcoal-border: var(--rop-charcoal);
+  /* Ornament and icon details the corner drawing and the selected category tile use. */
+  --rop-copper-light: oklch(0.784 0.071 65);
+  --rop-terra-soft: oklch(0.6 0.11 40);
+  --rop-olive-line: oklch(0.62 0.093 122);
   color-scheme: light dark;
 }
 
@@ -46,7 +50,9 @@
     /* The call-waiter button sits raised with a border instead of solid ink. */
     --rop-charcoal: oklch(0.298 0.005 286);
     --rop-on-charcoal: oklch(0.937 0.025 83);
-    --rop-charcoal-border: oklch(0.465 0.012 88);
+    --rop-charcoal-border: var(--rop-border-strong);
+
+    --rop-olive-line: oklch(0.742 0.116 115);
 
     --rop-row-card: oklch(0.261 0.004 286);
     --rop-row-line: oklch(0.306 0.005 286);

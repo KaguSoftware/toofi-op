@@ -830,7 +830,7 @@ const enLiteral = {
   // --- guest QR menu site (apps/menu); read by a diner, never mentions staff tools ---
   guest: {
     meta: { description: 'Menu and table service' },
-    table: { label: 'Table {label}' },
+    table: { label: 'Table {label}', word: 'Table' },
     notice: {
       scanAgain: 'Scan the code on your table again.',
       closed: 'The restaurant is not taking orders right now. You can still read the menu.',
@@ -839,7 +839,40 @@ const enLiteral = {
       empty: 'Nothing on the menu yet.',
       failed: 'The menu is taking a moment.',
       retry: 'Try again',
+      categories: 'Menu sections',
+      loading: 'Loading the menu',
     },
+    lang: { switch: 'العربية', short: 'ع' },
+    bar: { callWaiter: 'Call waiter', yourOrder: 'Your order', orderEmpty: 'Nothing added yet', callAgain: 'Again in {time}' },
+    item: { add: 'Add one {name}', remove: 'Remove one {name}' },
+    strip: { callWaiting: 'Waiter called. Please wait a moment.', callAnswered: 'A waiter is on the way.' },
+    call: {
+      title: 'What do you need?',
+      reason: { order: 'To order', bill: 'The bill', water: 'Water', help: 'Help' },
+      hint: 'A waiter will come to table {label}.',
+      sending: 'Calling a waiter…',
+    },
+    sheet: {
+      close: 'Close',
+      scan: {
+        title: 'Scan your table’s code',
+        body: 'Point your camera at the code on your table to call a waiter or send an order. Anything you add stays on this phone.',
+      },
+      expired: {
+        title: 'Your table session ended',
+        body: 'Scan the code on your table again. Anything you added stays on this phone.',
+      },
+      closed: {
+        title: 'We are closed right now',
+        body: 'The restaurant is not taking calls or orders. You can still read the menu.',
+      },
+      off: {
+        title: 'Not available right now',
+        body: 'Calling a waiter from your phone is not available. Please ask a member of staff.',
+      },
+      tooSoon: { title: 'A waiter was just called', body: 'You can call again in {time}.' },
+    },
+    offline: 'You are offline. Nothing is sent until the connection returns.',
     errors: {
       generic: 'Something went wrong. Please try again, or ask a waiter.',
       closed: 'The restaurant is not taking orders right now. Please ask a waiter.',

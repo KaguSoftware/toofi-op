@@ -77,7 +77,7 @@ Production uses tokens (next section). These are the mock's values, for matching
 | Copper (ornament) | `#C98A5E`, soft terra `#B9684A` | same |
 | Waiting strip fill / border | `#F6E6B4` / `#B98A22` | `#3A3013` / `#9A7A22` |
 | Good strip fill / border | `#E3E6C6` / `#8E9850` | `#28301A` / `#6F7A36` |
-| Call button fill / text / border | `#1C1C1E` / `#F2E9D8` / same | `#2D2D30` / `#F2E9D8` / `#5C5952` |
+| Call button fill / text / border | `#1C1C1E` / `#F2E9D8` / same | `#2D2D30` / `#F2E9D8` / the border-strong token (the mock's `#5C5952` measured 2.5:1 against the page, under the 3:1 rule) |
 | Scrim | forest at 50% | near-black at 62% |
 
 Check every text and state pair at 4.5:1 in both themes, and control boundaries at 3:1.
