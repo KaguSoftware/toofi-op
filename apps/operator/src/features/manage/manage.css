@@ -106,3 +106,42 @@
 .manage__grid-cell strong { font-size: var(--rop-font-lg); line-height: 1.1; }
 .manage__grid-cell span { display: inline-flex; align-items: center; gap: 2px; color: var(--rop-text-muted); font-size: var(--rop-font-sm); }
 .manage__grid-cell[data-inactive='true'] { opacity: 0.55; border-style: dashed; }
+
+/* Dish photos and category icons (ticket 07). */
+.manage__photo { display: flex; align-items: center; gap: var(--rop-space-3); flex-wrap: wrap; }
+.manage__thumb { inline-size: 4.5rem; block-size: 3.5rem; border-radius: var(--rop-radius); object-fit: cover; background: var(--rop-surface-2); }
+.manage__thumb--empty { display: grid; place-items: center; padding: var(--rop-space-1); border: 1px dashed var(--rop-border); color: var(--rop-text-muted); font-size: var(--rop-font-xs); text-align: center; }
+.manage__photo-count[data-missing='true'] { color: var(--rop-warning-ink); }
+.manage__icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: var(--rop-space-2); padding: 0; border: 0; }
+.manage__icons legend { padding: 0; margin-block-end: var(--rop-space-2); font-weight: 600; }
+.manage__icon-choice {
+  position: relative; display: grid; justify-items: center; gap: var(--rop-space-1); min-block-size: var(--rop-target);
+  padding: var(--rop-space-2); border: 1px solid var(--rop-border); border-radius: var(--rop-radius); background: var(--rop-panel);
+  font-size: var(--rop-font-sm); text-align: center; cursor: pointer;
+}
+.manage__icon-choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.manage__icon-choice:has(input:checked) { background: var(--rop-panel-selected); border-color: var(--rop-brand-tint-2); color: var(--rop-brand-ink); font-weight: 600; }
+.manage__icon-choice:has(input:focus-visible) { outline: 3px solid var(--rop-terra); outline-offset: 2px; }
+
+/* Guest service switches (ticket 07). */
+.manage__switches { display: flex; flex-wrap: wrap; gap: var(--rop-space-4); }
+.manage__switch { display: flex; align-items: center; gap: var(--rop-space-3); }
+.manage__switch > span { font-weight: 600; }
+
+/* QR cards. On screen the sheet does not exist; when printing, it is the only thing on the page,
+   one A6 card per page. */
+.qr-sheet { display: none; }
+.qr-card { display: block; inline-size: 100%; block-size: auto; }
+.qr-card__paper { fill: var(--rop-raised); stroke: var(--rop-border); stroke-width: 2; }
+.qr-card__band { fill: var(--rop-charcoal); }
+.qr-card__name { fill: var(--rop-on-charcoal); font: 700 30px var(--rop-font-family, sans-serif); letter-spacing: 3px; }
+.qr-card__word { fill: var(--rop-text); font: 600 20px var(--rop-font-family, sans-serif); letter-spacing: 2px; }
+.qr-card__label { fill: var(--rop-brand-ink); font-family: var(--rop-font-family, sans-serif); font-weight: 800; }
+.qr-card__scan { fill: var(--rop-text); font: 600 19px var(--rop-font-family, sans-serif); }
+@page { size: A6; margin: 0; }
+@media print {
+  body.qr-printing > :not(.qr-sheet) { display: none !important; }
+  body.qr-printing .qr-sheet { display: block; }
+  .qr-sheet__page { inline-size: 105mm; block-size: 148mm; break-after: page; overflow: hidden; }
+  .qr-sheet__page:last-child { break-after: auto; }
+}

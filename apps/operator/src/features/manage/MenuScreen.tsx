@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { CATEGORY_ICONS, can } from '@rop/core';
 import { Button, DataTable, ErrorState, Icon, Loading, Money, PageHeader, type Column } from '../../components';
-import { appRpc } from '../../lib/appRpc';
+import { appRpc, type AppFunctionName } from '../../lib/appRpc';
+import { useAuth } from '../../lib/auth';
 import { useLocale } from '../../lib/i18n';
 import { QK } from '../../lib/queryKeys';
 import { ActiveToggle, EditDialog, NumberField, ReorderButtons, SelectField, TextField } from './formKit';
-import { hasErrors, moveId, parseIntStrict, validateItem, validateNames } from './menuLogic';
+import { categoryIconName, hasErrors, moveId, parseIntStrict, validateItem, validateNames } from './menuLogic';
+import { ItemPhoto } from './ItemPhoto';
+import { missingPhotoCount } from './photoLogic';
 import { ModifiersPanel, TaxPanel } from './ModifiersPanel';
 import { selectRows, useRun } from './shared';
 import type { Cat, Group, Item, Link, Mod, Tax } from './menuTypes';
@@ -13,8 +17,8 @@ import './manage.css';
 
 async function fetchMenu() {
   const [cats, items, taxes, groups, mods, links] = await Promise.all([
-    selectRows<Cat>('menu_categories', 'id, name_en, name_ar, sort, is_active', { order: 'sort' }),
-    selectRows<Item>('menu_items', 'id, category_id, name_en, name_ar, price, tax_group_id, is_active, sort', { order: 'sort' }),
+    selectRows<Cat>('menu_categories', 'id, name_en, name_ar, sort, is_active, icon', { order: 'sort' }),
+    selectRows<Item>('menu_items', 'id, category_id, name_en, name_ar, price, tax_group_id, is_active, sort, photo_path', { order: 'sort' }),
     selectRows<Tax>('tax_groups', 'id, name, rate_bps', { order: 'name' }),
     selectRows<Group>('modifier_groups', 'id, name_en, name_ar, min_select, max_select', { order: 'name_en' }),
     selectRows<Mod>('modifiers', 'id, group_id, name_en, name_ar, price_delta, is_active', { order: 'name_en' }),
@@ -23,6 +27,9 @@ async function fetchMenu() {
   return { cats, items, taxes, groups, mods, links };
 }
 export type MenuData = Awaited<ReturnType<typeof fetchMenu>>;
+
+// Registered by the database step for ticket 02; the generated types pick it up with `pnpm db:types`.
+const SET_ICON = 'set_menu_category_icon' as AppFunctionName;
 
 type Tab = 'items' | 'modifiers' | 'tax';
 
@@ -64,7 +71,16 @@ function CategoriesPanel({ data }: { data: MenuData }) {
   const ids = cats.map((c) => c.id);
 
   const cols: Column<Cat>[] = [
-    { key: 'name', header: tr('manage.menu.name'), cell: (c) => (locale === 'ar' ? c.name_ar : c.name_en) },
+    {
+      key: 'name',
+      header: tr('manage.menu.name'),
+      cell: (c) => (
+        <span className="manage__row">
+          <Icon name={categoryIconName(c.icon)} size={20} />
+          {locale === 'ar' ? c.name_ar : c.name_en}
+        </span>
+      ),
+    },
     { key: 'active', header: tr('manage.menu.status'), cell: (c) => tr(c.is_active ? 'manage.active' : 'manage.inactive') },
     {
       key: 'order',
@@ -120,28 +136,59 @@ function CategoryDialog({ cat, nextSort, onClose }: { cat: Cat | null; nextSort:
   const { busy, run } = useRun(['manage']);
   const [nameEn, setEn] = useState(cat?.name_en ?? '');
   const [nameAr, setAr] = useState(cat?.name_ar ?? '');
+  const [icon, setIcon] = useState(cat?.icon ?? CATEGORY_ICONS[0]);
   const [tried, setTried] = useState(false);
   const errors = validateNames({ nameEn, nameAr });
   async function save() {
     setTried(true);
     if (hasErrors(errors)) return;
-    const r = await run(
-      () => appRpc('upsert_menu_category', { p_id: cat?.id ?? null, p_name_en: nameEn.trim(), p_name_ar: nameAr.trim(), p_sort: cat?.sort ?? nextSort }),
-      'manage.saved',
-    );
+    const r = await run(async () => {
+      const id = await appRpc<string>('upsert_menu_category', {
+        p_id: cat?.id ?? null,
+        p_name_en: nameEn.trim(),
+        p_name_ar: nameAr.trim(),
+        p_sort: cat?.sort ?? nextSort,
+      });
+      // A new category starts as a plain dish, so only a different choice needs the setter.
+      if (icon !== (cat?.icon ?? CATEGORY_ICONS[0])) {
+        await appRpc(SET_ICON, { p_category_id: cat?.id ?? id, p_icon: icon });
+      }
+      return id;
+    }, 'manage.saved');
     if (r.ok) onClose();
   }
   return (
     <EditDialog open title={tr(cat ? 'manage.menu.editCategory' : 'manage.menu.addCategory')} onClose={onClose} onSave={() => void save()} busy={busy}>
       <TextField label={tr('manage.nameEn')} value={nameEn} onChange={setEn} error={tried ? errors.nameEn : null} dir="ltr" />
       <TextField label={tr('manage.nameAr')} value={nameAr} onChange={setAr} error={tried ? errors.nameAr : null} dir="rtl" />
+      <IconPicker value={icon} onChange={setIcon} />
     </EditDialog>
+  );
+}
+
+/** One of the eight category icons, as a group of radio tiles. */
+function IconPicker({ value, onChange }: { value: string; onChange: (icon: string) => void }) {
+  const { tr } = useLocale();
+  return (
+    <fieldset className="manage__icons">
+      <legend>{tr('guestSetup.iconChoose')}</legend>
+      {CATEGORY_ICONS.map((key) => (
+        <label key={key} className="manage__icon-choice">
+          <input type="radio" name="category-icon" value={key} checked={value === key} onChange={() => onChange(key)} />
+          <Icon name={categoryIconName(key)} size={24} />
+          <span>{tr(`guestSetup.icons.${key}`)}</span>
+        </label>
+      ))}
+    </fieldset>
   );
 }
 
 function ItemsPanel({ data }: { data: MenuData }) {
   const { tr, locale } = useLocale();
+  const { staff } = useAuth();
   const { busy, run } = useRun(['manage']);
+  const mayEditPhotos = staff !== null && can(staff.role, 'adminCatalog');
+  const missing = missingPhotoCount(data.items);
   const [catId, setCatId] = useState('');
   const [editing, setEditing] = useState<Item | 'new' | null>(null);
   const nameOf = (r: { name_en: string; name_ar: string }) => (locale === 'ar' ? r.name_ar : r.name_en);
@@ -150,6 +197,9 @@ function ItemsPanel({ data }: { data: MenuData }) {
   const ids = items.map((i) => i.id);
 
   const cols: Column<Item>[] = [
+    ...(mayEditPhotos && staff
+      ? [{ key: 'photo', header: tr('guestSetup.photo'), cell: (i: Item) => <ItemPhoto item={i} venueId={staff.venueId} name={nameOf(i)} /> }]
+      : []),
     { key: 'name', header: tr('manage.menu.name'), cell: (i) => nameOf(i) },
     { key: 'cat', header: tr('manage.menu.category'), cell: (i) => catName.get(i.category_id) ?? '' },
     { key: 'price', header: tr('manage.menu.price'), align: 'end', cell: (i) => <Money amount={i.price} /> },
@@ -192,6 +242,11 @@ function ItemsPanel({ data }: { data: MenuData }) {
         </Button>
       </header>
       {(data.cats.length === 0 || data.taxes.length === 0) && <p>{tr('manage.menu.needCategoryAndTax')}</p>}
+      {mayEditPhotos && data.items.length > 0 && (
+        <p role="status" className="manage__photo-count" data-missing={missing > 0}>
+          {missing > 0 ? tr('guestSetup.photoMissing', { count: missing }) : tr('guestSetup.photoAllDone')}
+        </p>
+      )}
       <SelectField
         label={tr('manage.menu.filterCategory')}
         value={catId}

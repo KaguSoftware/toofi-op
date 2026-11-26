@@ -16,6 +16,7 @@ describe('shouldPersistQuery', () => {
     expect(shouldPersistQuery(q(QK.tillSettings()))).toBe(false);
     expect(shouldPersistQuery(q(QK.manage('analytics')))).toBe(false);
     expect(shouldPersistQuery(q(QK.manage('staff')))).toBe(false);
+    expect(shouldPersistQuery(q(QK.manage('qr-tokens')))).toBe(false); // table link tokens never reach localStorage
     expect(shouldPersistQuery(q(QK.stock('on-hand')))).toBe(false);
   });
   it('skips queries that did not succeed', () => {

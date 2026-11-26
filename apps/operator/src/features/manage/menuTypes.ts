@@ -4,6 +4,8 @@ export interface Cat {
   name_ar: string;
   sort: number;
   is_active: boolean;
+  /** A key of CATEGORY_ICONS. */
+  icon: string;
 }
 export interface Item {
   id: string;
@@ -14,6 +16,8 @@ export interface Item {
   tax_group_id: string;
   is_active: boolean;
   sort: number;
+  /** The object's path in the menu-photos bucket, or null. */
+  photo_path: string | null;
 }
 export interface Tax {
   id: string;

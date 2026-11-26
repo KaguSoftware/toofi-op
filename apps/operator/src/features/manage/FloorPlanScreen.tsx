@@ -2,10 +2,14 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { Button, DataTable, ErrorState, Icon, Loading, PageHeader, type Column } from '../../components';
+import { can } from '@rop/core';
 import { appRpc } from '../../lib/appRpc';
+import { useAuth } from '../../lib/auth';
 import { errorMessage } from '../../lib/errors';
 import { useLocale } from '../../lib/i18n';
 import { QK } from '../../lib/queryKeys';
+import { GuestServicePanel } from './GuestServicePanel';
+import { QrCodesPanel } from './QrCodesPanel';
 import { ActiveToggle, EditDialog, NumberField, ReorderButtons, SelectField, TextField } from './formKit';
 import { hasErrors, moveId, parseIntStrict, validateNames, validateTable } from './menuLogic';
 import { errorCodeOf, selectRows, useRun } from './shared';
@@ -35,8 +39,12 @@ async function fetchPlan() {
   return { areas, tables };
 }
 
+type View = 'tables' | 'codes';
+
 export function FloorPlanScreen() {
   const { tr, locale } = useLocale();
+  const { staff } = useAuth();
+  const [view, setView] = useState<View>('tables');
   const q = useQuery({ queryKey: QK.manage('floorplan'), queryFn: fetchPlan });
   const { busy, run } = useRun(['manage', 'floor']);
   const [areaEdit, setAreaEdit] = useState<Area | 'new' | null>(null);
@@ -51,6 +59,7 @@ export function FloorPlanScreen() {
   const ids = sorted.map((a) => a.id);
   const areaName = (a: { name_en: string; name_ar: string }) => (locale === 'ar' ? a.name_ar : a.name_en);
   const areaOf = new Map(areas.map((a) => [a.id, areaName(a)]));
+  const mayPrint = staff !== null && can(staff.role, 'printTableCodes');
 
   async function toggle(t: Table) {
     setBlocked(null);
@@ -100,47 +109,67 @@ export function FloorPlanScreen() {
       <PageHeader
         title={tr('manage.floorTitle')} icon="floorPlan" tone="accent"
         actions={
-          <>
-            <Button onClick={() => setAreaEdit('new')}>
-              <Icon name="plus" size={20} />
-              {tr('manage.floor.addArea')}
-            </Button>
-            <Button variant="primary" disabled={areas.length === 0} onClick={() => setTableEdit('new')}>
-              <Icon name="plus" size={20} />
-              {tr('manage.floor.addTable')}
-            </Button>
-          </>
+          view === 'tables' && (
+            <>
+              <Button onClick={() => setAreaEdit('new')}>
+                <Icon name="plus" size={20} />
+                {tr('manage.floor.addArea')}
+              </Button>
+              <Button variant="primary" disabled={areas.length === 0} onClick={() => setTableEdit('new')}>
+                <Icon name="plus" size={20} />
+                {tr('manage.floor.addTable')}
+              </Button>
+            </>
+          )
         }
-      />
+      >
+        {mayPrint && (
+          <div className="rop-segmented manage__tabs" role="group" aria-label={tr('guestSetup.viewLabel')}>
+            {(['tables', 'codes'] as const).map((v) => (
+              <Button key={v} aria-pressed={view === v} onClick={() => setView(v)}>
+                {tr(v === 'tables' ? 'guestSetup.viewTables' : 'guestSetup.viewCodes')}
+              </Button>
+            ))}
+          </div>
+        )}
+      </PageHeader>
 
-      {blocked && (
-        <div role="alert" className="manage__notice">
-          <h2>{tr('manage.floor.hasTabTitle', { label: blocked })}</h2>
-          <p>{tr('manage.floor.hasTabBody')}</p>
-          <Link to="/floor">{tr('manage.day.goToFloor')}</Link>
-        </div>
+      <GuestServicePanel />
+
+      {view === 'codes' && mayPrint ? (
+        <QrCodesPanel areaName={(id) => (areaOf.get(id) ?? '')} />
+      ) : (
+        <>
+          {blocked && (
+            <div role="alert" className="manage__notice">
+              <h2>{tr('manage.floor.hasTabTitle', { label: blocked })}</h2>
+              <p>{tr('manage.floor.hasTabBody')}</p>
+              <Link to="/floor">{tr('manage.day.goToFloor')}</Link>
+            </div>
+          )}
+          {error && (
+            <p role="alert" className="rop-field__error">
+              {error}
+            </p>
+          )}
+
+          <div className="manage__canvases">
+            {sorted.map((a) => (
+              <PreviewGrid key={a.id} title={areaName(a)} tables={tables.filter((t) => t.area_id === a.id)} onEdit={(t) => setTableEdit(t)} />
+            ))}
+          </div>
+
+          <header className="manage__section-head">
+            <h2>{tr('manage.floor.areas')}</h2>
+          </header>
+          <DataTable columns={areaCols} rows={sorted} rowKey={(a) => a.id} caption={tr('manage.floor.areas')} emptyMessage={tr('manage.floor.noAreas')} />
+
+          <header className="manage__section-head">
+            <h2>{tr('manage.floor.tables')}</h2>
+          </header>
+          <DataTable columns={tableCols} rows={tables} rowKey={(t) => t.id} caption={tr('manage.floor.tables')} emptyMessage={tr('manage.floor.noTables')} />
+        </>
       )}
-      {error && (
-        <p role="alert" className="rop-field__error">
-          {error}
-        </p>
-      )}
-
-      <div className="manage__canvases">
-        {sorted.map((a) => (
-          <PreviewGrid key={a.id} title={areaName(a)} tables={tables.filter((t) => t.area_id === a.id)} onEdit={(t) => setTableEdit(t)} />
-        ))}
-      </div>
-
-      <header className="manage__section-head">
-        <h2>{tr('manage.floor.areas')}</h2>
-      </header>
-      <DataTable columns={areaCols} rows={sorted} rowKey={(a) => a.id} caption={tr('manage.floor.areas')} emptyMessage={tr('manage.floor.noAreas')} />
-
-      <header className="manage__section-head">
-        <h2>{tr('manage.floor.tables')}</h2>
-      </header>
-      <DataTable columns={tableCols} rows={tables} rowKey={(t) => t.id} caption={tr('manage.floor.tables')} emptyMessage={tr('manage.floor.noTables')} />
 
       {areaEdit && <AreaDialog area={areaEdit === 'new' ? null : areaEdit} nextSort={areas.length + 1} onClose={() => setAreaEdit(null)} />}
       {tableEdit && (
