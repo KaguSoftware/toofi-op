@@ -880,6 +880,8 @@ const enLiteral = {
       itemNotAvailable: 'A dish in your order is no longer available. Remove it and send again.',
       optionNotAvailable: 'An option you chose is no longer available. Choose again and send.',
       chooseOptions: 'Choose the options this dish needs.',
+    },
+  },
   // --- guestSetup (staff app: QR cards, guest switches, dish photos, category icons; ticket 07) ---
   guestSetup: {
     viewLabel: 'Floor plan sections',

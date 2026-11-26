@@ -874,6 +874,8 @@ export const ar: Messages = {
       itemNotAvailable: 'أحد الأطباق في طلبك لم يعد متوفرًا. احذفه وأرسل الطلب مرة أخرى.',
       optionNotAvailable: 'أحد الخيارات التي اخترتها لم يعد متوفرًا. اختر من جديد ثم أرسل.',
       chooseOptions: 'اختر الخيارات المطلوبة لهذا الطبق.',
+    },
+  },
   // --- guestSetup (staff app: QR cards, guest switches, dish photos, category icons; ticket 07) ---
   guestSetup: {
     viewLabel: 'أقسام مخطط الصالة',

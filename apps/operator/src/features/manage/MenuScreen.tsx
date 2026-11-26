@@ -28,7 +28,8 @@ async function fetchMenu() {
 }
 export type MenuData = Awaited<ReturnType<typeof fetchMenu>>;
 
-// Registered by the database step for ticket 02; the generated types pick it up with `pnpm db:types`.
+// Ticket 02's function: packages/db/src/types.gen.ts has not been regenerated for it yet, so the name is cast.
+// Drop the cast after the next `pnpm db:types`.
 const SET_ICON = 'set_menu_category_icon' as AppFunctionName;
 
 type Tab = 'items' | 'modifiers' | 'tax';

@@ -10,7 +10,8 @@ import { menuPhotoPath } from './photoLogic';
 import { resizeToWebp } from './photoResize';
 
 const BUCKET = 'menu-photos';
-// Registered by the database step for ticket 02; the generated types pick it up with `pnpm db:types`.
+// Ticket 02's function: packages/db/src/types.gen.ts has not been regenerated for it yet, so the name is cast.
+// Drop the cast after the next `pnpm db:types`.
 const SET_PHOTO = 'set_menu_item_photo' as AppFunctionName;
 
 /** Best effort: a leftover object is harmless, a failed cleanup must not fail the save. */
