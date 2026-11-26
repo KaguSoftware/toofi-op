@@ -81,7 +81,7 @@
 
   /* The woven eight-fold star pattern (Andalusian and Moroccan) behind every screen: a warm sand just deeper than the cream, so it is felt, not read.
      Every surface that lies on the page is a --rop-panel*, all at --rop-panel-opacity, so a trace of it shows through; text stays above 4.5:1. */
-  --rop-zakhrafa-page: oklch(0.885 0.032 82);
+  --rop-zakhrafa-page: oklch(0.912 0.028 82);
   --rop-panel-opacity: 80%;
   --rop-panel: color-mix(in oklab, var(--rop-raised) var(--rop-panel-opacity), transparent);
   --rop-panel-sunk: color-mix(in oklab, var(--rop-surface-2) var(--rop-panel-opacity), transparent);

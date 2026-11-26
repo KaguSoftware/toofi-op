@@ -1,0 +1,10 @@
+{
+  "_readme": "app.* functions granted to `anon` (callable with no staff login), each with the reason (at least 10 characters). check:rpc-registry fails on a function granted to anon (or to public) that is not listed here, and on an entry here that is no longer granted to anon. Owner decision 2026-11-25 (.scratch/qr-menu/spec.md, Rule 1 exception): only the five guest QR menu functions.",
+  "public": {
+    "guest_menu": "Guest QR menu: the public menu (active categories, items and modifiers, never cost or stock). Read-only, no token needed.",
+    "open_table_session": "Guest QR menu: trades a table's QR link token for a short-lived table session. First check is the token.",
+    "raise_waiter_call": "Guest QR menu: a guest calls a waiter. First check is a live table session; limited to one open call per table and a 120 s cooldown.",
+    "send_guest_order": "Guest QR menu: a guest sends a basket as a pending request. First check is a live table session; writes guest_orders only, never tabs, orders or stock.",
+    "guest_status": "Guest QR menu: what this table session's call and orders look like now. Read-only; first check is a live table session."
+  }
+}

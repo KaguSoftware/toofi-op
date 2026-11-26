@@ -221,4 +221,29 @@ export const RPC_MATRIX: readonly RpcRule[] = [
   { fn: 'analytics_price_changes', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
   { fn: 'analytics_table_turns', args: { p_from: '2000-01-02', p_to: '2000-01-01' }, allow: MANAGER_UP, note: 'INVALID_RANGE' },
   { fn: 'analytics_attention', args: {}, allow: MANAGER_UP, note: 'read only' },
+
+  // --- guest QR menu (0140+); the five guest functions are anon-only (fixtures/rpc-public.json) ---
+  { fn: 'guest_inbox', args: {}, allow: ALL_STAFF, note: 'read only' },
+  { fn: 'answer_waiter_call', args: { p_call_id: NO_ROW }, allow: ALL_STAFF, note: 'WAITER_CALL_NOT_FOUND' },
+  {
+    fn: 'accept_guest_order',
+    args: { p_guest_order_id: NO_ROW, p_covers: null, p_idempotency_key: 'rls-matrix:accept_guest_order' },
+    allow: ALL_STAFF,
+    note: 'GUEST_ORDER_NOT_FOUND; the replay claim rolls back',
+  },
+  { fn: 'decline_guest_order', args: { p_guest_order_id: NO_ROW }, allow: ALL_STAFF, note: 'GUEST_ORDER_NOT_FOUND' },
+  { fn: 'table_qr_tokens', args: {}, allow: MANAGER_UP, note: 'read only, plus one audit row' },
+  {
+    fn: 'set_table_guest_enabled',
+    args: { p_table_id: NO_ROW, p_enabled: true },
+    allow: MANAGER_UP,
+    note: 'TABLE_NOT_FOUND',
+  },
+  {
+    fn: 'set_guest_service',
+    args: { p_calls_enabled: null, p_orders_enabled: null },
+    allow: MANAGER_UP,
+    note: 'INVALID_ARGUMENT',
+  },
+  { fn: 'rotate_table_token', args: { p_table_id: NO_ROW }, allow: OWNER_ONLY, note: 'TABLE_NOT_FOUND' },
 ];

@@ -404,6 +404,60 @@ export const ERROR_CODE_KEYS = {
     en: 'This stock count is still open. Finish it to see the results.',
     ar: 'جرد المخزون هذا ما زال مفتوحًا. أنهِه لرؤية النتائج.',
   },
+
+  // --- guest QR menu (0140+); guest-facing lines are read by a diner ---
+  TABLE_LINK_INVALID: {
+    en: 'This table code does not work. Please ask a member of staff.',
+    ar: 'رمز هذه الطاولة لا يعمل. يُرجى سؤال أحد العاملين.',
+  },
+  SESSION_EXPIRED: {
+    en: 'Your session has ended. Scan the code on your table again.',
+    ar: 'انتهت جلستك. امسح الرمز الموجود على طاولتك مرة أخرى.',
+  },
+  TOO_MANY_REQUESTS: {
+    en: 'Too many attempts. Wait a minute and try again.',
+    ar: 'محاولات كثيرة. انتظر دقيقة ثم حاول مرة أخرى.',
+  },
+  GUEST_CALLS_OFF: {
+    en: 'Calling a waiter from your phone is not available right now.',
+    ar: 'طلب النادل من الهاتف غير متاح الآن.',
+  },
+  GUEST_ORDERS_OFF: {
+    en: 'Ordering from your phone is not available right now. A waiter will take your order.',
+    ar: 'الطلب من الهاتف غير متاح الآن. سيأخذ النادل طلبك.',
+  },
+  CALL_TOO_SOON: {
+    en: 'A waiter was called a moment ago. You can call again shortly.',
+    ar: 'طُلب النادل قبل لحظات. يمكنك الطلب مرة أخرى بعد قليل.',
+  },
+  WAITER_CALL_NOT_FOUND: {
+    en: 'That waiter call no longer exists.',
+    ar: 'طلب النادل هذا لم يعد موجودًا.',
+  },
+  TOO_MANY_ITEMS: {
+    en: 'An order can have at most 40 lines. Send the rest as a second order.',
+    ar: 'يمكن أن يضم الطلب 40 سطرًا على الأكثر. أرسل الباقي في طلب ثانٍ.',
+  },
+  TOO_MANY_PENDING_ORDERS: {
+    en: 'Your table already has orders waiting for a waiter. Please wait for them first.',
+    ar: 'لطاولتك طلبات تنتظر النادل. يُرجى انتظارها أولًا.',
+  },
+  GUEST_ORDER_NOT_FOUND: {
+    en: 'That guest order no longer exists.',
+    ar: 'طلب الضيف هذا لم يعد موجودًا.',
+  },
+  GUEST_ORDER_NOT_PENDING: {
+    en: 'This guest order has already been answered.',
+    ar: 'تمّ الرد على طلب الضيف هذا مسبقًا.',
+  },
+  GUEST_ORDER_EXPIRED: {
+    en: 'This guest order is from a business day that has closed. Decline it.',
+    ar: 'طلب الضيف هذا من يوم عمل أُغلق. ارفضه.',
+  },
+  COVERS_REQUIRED: {
+    en: 'The table is free. Enter the number of guests to open a tab.',
+    ar: 'الطاولة فارغة. أدخل عدد الضيوف لفتح فاتورة.',
+  },
 } as const satisfies Record<string, ErrorText>;
 
 export type ErrorCode = keyof typeof ERROR_CODE_KEYS;

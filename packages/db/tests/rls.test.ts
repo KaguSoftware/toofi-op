@@ -52,15 +52,20 @@ const TABLES = [
   'stock_counts',
   'stock_count_lines',
   'stock_movements',
+  'table_links',
+  'waiter_calls',
+  'guest_orders',
 ] as const;
 
-/** The column list a client may select (staff.pin_hash and stock_count_lines.expected are not readable). */
+/** The column list a client may select (staff.pin_hash, stock_count_lines.expected and table_links.token are not readable). */
 const columnsOf = (table: string) =>
   table === 'staff'
     ? 'id, venue_id, full_name, role, is_active, created_at'
     : table === 'stock_count_lines'
       ? 'id, venue_id, count_id, ingredient_id, counted, created_at'
-      : '*';
+      : table === 'table_links'
+        ? 'id, venue_id, table_id, guest_enabled, rotated_at, created_at'
+        : '*';
 
 describe.skipIf(!up)('RLS and grants', () => {
   const staff = {} as Record<StaffRole, TestStaff>;

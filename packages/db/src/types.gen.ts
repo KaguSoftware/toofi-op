@@ -5,7 +5,21 @@ export type Database = {
   
   "app": {
           Tables: {
-            "pin_attempts": {
+            "guest_sessions": {
+                  Row: {
+                    "closed_at": string | null,"created_at": string,"expires_at": string,"id": string,"last_activity_at": string,"table_id": string,"venue_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "closed_at"?: string | null,"created_at"?: string,"expires_at"?: string,"id"?: string,"last_activity_at"?: string,"table_id": string,"venue_id"?: string
+                  }
+                  Update: {
+                    "closed_at"?: string | null,"created_at"?: string,"expires_at"?: string,"id"?: string,"last_activity_at"?: string,"table_id"?: string,"venue_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"pin_attempts": {
                   Row: {
                     "actor_id": string,"at": string,"id": number,"ok": boolean
                   }
@@ -53,7 +67,10 @@ export type Database = {
             [_ in never]: never
           }
           Functions: {
-            "add_items":
+            "accept_guest_order":
+{ Args: { "p_covers": number,"p_guest_order_id": string,"p_idempotency_key": string }; Returns: Json
+                           },
+"add_items":
 { Args: { "p_idempotency_key": string,"p_items": Json,"p_tab_id": string }; Returns: Json
                            },
 "analytics_attention":
@@ -111,6 +128,9 @@ export type Database = {
 "analytics_weekday_hour":
 { Args: { "p_from": string,"p_to": string }; Returns: Json
                            },
+"answer_waiter_call":
+{ Args: { "p_call_id": string }; Returns: Json
+                           },
 "apply_discount":
 { Args: { "p_idempotency_key": string,"p_kind": Database["public"]['Enums']["adjustment_kind"],"p_reason": string,"p_tab_id": string,"p_value": number }; Returns: Json
                            },
@@ -125,6 +145,9 @@ export type Database = {
                            },
 "claim_replay":
 { Args: { "p_key": string }; Returns: Json
+                           },
+"clean_guest_note":
+{ Args: { "p_note": Json }; Returns: string
                            },
 "close_day":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -147,17 +170,62 @@ export type Database = {
 "current_venue":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"decline_guest_order":
+{ Args: { "p_guest_order_id": string }; Returns: Json
+                           },
 "finalize_count":
 { Args: { "p_count_id": string }; Returns: Json
                            },
 "finish_replay":
 { Args: { "p_key": string,"p_result": Json }; Returns: Json
                            },
+"guest_inbox":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"guest_live_session":
+{ Args: { "p_session_id": string }; Returns: {
+              "closed_at": string | null,
+"created_at": string,
+"expires_at": string,
+"id": string,
+"last_activity_at": string,
+"table_id": string,
+"venue_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "guest_sessions"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"guest_menu":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"guest_order_json":
+{ Args: { "p_order": Omit<Database["public"]['Tables']["guest_orders"]['Row'], Database["public"]['Tables']["guest_orders"]['ComputedFields']> }; Returns: Json
+                           },
+"guest_quote":
+{ Args: { "p_items": Json,"p_venue": string }; Returns: Json
+                           },
+"guest_status":
+{ Args: { "p_session_id": string }; Returns: Json
+                           },
+"guest_switches":
+{ Args: { "p_table_id": string }; Returns: {
+              "calls_enabled": boolean,"orders_enabled": boolean
+            }[]
+                           },
+"guest_touch_session":
+{ Args: { "p_session_id": string }; Returns: undefined
+                           },
 "ingredient_on_hand":
 { Args: { "p_ingredient_id": string }; Returns: number
                            },
 "is_staff":
 { Args: { "p_roles": (Database["public"]['Enums']["staff_role"])[] }; Returns: boolean
+                           },
+"lock_guest_table":
+{ Args: { "p_table_id": string }; Returns: undefined
                            },
 "lock_open_count":
 { Args: { "p_count_id": string }; Returns: Database["public"]['Tables']["stock_counts"]['Row']
@@ -178,11 +246,17 @@ export type Database = {
 "merge_tabs":
 { Args: { "p_from": string,"p_into": string }; Returns: Json
                            },
+"new_table_token":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
 "open_day":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "open_tab":
 { Args: { "p_covers": number,"p_idempotency_key": string,"p_table_id": string }; Returns: Json
+                           },
+"open_table_session":
+{ Args: { "p_token": string }; Returns: Json
                            },
 "open_till_shift":
 { Args: { "p_device_id": string,"p_opening_float": number }; Returns: Json
@@ -201,6 +275,9 @@ export type Database = {
                            },
 "purge_housekeeping":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"raise_waiter_call":
+{ Args: { "p_idempotency_key": string,"p_reason": Database["public"]['Enums']["waiter_call_reason"],"p_session_id": string }; Returns: Json
                            },
 "receive_delivery":
 { Args: { "p_idempotency_key": string,"p_lines": Json,"p_note": string,"p_supplier_id": string }; Returns: Json
@@ -226,6 +303,9 @@ export type Database = {
 "revoke_user_sessions":
 { Args: { "p_user_id": string }; Returns: number
                            },
+"rotate_table_token":
+{ Args: { "p_table_id": string }; Returns: Json
+                           },
 "round_div":
 { Args: { "p_d": number,"p_n": number }; Returns: number
                            },
@@ -237,8 +317,14 @@ export type Database = {
 "save_count_lines":
 { Args: { "p_count_id": string,"p_lines": Json }; Returns: Json
                            },
+"send_guest_order":
+{ Args: { "p_idempotency_key": string,"p_items": Json,"p_session_id": string }; Returns: Json
+                           },
 "set_dining_table_active":
 { Args: { "p_active": boolean,"p_id": string }; Returns: undefined
+                           },
+"set_guest_service":
+{ Args: { "p_calls_enabled": boolean,"p_orders_enabled": boolean }; Returns: Json
                            },
 "set_ingredient_active":
 { Args: { "p_active": boolean,"p_id": string }; Returns: Json
@@ -270,6 +356,9 @@ export type Database = {
 "set_staff_role":
 { Args: { "p_role": Database["public"]['Enums']["staff_role"],"p_staff_id": string }; Returns: undefined
                            },
+"set_table_guest_enabled":
+{ Args: { "p_enabled": boolean,"p_table_id": string }; Returns: Json
+                           },
 "settle_tab":
 { Args: { "p_amount": number,"p_device_id": string,"p_idempotency_key": string,"p_method": Database["public"]['Enums']["payment_method"],"p_tab_id": string,"p_tendered": number }; Returns: Json
                            },
@@ -298,6 +387,9 @@ export type Database = {
 { Args: { "p_tab_id": string }; Returns: {
               "discount": number,"line_total": number,"order_item_id": string,"tax_rate_bps": number
             }[]
+                           },
+"table_qr_tokens":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "till_shift_status":
 { Args: { "p_device_id": string }; Returns: Json
@@ -349,6 +441,9 @@ export type Database = {
                            },
 "void_item":
 { Args: { "p_order_item_id": string,"p_reason": string }; Returns: Json
+                           },
+"waiter_call_json":
+{ Args: { "p_already": boolean,"p_call": Omit<Database["public"]['Tables']["waiter_calls"]['Row'], Database["public"]['Tables']["waiter_calls"]['ComputedFields']> }; Returns: Json
                            },
 "write_audit":
 { Args: { "p_action": string,"p_after"?: Json,"p_authorized_by"?: string,"p_before"?: Json,"p_entity": string,"p_entity_id"?: string,"p_reason"?: string }; Returns: string
@@ -606,6 +701,74 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "floor_areas_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"guest_orders": {
+                  Row: {
+                    "created_at": string,"day_session_id": string,"decided_at": string | null,"decided_by": string | null,"guest_session_id": string | null,"id": string,"idempotency_key": string,"items": NonNullable<Json>,"order_id": string | null,"quote": NonNullable<Json>,"quoted_total": number,"sent_at": string,"status": Database["public"]['Enums']["guest_order_status"],"tab_id": string | null,"table_id": string,"venue_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"day_session_id": string,"decided_at"?: string | null,"decided_by"?: string | null,"guest_session_id"?: string | null,"id"?: string,"idempotency_key": string,"items": NonNullable<Json>,"order_id"?: string | null,"quote": NonNullable<Json>,"quoted_total": number,"sent_at"?: string,"status"?: Database["public"]['Enums']["guest_order_status"],"tab_id"?: string | null,"table_id": string,"venue_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"day_session_id"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"guest_session_id"?: string | null,"id"?: string,"idempotency_key"?: string,"items"?: NonNullable<Json>,"order_id"?: string | null,"quote"?: NonNullable<Json>,"quoted_total"?: number,"sent_at"?: string,"status"?: Database["public"]['Enums']["guest_order_status"],"tab_id"?: string | null,"table_id"?: string,"venue_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "guest_orders_day_session_id_fkey"
+      columns: ["day_session_id"]
+isOneToOne: false
+      referencedRelation: "day_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "guest_orders_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "staff"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "guest_orders_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "guest_orders_tab_id_fkey"
+      columns: ["tab_id"]
+isOneToOne: false
+      referencedRelation: "tabs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "guest_orders_tab_id_fkey"
+      columns: ["tab_id"]
+isOneToOne: false
+      referencedRelation: "v_floor_status"
+      referencedColumns: ["tab_id"]
+    },{
+      foreignKeyName: "guest_orders_tab_id_fkey"
+      columns: ["tab_id"]
+isOneToOne: false
+      referencedRelation: "v_open_tabs"
+      referencedColumns: ["tab_id"]
+    },{
+      foreignKeyName: "guest_orders_table_id_fkey"
+      columns: ["table_id"]
+isOneToOne: false
+      referencedRelation: "dining_tables"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "guest_orders_table_id_fkey"
+      columns: ["table_id"]
+isOneToOne: false
+      referencedRelation: "v_floor_status"
+      referencedColumns: ["table_id"]
+    },{
+      foreignKeyName: "guest_orders_venue_id_fkey"
       columns: ["venue_id"]
 isOneToOne: false
       referencedRelation: "venues"
@@ -1284,6 +1447,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"table_links": {
+                  Row: {
+                    "created_at": string,"guest_enabled": boolean,"id": string,"rotated_at": string | null,"table_id": string,"token": string,"venue_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"guest_enabled"?: boolean,"id"?: string,"rotated_at"?: string | null,"table_id": string,"token": string,"venue_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"guest_enabled"?: boolean,"id"?: string,"rotated_at"?: string | null,"table_id"?: string,"token"?: string,"venue_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "table_links_table_id_fkey"
+      columns: ["table_id"]
+isOneToOne: true
+      referencedRelation: "dining_tables"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "table_links_table_id_fkey"
+      columns: ["table_id"]
+isOneToOne: true
+      referencedRelation: "v_floor_status"
+      referencedColumns: ["table_id"]
+    },{
+      foreignKeyName: "table_links_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"tabs": {
                   Row: {
                     "closed_at": string | null,"covers": number,"created_at": string,"day_session_id": string,"id": string,"idempotency_key": string,"merged_into_tab_id": string | null,"note": string | null,"opened_at": string,"status": Database["public"]['Enums']["tab_status"],"table_id": string | null,"venue_id": string,"waiter_id": string
@@ -1400,14 +1595,14 @@ isOneToOne: false
                   ]
                 },"venue_settings": {
                   Row: {
-                    "created_at": string,"currency": string,"receipt_footer_ar": string,"receipt_footer_en": string,"receipt_header_ar": string,"receipt_header_en": string,"service_charge_bps": number,"variance_alert_iqd": number,"venue_id": string
+                    "created_at": string,"currency": string,"guest_calls_enabled": boolean,"guest_orders_enabled": boolean,"receipt_footer_ar": string,"receipt_footer_en": string,"receipt_header_ar": string,"receipt_header_en": string,"service_charge_bps": number,"variance_alert_iqd": number,"venue_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"currency"?: string,"receipt_footer_ar"?: string,"receipt_footer_en"?: string,"receipt_header_ar"?: string,"receipt_header_en"?: string,"service_charge_bps"?: number,"variance_alert_iqd"?: number,"venue_id"?: string
+                    "created_at"?: string,"currency"?: string,"guest_calls_enabled"?: boolean,"guest_orders_enabled"?: boolean,"receipt_footer_ar"?: string,"receipt_footer_en"?: string,"receipt_header_ar"?: string,"receipt_header_en"?: string,"service_charge_bps"?: number,"variance_alert_iqd"?: number,"venue_id"?: string
                   }
                   Update: {
-                    "created_at"?: string,"currency"?: string,"receipt_footer_ar"?: string,"receipt_footer_en"?: string,"receipt_header_ar"?: string,"receipt_header_en"?: string,"service_charge_bps"?: number,"variance_alert_iqd"?: number,"venue_id"?: string
+                    "created_at"?: string,"currency"?: string,"guest_calls_enabled"?: boolean,"guest_orders_enabled"?: boolean,"receipt_footer_ar"?: string,"receipt_footer_en"?: string,"receipt_header_ar"?: string,"receipt_header_en"?: string,"service_charge_bps"?: number,"variance_alert_iqd"?: number,"venue_id"?: string
                   }
                   Relationships: [
                     {
@@ -1431,6 +1626,50 @@ isOneToOne: true
                   }
                   Relationships: [
                     
+                  ]
+                },"waiter_calls": {
+                  Row: {
+                    "answered_at": string | null,"answered_by": string | null,"called_at": string,"created_at": string,"day_session_id": string,"guest_session_id": string | null,"id": string,"idempotency_key": string,"reason": Database["public"]['Enums']["waiter_call_reason"],"table_id": string,"venue_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answered_at"?: string | null,"answered_by"?: string | null,"called_at"?: string,"created_at"?: string,"day_session_id": string,"guest_session_id"?: string | null,"id"?: string,"idempotency_key": string,"reason": Database["public"]['Enums']["waiter_call_reason"],"table_id": string,"venue_id"?: string
+                  }
+                  Update: {
+                    "answered_at"?: string | null,"answered_by"?: string | null,"called_at"?: string,"created_at"?: string,"day_session_id"?: string,"guest_session_id"?: string | null,"id"?: string,"idempotency_key"?: string,"reason"?: Database["public"]['Enums']["waiter_call_reason"],"table_id"?: string,"venue_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "waiter_calls_answered_by_fkey"
+      columns: ["answered_by"]
+isOneToOne: false
+      referencedRelation: "staff"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "waiter_calls_day_session_id_fkey"
+      columns: ["day_session_id"]
+isOneToOne: false
+      referencedRelation: "day_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "waiter_calls_table_id_fkey"
+      columns: ["table_id"]
+isOneToOne: false
+      referencedRelation: "dining_tables"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "waiter_calls_table_id_fkey"
+      columns: ["table_id"]
+isOneToOne: false
+      referencedRelation: "v_floor_status"
+      referencedColumns: ["table_id"]
+    },{
+      foreignKeyName: "waiter_calls_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
                   ]
                 }
           }
@@ -1535,7 +1774,7 @@ isOneToOne: false
             [_ in never]: never
           }
           Enums: {
-            "adjustment_kind": "discount_percent"|"discount_amount","cash_movement_kind": "paid_out"|"pay_in"|"drop","movement_kind": "delivery"|"sale"|"void_return"|"waste"|"count_adjust","payment_method": "cash"|"card","staff_role": "waiter"|"cashier"|"manager"|"owner","stock_unit": "g"|"ml"|"pc","tab_status": "open"|"settled"|"void"
+            "adjustment_kind": "discount_percent"|"discount_amount","cash_movement_kind": "paid_out"|"pay_in"|"drop","guest_order_status": "pending"|"accepted"|"declined","movement_kind": "delivery"|"sale"|"void_return"|"waste"|"count_adjust","payment_method": "cash"|"card","staff_role": "waiter"|"cashier"|"manager"|"owner","stock_unit": "g"|"ml"|"pc","tab_status": "open"|"settled"|"void","waiter_call_reason": "order"|"bill"|"water"|"help"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1655,7 +1894,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "adjustment_kind": ["discount_percent", "discount_amount"],"cash_movement_kind": ["paid_out", "pay_in", "drop"],"movement_kind": ["delivery", "sale", "void_return", "waste", "count_adjust"],"payment_method": ["cash", "card"],"staff_role": ["waiter", "cashier", "manager", "owner"],"stock_unit": ["g", "ml", "pc"],"tab_status": ["open", "settled", "void"]
+            "adjustment_kind": ["discount_percent", "discount_amount"],"cash_movement_kind": ["paid_out", "pay_in", "drop"],"guest_order_status": ["pending", "accepted", "declined"],"movement_kind": ["delivery", "sale", "void_return", "waste", "count_adjust"],"payment_method": ["cash", "card"],"staff_role": ["waiter", "cashier", "manager", "owner"],"stock_unit": ["g", "ml", "pc"],"tab_status": ["open", "settled", "void"],"waiter_call_reason": ["order", "bill", "water", "help"]
           }
         }
 } as const

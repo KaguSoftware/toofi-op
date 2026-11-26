@@ -10,7 +10,11 @@
  *         tests/rls-matrix.ts (`fn: 'X'`) nor fixtures/rpc-allowlist.json;
  *   FAIL  an allowlist entry without a reason of at least 10 characters;
  *   FAIL  a matrix or allowlist entry naming a function that is not granted
- *         (a typo, or a function since revoked or dropped).
+ *         (a typo, or a function since revoked or dropped);
+ *   FAIL  a function granted to anon (or to public, which anon inherits) that is
+ *         not in fixtures/rpc-public.json with a reason of at least 10 characters,
+ *         and a public-list entry that is not granted to anon. Anon is the guest QR
+ *         menu's surface (no staff login), so it must stay an explicit, short list.
  *
  * Stackless. Usage: node scripts/check-rpc-registry.mjs
  */
@@ -21,6 +25,7 @@ const DB = path.resolve(import.meta.dirname, '..');
 const MIGRATIONS = path.join(DB, 'supabase/migrations');
 const MATRIX = path.join(DB, 'tests/rls-matrix.ts');
 const ALLOWLIST = path.join(DB, 'fixtures/rpc-allowlist.json');
+const PUBLIC_LIST = path.join(DB, 'fixtures/rpc-public.json');
 
 const GRANT = /grant\s+execute\s+on\s+function\s+app\.([a-z0-9_]+)\s*\([^)]*\)\s*to\s+([a-z_,\s]+);/gi;
 const REVOKE =
@@ -81,11 +86,23 @@ for (const fn of matrix) {
   if (!exposed.has(fn)) failures.push(`tests/rls-matrix.ts lists app.${fn}, which is not granted to authenticated`);
 }
 
+const anonExposed = new Set([...grantedTo].filter(([, roles]) => roles.has('anon') || roles.has('public')).map(([n]) => n));
+const publicList = JSON.parse(readFileSync(PUBLIC_LIST, 'utf8')).public ?? {};
+for (const fn of [...anonExposed].sort()) {
+  if (!(fn in publicList)) failures.push(`app.${fn} is granted to anon but is not in fixtures/rpc-public.json`);
+}
+for (const [fn, reason] of Object.entries(publicList)) {
+  if (typeof reason !== 'string' || reason.trim().length < 10) {
+    failures.push(`fixtures/rpc-public.json: app.${fn} needs a reason of at least 10 characters`);
+  }
+  if (!anonExposed.has(fn)) failures.push(`fixtures/rpc-public.json lists app.${fn}, which is not granted to anon`);
+}
+
 if (failures.length) {
   for (const f of failures) console.error(`FAIL  ${f}`);
   process.exit(1);
 }
 
 console.log(
-  `ok  ${exposed.size} functions granted to authenticated: ${matrix.size} in the RLS matrix, ${Object.keys(allowlist).length} allowlisted`,
+  `ok  ${exposed.size} functions granted to authenticated: ${matrix.size} in the RLS matrix, ${Object.keys(allowlist).length} allowlisted; ${anonExposed.size} granted to anon, all in rpc-public.json`,
 );

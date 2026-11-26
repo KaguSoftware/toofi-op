@@ -13,7 +13,9 @@ Decided with the owner on 2026-11-25. This file is the contract for every step. 
 
 **Nothing reaches a tab, money or stock until a staff member taps OK.** A guest order is a request held in `guest_orders`. Accepting it runs the existing `app.open_tab` (when the table is free) and `app.add_items` as the accepting staff member, so pricing, audit, stock deduction and realtime all behave as they do for a waiter's order.
 
-Not included: paying from the phone, showing the bill to the guest, the guest cancelling an accepted order, photos and descriptions, kitchen tickets.
+Not included: paying from the phone, showing the bill to the guest, the guest cancelling an accepted order, dish descriptions, kitchen tickets.
+
+Start with `README.md` in this folder. The approved look is in `design.md`.
 
 ## Owner decisions
 
@@ -24,16 +26,20 @@ Not included: paying from the phone, showing the bill to the guest, the guest ca
 
 ## Steps
 
-| Step | Work |
-|---|---|
-| 1 | Database, guardrails, error text, docs (this file's "Database" section) |
-| 2 | Guest site `apps/menu` (Next.js, adapted from `../TouchPadel/apps/web` cafe code): menu and call waiter |
-| 3 | Guest site: basket and orders |
-| 4 | Operator app: alert list on every screen, sound, OK and Decline, floor badge |
-| 5 | Operator app: QR cards, bell and ordering switches |
-| 6 | End-to-end tests, docs, CI, hosting |
+| Step | Work | Ticket |
+|---|---|---|
+| 1 | Database for calls and guest orders, guardrails, error text, docs (the "Database" section below) | done, see `issues/01-commit-database-step.md` |
+| 2 | Dish photos and category icons in the database, file storage | `issues/02-photos-and-icons-db.md` |
+| 3 | Shared tokens; guest site `apps/menu` (Next.js, adapted from `../TouchPadel/apps/web`): session, routes, data | `issues/03-guest-site-foundation.md` |
+| 4 | Guest UI: menu and call waiter | `issues/04-guest-menu-and-call.md` |
+| 5 | Guest UI: basket, order, status | `issues/05-guest-basket-and-order.md` |
+| 6 | Staff app: alerts on every screen, sound, OK and Decline, floor badge | `issues/06-staff-inbox.md` |
+| 7 | Staff app: QR cards, switches, photo upload, icon picker | `issues/07-staff-setup-screens.md` |
+| 8 | End-to-end tests, docs, CI, hosting notes | `issues/08-e2e-docs-hosting.md` |
 
 The guest site talks to the database only from its server, with the anon key. The table session id lives in an HttpOnly cookie. The browser never calls Supabase.
+
+Design decisions made on 2026-11-26 (details in `design.md`): the site follows the phone's light or dark setting; every dish has a photo and every category an icon; dishes sit on solid white rows with one green scroll ornament; one curved corner ornament replaces the all-over pattern.
 
 ## Database (step 1)
 
@@ -102,3 +108,28 @@ A session is live when `closed_at is null and expires_at > now()`, its table is 
 - No guest write creates a `tabs`, `orders`, `order_items` or `stock_movements` row; accepting does, exactly once, even on a double tap or two staff at once.
 - Limits, switches, cooldown, expiry and replay all hold under test.
 - `pnpm --filter @rop/db check:error-codes` and `check:rpc-registry` pass; `pnpm typecheck` and `pnpm lint` pass; types are regenerated.
+
+### As built (step 1): decisions and deviations
+
+Migrations `0140_guest_enums`, `0141_guest_tables`, `0142_guest_functions`, `0143_guest_staff_functions`, `0144_guest_housekeeping`. Where this section and the tables above differ, this section is what the database does.
+
+- **Per-table lock.** `raise_waiter_call`, `send_guest_order` and `accept_guest_order` take a transaction advisory lock on the table (`app.lock_guest_table`) right after the day row. Full lock order: `day_sessions → (table lock) → guest_orders → waiter_calls → tabs → …`. `open_table_session` takes `table_links … for update` on the table's link, so session opens and a rotation run one at a time.
+- **Replay under the lock.** Guest writes check `(guest_session_id, idempotency_key)` before the switches (as specified) and again after taking the table lock, so the same key sent twice at once still returns the first result.
+- **"Today"** means the open business day, for `raise_waiter_call`, `guest_status` and `guest_inbox`.
+- **`table_links`** also has an `id uuid` primary key; `table_id` is unique.
+- **`guest_menu`** leaves out an active category that has no active item. Modifier groups and modifiers have no sort column, so they come in creation order.
+- **Validation details.** A malformed menu item id is `ITEM_NOT_AVAILABLE` and a malformed modifier id or non-array `modifier_ids` is `MODIFIER_NOT_ALLOWED` (not the native `22P02` that `add_items` gives). A negative unit price is `INVALID_PRICE`, as in `add_items`. A null `p_reason` is `INVALID_ARGUMENT` (checked after the replay, before the switches). Note cleaning also removes U+200E, U+200F and U+061C (direction marks), and treats non-breaking and other Unicode spaces as whitespace; a note that is not a JSON string becomes null.
+- **Return shapes the tables above leave open:**
+  - quote line (`lines` everywhere): `{menu_item_id, name_en, name_ar, qty, unit_price, line_total, note, modifiers: [{id, name_en, name_ar, price_delta}]}`.
+  - `raise_waiter_call` replay returns the original result (`status: 'waiting'`, `already: false`) even if the call was answered since.
+  - `send_guest_order` replay returns the original result (`status: 'pending'`).
+  - `guest_inbox` call: `{id, table_id, table_label, reason, called_at}`; order: `{id, table_id, table_label, sent_at, lines, total, current_total, price_changed, unavailable, table_has_tab}`. `current_total` is null when `unavailable`.
+  - `answer_waiter_call` → `{call_id, status: 'answered', answered_at, answered_by, already}`. Not audited (no money or authorization involved).
+  - `accept_guest_order` on an already accepted order: the stored `tab_id` and `order_id`, with `totals` computed for that tab **now** (not a snapshot from the accept).
+  - `decline_guest_order` → `{guest_order_id, status: 'declined', already}`. A pending order from a closed day can still be declined.
+  - `set_table_guest_enabled` → `{table_id, guest_enabled}`; null flag is `ACTIVE_FLAG_REQUIRED`; unknown table is `TABLE_NOT_FOUND`.
+  - `set_guest_service` → `{calls_enabled, orders_enabled}`; a null argument is `INVALID_ARGUMENT`.
+  - `rotate_table_token` → `{table_id, rotated_at, sessions_closed}`; unknown table is `TABLE_NOT_FOUND`.
+- **Audit actions:** `guest_order.accept`, `guest_order.decline`, `table_link.read_tokens`, `table_link.set_guest_enabled`, `table_link.rotate`, `venue_settings.guest_service`. No audit row ever holds a token.
+- **Reused codes with staff wording.** Guests can meet `DAY_NOT_OPEN` ("Ask a manager to open it"), `INVALID_QTY` ("1 to 999"; the guest limit is 20), `ITEM_NOT_AVAILABLE`, `MODIFIER_*`, `INVALID_PRICE` ("Check the menu setup"), `IDEMPOTENCY_KEY_REQUIRED` and `INVALID_ARGUMENT`. Their catalogue text is unchanged because the operator app uses it; the guest site (step 2) should map them to diner wording with `errorMessageKey` overrides.
+- **Known edge.** If a waiter opens a tab on the table while an accept for a free table is running, the accept fails with `TABLE_OCCUPIED` (the waiter's `open_tab` does not take the table lock); a retry lands on the waiter's tab.
