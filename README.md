@@ -28,6 +28,8 @@ Kagu Restaurant is a point-of-sale and back-of-house system for a single venue. 
 
 The server owns every number. The client sends item IDs and quantities, and Postgres functions do the pricing, tax, stock and authorization.
 
+Guests can scan the QR code on their table to read the menu, call a waiter or send an order from their own phone. A guest order is only a request: nothing reaches a tab, money or stock until a staff member taps OK.
+
 ## ✨ Features
 
 <table>
@@ -77,6 +79,13 @@ The server owns every number. The client sends item IDs and quantities, and Post
 </tr>
 </table>
 
+### 📱 Guests (QR menu)
+- Scan the code on the table: the menu in Arabic or English, in the phone's light or dark setting, no login
+- Call a waiter (order, bill, water or help) with one tap
+- Build an order and send it; the server prices it and staff confirm with **OK** or **Decline**
+- Staff see every call and order on every screen, with a chime; managers print the table cards and switch calls or ordering off; the owner can replace a table's code
+
+
 > **Not in v1:** offline mode, kitchen printing, kitchen display screens (KDS), card terminal integration, multi-branch UI. See [`docs/SPEC.md`](docs/SPEC.md).
 
 ## 🖼️ Screenshots
@@ -92,8 +101,14 @@ The server owns every number. The client sends item IDs and quantities, and Post
 <tr><td align="center"><img src="docs/screenshots/en/till.png" alt="English"><br><sub><b>English</b></sub></td><td align="center"><img src="docs/screenshots/ar/till.png" alt="العربية"><br><sub><b>العربية</b></sub></td></tr>
 </table>
 
+<p align="center"><b>The guest menu on a phone: light, dark and Arabic</b></p>
+<table>
+<tr><td align="center"><img src="docs/screenshots/guest/menu-with-order-light.png" alt="Guest menu, light" width="260"></td><td align="center"><img src="docs/screenshots/guest/menu-with-order-dark.png" alt="Guest menu, dark" width="260"></td><td align="center"><img src="docs/screenshots/guest/menu-with-order-ar-light.png" alt="القائمة للضيف" width="260"></td></tr>
+<tr><td align="center"><img src="docs/screenshots/guest/order-light.png" alt="Guest order sheet" width="260"></td><td align="center"><img src="docs/screenshots/guest/call-dark.png" alt="Call a waiter, dark" width="260"></td><td align="center"><img src="docs/screenshots/guest/order-ar-dark.png" alt="طلبك" width="260"></td></tr>
+</table>
+
 <details>
-<summary><b>All 19 screens, English and Arabic</b></summary>
+<summary><b>All 19 staff screens, English and Arabic</b></summary>
 
 <table>
 <tr><th>Screen</th><th>English</th><th>العربية</th></tr>
@@ -152,6 +167,7 @@ flowchart TB
         APP["React operator app<br/>Vite, TanStack Router and Query"]
         T --> APP
         B --> APP
+        G["Guest phone"] --> GS["Guest menu site<br/>Next.js, server only"]
     end
     subgraph Supabase
         FN["app.* functions<br/>security definer"]
@@ -166,6 +182,7 @@ flowchart TB
     APP -- "reads under RLS" --> PG
     RT -. "refetch signals" .-> APP
     APP -- "staff management" --> EF
+    GS -- "five guest functions, anon key" --> FN
 ```
 
 ### Guarantees
@@ -187,7 +204,10 @@ flowchart TB
 | Take payments, settle, split, drawer, own till shift | — | ✅ | ✅ | ✅ |
 | Discount, refund, cancel a non-empty tab, close another's shift | — | 🔑 PIN | ✅ | ✅ |
 | Open and close the day, analytics, stock | — | — | ✅ | ✅ |
-| Menu, floor and stock item admin | — | — | ✅ | ✅ |
+| Menu, floor and stock item admin (dish photos, category icons) | — | — | ✅ | ✅ |
+| Answer a waiter call, accept or decline a guest order | ✅ | ✅ | ✅ | ✅ |
+| Print table QR cards, switch guest calls or ordering off | — | — | ✅ | ✅ |
+| Replace a table's QR code | — | — | — | ✅ |
 | Staff admin, venue settings, set PINs | — | — | — | ✅ |
 
 > 🔑 PIN means a manager or owner PIN is required. The UI only hides buttons; the server checks the role on every call.
@@ -216,7 +236,7 @@ flowchart TB
    ```bash
    pnpm --filter @rop/operator dev
    ```
-6. Optional: the guest QR menu site (port 5180). Its server needs `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
+6. Optional: the guest QR menu site (port 5180). Its server needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` (server-only: never prefix them with `NEXT_PUBLIC_`). To print table cards from the staff app, also set `VITE_MENU_URL` in `apps/operator/.env.local` to the address guests will open (a local address works in development only).
    ```bash
    cp apps/menu/.env.example apps/menu/.env.local   # then paste the local anon key
    pnpm --filter @rop/menu dev
@@ -264,12 +284,12 @@ flowchart TB
 | Security and consistency checks | `pnpm security` |
 | Error-code and RPC registry checks | `pnpm --filter @rop/db check:error-codes` and `pnpm --filter @rop/db check:rpc-registry` |
 | Regenerate DB types | `pnpm db:types` |
-| End-to-end browser tests | `pnpm e2e` |
+| End-to-end browser tests (staff app and guest site, EN and AR) | `pnpm e2e` |
 | Desktop build (unpacked, unsigned) | `pnpm --filter @rop/operator-shell dist:dir` |
 
 > ⚠️ Root `pnpm test` runs **every** package's tests, including the `@rop/db` suite against the local stack on port 55421 if it is up. Do not run it while someone else is using that database. DB tests skip themselves when the stack is down, and a skip is not a pass.
 
-End-to-end: `pnpm e2e:install` once, then `pnpm e2e` (Playwright, EN + AR projects, needs the local stack; each spec resets the database). It also regenerates the screenshots above.
+End-to-end: `pnpm e2e:install` once, then `pnpm e2e` (Playwright, EN + AR projects, needs the local stack; each spec resets the database). It starts the staff app on port 5174 and the guest site on port 5180, and it regenerates the screenshots above, the guest ones in `docs/screenshots/guest/` included.
 
 ## 🖥️ Desktop app and releases
 
@@ -279,11 +299,13 @@ The till runs the operator app inside an Electron 33 shell that loads the bundle
 
 | Document | What it covers |
 |---|---|
-| [`docs/SPEC.md`](docs/SPEC.md) | Scope, roles, core flows, schema contract |
+| [`docs/SPEC.md`](docs/SPEC.md) | Scope, roles, core flows, schema contract, the guest site |
 | [`GLOSSARY.md`](GLOSSARY.md) | Domain words: tab, send, settle, till shift and more |
 | [`docs/RELEASING.md`](docs/RELEASING.md) | Signing, secrets and cutting a release |
 | [`CLAUDE.md`](CLAUDE.md) | Agent and developer rules: backend, frontend, git |
-| [`DESIGN.md`](DESIGN.md) | UI restyle guide for the design team: tokens, components, screens, constraints |
+| [`DESIGN.md`](DESIGN.md) | UI restyle guide for the design team: tokens, components, screens, constraints, the guest site |
+| [`PRODUCT.md`](PRODUCT.md) | Who it is for (waiter, cashier, manager, owner, guest), purpose and design principles |
+| [`docs/PLAN.md`](docs/PLAN.md) | The roadmap from v1 to a venue-ready product, with what is done |
 | [`HANDOFF.md`](HANDOFF.md) | Current state, decisions, accepted risks and the pre-launch checklist |
 
 ## 🤝 Contributing

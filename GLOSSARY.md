@@ -29,3 +29,5 @@
 | **Waiter call** | A guest's request for a waiter, with a reason: order, bill, water or help. One tap on **OK** by staff answers it. | ping, buzz |
 | **Guest order** | A basket a guest sent from their phone. It is only a request held in `guest_orders`: it becomes an **Order** on a tab when staff accept it. | order (until accepted), online order |
 | **Accept / Decline** | Staff's answer to a guest order. Accept opens the tab if the table is free and adds the lines; Decline closes the request and changes nothing else. | confirm, reject |
+| **Guest inbox** | The panel on every staff screen listing open waiter calls and pending guest orders, oldest first, each with OK (and Decline for an order). | notifications, alerts |
+| **Table card** | The printed A6 card on a table: the restaurant name, the table label and the QR code. Managers and owners print it from Manage → Floor plan → QR codes. | sticker, QR code (that is only the picture on it) |

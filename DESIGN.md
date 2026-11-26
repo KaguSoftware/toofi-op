@@ -8,7 +8,7 @@ The UI is semantic HTML, a small component kit, and CSS variables. Logic and UI 
 
 | Touch | Path |
 |---|---|
-| Tokens | `packages/tokens/tokens.css` (`@rop/tokens`, shared with the guest site) |
+| Tokens | `packages/tokens/tokens.css` (`@rop/tokens`, shared with the guest site; `guest.css` there is the guest site's own set) |
 | Global styles | `apps/operator/src/styles/base.css` (imports the tokens and font faces first) |
 | Per-feature styles | `apps/operator/src/features/floor/floor.css`, `tab/tab.css`, `till/till.css`, `manage/manage.css` |
 | Kit markup | `apps/operator/src/components/*.tsx` (not `padLogic.ts`) |
@@ -167,6 +167,8 @@ What the screens do (AR is the same CSS mirrored by `dir`, not separate styles):
 - **Day (`/manage/day`):** a status band (day open since, or closed) with Open or Close the day as the header action, then the till shifts and the day summary.
 - **Setup and stock (`manage--setup`):** a page header with the main action and the sub-navigation, then tables and forms on raised panels; forms keep a readable width and form lines lay their fields side by side. The floor plan leads with one canvas per area, drawn as the floor shows it; tapping a table opens it for editing.
 - **Reports (`/manage`):** a strip of figures divided by hairlines, then single-colour bar charts with a table alternative.
+- **Guest inbox (every screen):** see the Guests waiting row in section 6. Logic is in `features/guest/guestLogic.ts` (urgency thresholds, sort, chime rule), UI in `GuestInbox.tsx`, styles in `guest.css`.
+- **QR codes (`/manage/floor`, "QR codes" view, manager and owner):** a table of every active table with its on or off switch, Print and, for the owner, Replace code. Print makes one A6 card per page (`QrCard.tsx`): the code is always black on white, whatever the brand colours, with a four-module quiet zone. The address in the code is `VITE_MENU_URL` + `/t/` + the table's token; a production build refuses to print when that address is missing, local or private. Above the table, "Guest service" has the two venue-wide switches (waiter calls, orders). Dish photos and category icons are set in Manage → Menu.
 
 ## 5. Hard constraints
 
@@ -235,6 +237,7 @@ What the screens do (AR is the same CSS mirrored by `dir`, not separate styles):
 | Alert rows (variance) | `/manage/day` | `manage__row-alert` (2px red outline) plus `manage__alert` red pill | Colour must not be the only signal; keep text and consider an icon. Fix `--rop-surface-alt`. |
 | Blind count | `/stock/count` | One counted input per ingredient (`manage__count-input`, labelled with name and unit), `aria-invalid` plus inline text on bad input, a "blind count" note, confirm dialog | **Must never show expected or on-hand quantities, or any variance, before finalize.** No extra columns, hints, tooltips or derived numbers here. |
 | Selected, active | tabs, areas, categories, nav, range buttons | `aria-selected`, `aria-pressed`, `aria-current`: a `--rop-selected` tint or the raised option on a segmented track, plus weight 600 | Differ by more than colour. |
+| Guest calls and orders waiting | every screen once signed in | `guest-inbox`: a raised panel fixed at the bottom inline-start corner (above the tab bar on tablets, beside the rail on wide screens), under the toasts. A charcoal header says "Guests waiting" with a count and collapses the list. Each row names the table and how long it has waited in words (amber from 2 minutes, red from 5; the words carry it, the colour only supports it), the reason or the order's lines and total, then **OK** (terra cotta) and, on an order, a quiet **Decline** that asks first. Your own tables come first. On a free table OK asks for the guest count before it accepts. | The chime plays once per new row and every minute while something has waited 5 minutes; browsers need one tap first, so an unarmed panel shows "Turn on sound". The floor shows a "Calling" badge on the table. Hidden under the idle lock. |
 | Toasts | everywhere | Bottom for info and success, top for errors, 5 s. Info and success are ink (success adds a green mark); only errors are solid red | Cannot carry required information. |
 
 ## 7. Decisions, and what is still open
@@ -273,3 +276,23 @@ Still open:
 - All targets at least 3rem; focus ring visible everywhere.
 - Fonts bundled locally; no external requests.
 - `pnpm --filter @rop/operator typecheck` and its tests pass; refresh `docs/screenshots` in EN and AR.
+
+## 9. The guest site (`apps/menu`)
+
+The diner's phone, not the staff app. Everything above about the staff app (rail, kit, light only) does not apply here; the tokens do. The look was chosen by the owner on 2026-11-26 ("white rows with green ornament"); the measurements, colours and states are in `.scratch/qr-menu/design.md`, and this section is the summary a designer needs. Screenshots: `docs/screenshots/guest/` (`menu-*`, `menu-with-order-*`, `order-*`, `call-*`, in `light`, `dark`, `ar-light` and `ar-dark`). `pnpm e2e` regenerates them.
+
+**Tokens.** `@rop/tokens` holds every `--rop-*` value. The staff app imports `tokens.css` and `fonts.css`; the guest site also imports `guest.css`, which adds the dish row card, the row ornament green and its opacity, the charcoal border, and the **dark set** under `prefers-color-scheme: dark` (page `#18181A` family, converted to OKLCH like the rest). The guest site follows the phone's light or dark setting and has no switch. The staff app stays light only. No raw hex in guest CSS or TSX.
+
+**Language.** Arabic unless the phone asks for English or the guest chose (`rop-locale` cookie, one button in the top bar). Layout mirrors by logical properties. Western digits in both languages; prices are plain numbers in the rows and carry the currency only in the order total.
+
+**The screen**, top to bottom: the corner ornament (one curved olive, copper and soft terra band with an eight-petal flower, top inline-end corner, mirrored in Arabic, no all-over pattern); the top bar (table plate in the staff app's doorplate style, restaurant name, language button); the header strip; the category rail (tiles with an icon from `CATEGORY_ICONS`, selected tile in forest, following the scroll); sections with a copper rule and an olive star; **dish rows** (solid warm-white cards: 76 px photo or the category icon tile, name, price, the plus at the inline end, minus and count once in the order); status strips; and the fixed bottom bar with **Call waiter** (charcoal) and **Your order** (terra cotta once it has dishes).
+
+**The two ornaments** live in `components/Ornaments.tsx`: `CornerOrnament` (180 × 128) and `RowOrnament` (a scroll lying on its side in every row, 90 × 54, soft green at 14% opacity, 10% in dark). The row ornament never moves: the minus and count sit on top of it.
+
+**Sheets** rise from the bottom over a scrim: Call waiter (four reasons in a 2 × 2 grid), Your order (lines, one note, total, Send order as the only terra cotta control), the options sheet for a dish with modifier groups, and notice sheets (no table, session ended, closed, switched off, call again soon).
+
+**States.** Menu loading (skeleton rows), empty, failed (with Try again); no table (browsable, actions ask to scan); session ended (the order stays on the phone); closed day; calls or orders switched off; call waiting then answered ("A waiter is on the way"); the countdown before another call; order waiting, confirmed, not accepted, expired (a waiting order gets "please ask a waiter" after 3 minutes); a limit reached (3 orders waiting, 20 of one dish, 40 lines: a plain sentence in a strip, no code); a dish that left the menu (marked, blocks Send until removed); offline banner; a dish without a photo (icon tile). Status is always an icon and words, never colour alone. The phone asks the server every 5 seconds only while a call or an order is waiting.
+
+**Accessibility.** Every control is at least 44 px. Text pairs are measured at 4.5:1 and control edges at 3:1 in both sets (`apps/menu/src/lib/tokenContrast.test.ts` runs the real tokens). Motion is 150 to 240 ms, transform and opacity only, and off under `prefers-reduced-motion`. Works from 360 px wide; wider screens keep a centred phone-width column.
+
+**Photos are content.** One real photo per dish, in its row only. No hero image, no decorative food imagery (`PRODUCT.md`).

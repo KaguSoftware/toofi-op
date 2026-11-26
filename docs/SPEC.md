@@ -125,6 +125,23 @@ Every table has RLS enabled and a select policy for any active staff at the venu
 
 **Storage, the one client write.** The public bucket `menu-photos` (1 MB, WebP or JPEG) holds dish photos. Anyone may read it. A manager or owner uploads, replaces and deletes objects straight through the Storage API, only under their own venue's folder (`{venue_id}/…`), because a file cannot go through a SQL function. `app.set_menu_item_photo` then records the path, and `app.set_menu_category_icon` sets a category's icon; both are manager and owner, audited.
 
+## Guest site (`apps/menu`, `@rop/menu`)
+A Next.js App Router site for the diner's phone, dev port 5180. **Only its server talks to Supabase**, with the anon key and only the five guest functions; the browser never calls Supabase.
+
+| Piece | Behaviour |
+|---|---|
+| Address | `{site}/t/{token}` is what a table card's QR code holds. The route calls `open_table_session`, stores the session id in the HttpOnly `rop-table` cookie and redirects to `/`, so the token leaves the address bar at once. A bad, replaced or rate-limited token redirects to `/?notice=scan-again` with no cookie. |
+| Pages and routes | `/` (menu and every screen state), `GET /scan-again` (clears the cookie once `guest_status` confirms the session ended), `/api/call`, `/api/order`, `/api/status`, `/api/locale`. Every answer is `{ok: true, data}` or `{ok: false, result, code}`; any key that could carry the session id or a token is stripped. |
+| Menu | `guest_menu()` read through a 60-second server cache (tag `guest-menu`), expired when an order is refused because a dish changed. Dish photos load from the public `menu-photos` bucket. |
+| Idempotency | Each phone has a station id (`G-` plus 10 characters) in `localStorage`; one key per call or send attempt, so a retry or a refresh cannot send twice. |
+| Language | Arabic by default; English if the phone asks or the guest picks it (`rop-locale` cookie). All text is in the `guest.*` catalogs of `@rop/i18n`. |
+| Headers | CSP with a per-request nonce, no referrer from `/t/*`, no request log for `/t/*`. |
+| Env (server only, never `NEXT_PUBLIC_`) | `SUPABASE_URL`, `SUPABASE_ANON_KEY` (`apps/menu/.env.example`). |
+
+The staff app needs one more value for printing cards: `VITE_MENU_URL`, the public address of this site (`apps/operator/.env.example`). A production build refuses to print with it missing, local or on a private network.
+
+Tests: unit tests next to each `*Logic.ts` and component (`pnpm --filter @rop/menu test`); the end-to-end spec `e2e/tests/guest-qr.spec.ts` (call, order, accept, decline, replaced code; English and Arabic) runs the guest site beside the staff app, and `guest-screenshots.ar.spec.ts` writes `docs/screenshots/guest/`.
+
 ## Migration number bands (filename `2026112000NNNN_<name>.sql`)
 | Band | Owner | Content |
 |---|---|---|

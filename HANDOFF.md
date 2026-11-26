@@ -1,6 +1,6 @@
 # Handoff
 
-Current state of the Restaurant Operator (working name) as of 2026-11-20. Read this first, then `CLAUDE.md` (rules), `docs/SPEC.md` (behaviour and schema contract), `GLOSSARY.md` (domain words) and `DESIGN.md` (UI restyle guide).
+Current state of the Restaurant Operator (working name) as of 2026-11-26. Read this first, then `CLAUDE.md` (rules), `docs/SPEC.md` (behaviour and schema contract), `GLOSSARY.md` (domain words) and `DESIGN.md` (UI restyle guide).
 
 ## Status
 
@@ -9,6 +9,7 @@ Current state of the Restaurant Operator (working name) as of 2026-11-20. Read t
 - Cashier: bill, discounts, cash and card, part and split payments, change, receipts, refunds, till shifts with blind count.
 - Management: analytics panel, business day open and close, menu, floor, staff and venue admin.
 - Stock: deduction by recipe, deliveries, waste, blind counts, low stock, margins.
+- Guests: the QR menu site (`apps/menu`). A guest scans the table's code, reads the menu, calls a waiter or sends an order. Staff see every call and order on every screen and tap OK or Decline; an accepted order opens the tab and adds the lines as the staff member. Managers print the table cards and switch calls or ordering off; the owner replaces a table's code; managers add a photo to every dish and an icon to every category.
 
 The UI is plain on purpose; restyling is the design team's next step (see `DESIGN.md`).
 
@@ -16,12 +17,12 @@ The UI is plain on purpose; restyling is the design team's next step (see `DESIG
 
 | Check | Result |
 |---|---|
-| `pnpm typecheck`, `pnpm lint` | 5/5 packages pass |
-| Database tests (`@rop/db`, against live Postgres) | 669 passed |
-| Operator / core / i18n / shell unit tests | 178 / 184 / 54 / 78 passed |
-| End-to-end, Playwright, EN and AR (`pnpm e2e`) | 19 passed |
-| `pnpm security` (Electron hardening, error-code and RPC-registry checks) | pass |
-| Windows unpacked desktop build (`dist:dir`), launched | starts cleanly |
+| `pnpm typecheck`, `pnpm lint` | 6/6 packages pass |
+| Database tests (`@rop/db`, against live Postgres, none skipped) | 887 passed |
+| Operator / core / i18n / shell / guest site unit tests | 324 / 194 / 54 / 79 / 336 passed |
+| End-to-end, Playwright, EN and AR (`pnpm e2e`, includes the guest QR flow) | 35 passed |
+| Error-code and RPC-registry checks (`check:error-codes`, `check:rpc-registry`) | pass |
+| Electron hardening check (`check:electron`) and the Windows unpacked desktop build (`dist:dir`) | not re-run for the QR menu work (the desktop shell did not change); last run on 2026-11-20: pass, starts cleanly |
 
 ## Run it locally
 
@@ -40,6 +41,8 @@ Demo logins are in the header of `packages/db/supabase/seed.sql`. For example, `
 - Root `pnpm test` also runs the database suite against whatever is on port 55421. Don't run it while someone else is using that database.
 - If `ELECTRON_RUN_AS_NODE=1` is set in your shell, the desktop exe exits silently. Unset it first.
 - Starting several Supabase stacks at once can run Docker out of memory and hang it.
+- The guest site needs its own env: `cp apps/menu/.env.example apps/menu/.env.local` and paste the local anon key (`SUPABASE_URL` and `SUPABASE_ANON_KEY`, server-only). Run it with `pnpm --filter @rop/menu dev` (port 5180). To print table cards from the staff app in development, set `VITE_MENU_URL=http://localhost:5180` in `apps/operator/.env.local`.
+- `pnpm e2e` starts both dev servers (5174 and 5180) and resets the database for every spec. If either port is taken, another session has it.
 
 ## What's where
 
@@ -91,6 +94,15 @@ Demo logins are in the header of `packages/db/supabase/seed.sql`. For example, `
 - [ ] GitHub: a public releases repo, the `release` environment with required reviewers, a tag ruleset on `operator-v*`, secrets moved into the environment (see `docs/RELEASING.md`).
 - [ ] Final product name, icon and app ID in `brand.config.json`.
 
+**Guest QR menu (do these in order; none is done by the code):**
+- [ ] The hosted Supabase project (first item above) must exist with the migrations applied, **storage on** and the `menu-photos` bucket present (migration `0151` creates it; check it in the dashboard).
+- [ ] Host the guest site (`apps/menu`; Vercel is what `../TouchPadel` uses). Set the server-only `SUPABASE_URL` and the hosted **anon** key. Never the service-role key, and never a `NEXT_PUBLIC_` name.
+- [ ] Put per-IP rate limiting in front of the site (the host's firewall or a CDN rule). The database limits sessions and orders per table; it cannot see a guest's IP.
+- [ ] **Choose the final domain before printing any card.** The address is inside every printed code, and a wrong one is a dead card for months. If the domain ever changes, every card must be printed again.
+- [ ] Set `VITE_MENU_URL` to that domain in the staff app's release build (the CI secret or variable used for the release, see `docs/RELEASING.md`). The app refuses to print cards in a production build without it, or with a local or private address.
+- [ ] Once the site is live: print one card, scan it with a phone, call a waiter and send an order end to end, then print the rest.
+- [ ] Give every dish a photo (Manage → Menu shows how many are missing) and check the Arabic guest text with a native reader.
+
 **On site:**
 - [ ] Test the real receipt printer (ESC/POS over network, port 9100) and the till PCs.
 - [ ] Kiosk policy on the till PCs.
@@ -100,7 +112,8 @@ Demo logins are in the header of `packages/db/supabase/seed.sql`. For example, `
 ## Known gaps and next steps
 
 - **Design pass:** `DESIGN.md` lists the tokens, components, states and open questions. The `rop-till-*` and `rop-shift-*` classes have no styles yet. CSS files aren't covered by the RTL lint (only TSX inline styles are).
-- **Arabic end-to-end coverage** skips stock counts and staff admin; the English specs cover them.
+- **Arabic end-to-end coverage** skips stock counts and staff admin; the English specs cover them. The guest flow (`e2e/tests/guest-qr.spec.ts`) runs in both languages.
+- **Guest QR menu, not built on purpose:** paying from the phone, showing the guest the bill, the guest cancelling an accepted order, dish descriptions, kitchen tickets (plan item 1.2 is separate). Modifier groups have no sort order, so they show in creation order.
 - **No end-to-end test** runs inside the packaged Electron app (it was smoke-launched only). Receipt-window hardening is unit-tested but not exercised on real hardware.
 - **Possible v2:**
   - Offline queue.
