@@ -1,11 +1,5 @@
 // Styles first: base.css must come before the feature CSS that the routes import, so features can override it.
-// Bundled locally: the CSP allows fonts from 'self' only. Three weights each, Latin and Arabic.
-import '@fontsource/ibm-plex-sans/latin-400.css';
-import '@fontsource/ibm-plex-sans/latin-500.css';
-import '@fontsource/ibm-plex-sans/latin-600.css';
-import '@fontsource/ibm-plex-sans-arabic/arabic-400.css';
-import '@fontsource/ibm-plex-sans-arabic/arabic-500.css';
-import '@fontsource/ibm-plex-sans-arabic/arabic-600.css';
+// base.css pulls in @rop/tokens (the font faces, bundled locally for the 'self'-only CSP, then the tokens).
 import './styles/base.css';
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';

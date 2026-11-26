@@ -1,0 +1,19 @@
+{
+  "name": "@rop/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The shared --rop-* design tokens, font faces and ornament assets (staff app and guest site).",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./fonts.css": "./fonts.css",
+    "./guest.css": "./guest.css",
+    "./zakhrafa-page.svg": "./zakhrafa-page.svg"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.2.0",
+    "@fontsource/ibm-plex-sans-arabic": "^5.2.0"
+  }
+}

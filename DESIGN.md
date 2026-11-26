@@ -8,7 +8,8 @@ The UI is semantic HTML, a small component kit, and CSS variables. Logic and UI 
 
 | Touch | Path |
 |---|---|
-| Tokens and global styles | `apps/operator/src/styles/base.css` |
+| Tokens | `packages/tokens/tokens.css` (`@rop/tokens`, shared with the guest site) |
+| Global styles | `apps/operator/src/styles/base.css` (imports the tokens and font faces first) |
 | Per-feature styles | `apps/operator/src/features/floor/floor.css`, `tab/tab.css`, `till/till.css`, `manage/manage.css` |
 | Kit markup | `apps/operator/src/components/*.tsx` (not `padLogic.ts`) |
 | Screen markup | `apps/operator/src/features/*/*Screen.tsx` and sibling panels (`BasketPanel`, `BillPanel`, `PaymentPane`, ...) |
@@ -31,7 +32,7 @@ Where things live today:
 
 ## 2. Tokens
 
-All tokens are defined once on `:root` in `base.css`, with `color-scheme: light`.
+All tokens are defined once on `:root` in `packages/tokens/tokens.css`, with `color-scheme: light`. The guest site also imports `guest.css` from the same package (its dark set and row tokens); the staff app does not.
 
 | Token | Value | Used by |
 |---|---|---|
@@ -50,7 +51,7 @@ All tokens are defined once on `:root` in `base.css`, with `color-scheme: light`
 | `--rop-olive`, `--rop-olive-bright`, `--rop-olive-tint`, `--rop-grad-olive` | `oklch(0.46 0.09 120)`; bright `0.72 0.1 118` on dark | half of the small details (logo leaves, service badges, current-item underlines, quantity badges, every second ornament star) and every "good" status |
 | `--rop-copper`, `--rop-copper-tint` | `oklch(0.687 0.097 55)` | ornament lines, the brand mark outline, the current nav link's underline, your own tables |
 | `--rop-zakhrafa-on-dark`, `-strip`, `-star` | inline SVG `data:` images | the star lattice on forest surfaces, the header ornament strip, the empty-state star |
-| `--rop-zakhrafa-page` | `oklch(0.885 0.032 82)` | the woven eight-fold star pattern behind every screen (`styles/zakhrafa-page.svg`, fixed on `body::before`) |
+| `--rop-zakhrafa-page` | `oklch(0.885 0.032 82)` | the woven eight-fold star pattern behind every screen (`packages/tokens/zakhrafa-page.svg`, fixed on `body::before`) |
 | `--rop-panel`, `-sunk`, `-selected`, `-danger` | raised, surface-2, brand tint and danger tint at `--rop-panel-opacity` (80%) | every surface that lies on the page: panels, tiles, forms, fields, secondary buttons, segmented tracks, notices. `--rop-grad-success` follows the same opacity |
 | `--rop-selected`, `--rop-occupied`, `--rop-ink`, `--rop-accent` | aliases of the brand tokens | older names kept so every screen follows the palette |
 | `--rop-chart` | forest `oklch(0.42 0.06 165)` | chart series |
@@ -81,7 +82,7 @@ How to theme:
 
 - Change values on `:root`; every component follows. Add new tokens beside the existing ones, prefixed `--rop-`.
 - **Dark mode is not implemented, by decision: light ships first** (the till and daylight terraces force light). It is planned as a per-device setting. `color-scheme: light` is hard-set and nothing switches themes. To add it, define a second token set (for example under `:root[data-theme='dark']` or `prefers-color-scheme`), switch `color-scheme`, and recheck contrast. Screens already use tokens only, so no markup change is needed.
-- **No raw colours outside `base.css`** (project rule). Feature CSS and TSX must use `var(--rop-*)`.
+- **No raw colours outside `base.css` and `@rop/tokens`** (project rule). Feature CSS and TSX must use `var(--rop-*)`.
 - Exception: the receipt and day-report HTML (section 5) are standalone documents and cannot read tokens.
 
 Charts read the CSS variables directly. `ManageScreen.tsx` uses Recharts `BarChart` and passes strings as SVG attributes: `stroke="var(--rop-border)"` (grid and the category axis line), tick labels in `--rop-text-muted` at 12px with no tick marks and no value-axis line, `fill="var(--rop-chart)"` (bars, 44px at most, 3px top radius), and a `--rop-surface-2` hover cursor. The browser resolves them, so a theme change recolours charts with no JS. There is one series colour today, the information blue. Each chart container is `dir="ltr"`: time and value axes read left to right in both languages, which is the one intentional `dir` outside `LocaleProvider` and the bilingual inputs. Each chart sits in `.manage__chart` (13rem high) with `role="img"` and an `aria-label` summary, and a table alternative next to it.

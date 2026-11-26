@@ -1,0 +1,145 @@
+/* @rop/tokens: the design tokens both apps share (the staff app and the guest site).
+   Colours, spacing, type, radii, shadows, motion and the zakhrafa ornament assets.
+   Rules and components stay in each app; only custom properties live here. */
+/* The ONE place colours live. Palette: Deep Forest, Terra Cotta, Charcoal Ink and Warm Cream,
+   with the copper of the brand's line marks. Forest is the brand (rail, seated tables,
+   selection); terra cotta is the action colour (primary buttons, counts); copper draws the
+   Arabic geometric ornament (zakhrafa). Green, amber and crimson keep their status meanings.
+   Depth comes from soft shadows tinted toward forest; motion from short transform and
+   opacity moves. Logical properties only (RTL-safe). Touch targets are at least --rop-target. */
+:root {
+  --rop-space-1: 0.25rem;
+  --rop-space-2: 0.5rem;
+  --rop-space-3: 1rem;
+  --rop-space-4: 1.5rem;
+  --rop-space-5: 2rem;
+  --rop-space-6: 3rem;
+  --rop-radius-sm: 0.375rem;
+  --rop-radius: 0.625rem;
+  --rop-radius-lg: 0.875rem;
+  --rop-radius-xl: 1.125rem;
+  --rop-target: 3rem;
+
+  --rop-font-xs: 0.8125rem;
+  --rop-font-sm: 0.875rem;
+  --rop-font: 1rem;
+  --rop-font-lg: 1.25rem;
+  --rop-font-xl: 1.625rem;
+  --rop-font-2xl: 2rem;
+  --rop-font-display: 2.75rem;
+  --rop-font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --rop-leading: 1.5;
+
+  /* Warm Cream (#F2E9D8) and its steps. */
+  --rop-bg: oklch(0.937 0.025 83);
+  --rop-raised: oklch(0.985 0.011 85);
+  --rop-surface: oklch(0.915 0.028 80);
+  --rop-surface-2: oklch(0.89 0.03 78);
+  --rop-border: oklch(0.86 0.028 78);
+  --rop-border-hover: oklch(0.74 0.03 160);
+  --rop-border-strong: oklch(0.58 0.025 160);
+  /* Charcoal Ink (#1C1C1E) for text; muted text leans sage. */
+  --rop-text: oklch(0.227 0.004 286);
+  --rop-text-muted: oklch(0.45 0.02 160);
+
+  /* Deep Forest (#1E3A2F): the brand. */
+  --rop-brand: oklch(0.322 0.04 167);
+  --rop-brand-hover: oklch(0.28 0.038 168);
+  --rop-brand-deep: oklch(0.24 0.034 170);
+  --rop-brand-ink: oklch(0.322 0.04 167);
+  --rop-brand-tint: oklch(0.91 0.03 108);
+  --rop-brand-tint-2: oklch(0.84 0.045 112);
+  --rop-on-brand: oklch(0.96 0.02 85);
+  --rop-on-brand-muted: oklch(0.82 0.03 100);
+  --rop-on-rail-muted: oklch(0.8 0.02 80);
+  --rop-grad-brand: linear-gradient(155deg, oklch(0.4 0.05 163), oklch(0.29 0.04 170));
+  --rop-grad-brand-hover: linear-gradient(155deg, oklch(0.36 0.05 163), oklch(0.26 0.04 170));
+  /* Charcoal Ink as a surface: the app's frame (rail, bars), header badges, the amount-due plate, toasts. */
+  --rop-charcoal: oklch(0.227 0.004 286);
+  --rop-grad-charcoal: linear-gradient(160deg, oklch(0.31 0.006 286), oklch(0.205 0.004 286));
+  --rop-on-charcoal: oklch(0.96 0.02 85);
+  --rop-on-charcoal-muted: oklch(0.8 0.02 80);
+  --rop-shadow-charcoal: 0 10px 24px -10px oklch(0.15 0.005 286 / 0.7), inset 0 1px 0 oklch(1 0 0 / 0.08);
+  --rop-grad-rail: linear-gradient(180deg, oklch(0.27 0.005 286), oklch(0.19 0.004 286));
+  /* Terra Cotta (#B84C2E): the action colour. -ink is dark enough for text on cream. */
+  --rop-terra: oklch(0.554 0.147 36);
+  --rop-terra-ink: oklch(0.48 0.14 36);
+  --rop-terra-tint: oklch(0.93 0.04 55);
+  --rop-on-terra: oklch(0.98 0.012 80);
+  --rop-grad-terra: linear-gradient(155deg, oklch(0.56 0.15 40), oklch(0.47 0.14 32));
+  --rop-grad-terra-hover: linear-gradient(155deg, oklch(0.52 0.15 40), oklch(0.43 0.14 32));
+  /* Copper (#C98A5E): ornament lines, the brand mark, your own tables. */
+  --rop-copper: oklch(0.687 0.097 55);
+  --rop-copper-tint: oklch(0.92 0.04 60);
+  /* Olive: the second detail colour beside copper, and the only green besides forest.
+     -bright is for details on charcoal and forest. */
+  --rop-olive: oklch(0.46 0.09 120);
+  --rop-olive-bright: oklch(0.72 0.1 118);
+  --rop-olive-tint: oklch(0.92 0.045 115);
+  --rop-grad-olive: linear-gradient(155deg, oklch(0.55 0.1 118), oklch(0.43 0.085 124));
+  /* Arabic geometric ornament: an eight-point-star lattice, a border strip, a single star. */
+  --rop-zakhrafa-on-dark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke-width='1'%3E%3Cg stroke='%238C9A4B' stroke-opacity='.26'%3E%3Crect x='18' y='18' width='20' height='20'/%3E%3Crect x='18' y='18' width='20' height='20' transform='rotate%2845 28 28%29'/%3E%3Cpath d='M28 0v13.86M28 42.14V56M0 28h13.86M42.14 28H56M0 0l18 18M56 0L38 18M0 56l18-18M56 56L38 38'/%3E%3C/g%3E%3Ccircle cx='28' cy='28' r='4' stroke='%23C98A5E' stroke-opacity='0.52'/%3E%3C/g%3E%3C/svg%3E");
+  --rop-zakhrafa-strip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 7h11M25 7h22M61 7h11' stroke='%23C98A5E' stroke-opacity='.5' stroke-width='1'/%3E%3Cpath d='M18 1.5l1.7 3.8 3.8 1.7-3.8 1.7L18 12.5l-1.7-3.8L12.5 7l3.8-1.7z' fill='%23C98A5E' fill-opacity='.85'/%3E%3Cpath d='M54 1.5l1.7 3.8 3.8 1.7-3.8 1.7L54 12.5l-1.7-3.8L48.5 7l3.8-1.7z' fill='%238C9A4B' fill-opacity='.95'/%3E%3C/svg%3E");
+  --rop-zakhrafa-star: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%238C9A4B' stroke-width='1.5'%3E%3Crect x='10' y='10' width='20' height='20'/%3E%3Crect x='10' y='10' width='20' height='20' transform='rotate%2845 20 20%29'/%3E%3C/g%3E%3Ccircle cx='20' cy='20' r='4' fill='%23C98A5E' fill-opacity='.6'/%3E%3C/svg%3E");
+
+  /* The woven eight-fold star pattern (Andalusian and Moroccan) behind every screen: a warm sand just deeper than the cream, so it is felt, not read.
+     Every surface that lies on the page is a --rop-panel*, all at --rop-panel-opacity, so a trace of it shows through; text stays above 4.5:1. */
+  --rop-zakhrafa-page: oklch(0.912 0.028 82);
+  --rop-panel-opacity: 80%;
+  --rop-panel: color-mix(in oklab, var(--rop-raised) var(--rop-panel-opacity), transparent);
+  --rop-panel-sunk: color-mix(in oklab, var(--rop-surface-2) var(--rop-panel-opacity), transparent);
+  --rop-panel-selected: color-mix(in oklab, var(--rop-brand-tint) var(--rop-panel-opacity), transparent);
+  --rop-panel-danger: color-mix(in oklab, var(--rop-danger-tint) var(--rop-panel-opacity), transparent);
+
+  /* Older names, kept so every screen follows: selection and ink now speak lapis. */
+  --rop-selected: var(--rop-brand-tint);
+  --rop-occupied: var(--rop-brand);
+  --rop-occupied-hover: var(--rop-brand-hover);
+  --rop-ink: var(--rop-brand);
+  --rop-ink-hover: var(--rop-brand-hover);
+  --rop-ink-text: var(--rop-on-brand);
+  --rop-ink-text-muted: var(--rop-on-brand-muted);
+
+  /* State colours: olive for good news (no other green), amber, and a crimson distinct from terra cotta. */
+  --rop-accent: var(--rop-brand);
+  --rop-accent-text: var(--rop-on-brand);
+  --rop-accent-tint: var(--rop-brand-tint);
+  --rop-chart: oklch(0.42 0.06 165);
+  --rop-success: var(--rop-olive);
+  --rop-success-text: oklch(0.98 0.012 85);
+  --rop-success-tint: var(--rop-olive-tint);
+  --rop-success-border: oklch(0.8 0.07 118);
+  --rop-success-on-ink: var(--rop-olive-bright);
+  --rop-warning: oklch(0.79 0.14 78);
+  --rop-warning-ink: oklch(0.44 0.1 65);
+  --rop-warning-tint: oklch(0.95 0.06 88);
+  --rop-warning-border: oklch(0.82 0.12 78);
+  --rop-danger: oklch(0.5 0.19 15);
+  --rop-danger-text: oklch(0.98 0.01 15);
+  --rop-danger-tint: oklch(0.95 0.03 15);
+  --rop-danger-border: oklch(0.8 0.1 15);
+  --rop-grad-success: linear-gradient(155deg, color-mix(in oklab, oklch(0.94 0.045 112) var(--rop-panel-opacity), transparent), color-mix(in oklab, oklch(0.9 0.055 120) var(--rop-panel-opacity), transparent));
+  --rop-on-success-tint: oklch(0.3 0.06 120);
+  --rop-shadow-success: 0 6px 14px -6px oklch(0.45 0.09 120 / 0.8);
+  --rop-on-warning: oklch(0.25 0.06 60);
+  --rop-glass-on-brand: oklch(0.2 0.03 167 / 0.35);
+
+  /* Depth: three soft shadows tinted toward forest, never grey. */
+  --rop-shadow-sm: 0 1px 2px oklch(0.25 0.04 167 / 0.08), 0 1px 1px oklch(0.25 0.04 167 / 0.05);
+  --rop-shadow-md: 0 6px 16px -4px oklch(0.25 0.04 167 / 0.16), 0 2px 5px -2px oklch(0.25 0.04 167 / 0.09);
+  --rop-shadow-lg: 0 24px 48px -12px oklch(0.2 0.04 167 / 0.34), 0 8px 16px -8px oklch(0.2 0.04 167 / 0.16);
+  --rop-shadow-brand: 0 8px 20px -8px oklch(0.25 0.04 167 / 0.6), inset 0 1px 0 oklch(1 0 0 / 0.12);
+  --rop-shadow-terra: 0 8px 20px -8px oklch(0.5 0.14 36 / 0.6), inset 0 1px 0 oklch(1 0 0 / 0.2);
+  --rop-shadow: var(--rop-shadow-lg);
+  --rop-scrim: oklch(0.2 0.035 167 / 0.5);
+
+  /* Motion: quick, eased out, never bouncy. */
+  --rop-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rop-fast: 150ms;
+  --rop-base: 240ms;
+  --rop-slow: 380ms;
+  --rop-z-toast: 10;
+  --rop-rail: 6.25rem;
+  color-scheme: light;
+}
+:root:lang(ar) { --rop-leading: 1.7; }

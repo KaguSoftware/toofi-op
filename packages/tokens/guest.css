@@ -1,0 +1,58 @@
+/* Guest site only (apps/menu): the tokens the staff app does not have, and the dark set.
+   Import after tokens.css. The staff app never imports this file and stays color-scheme: light.
+   Values come from .scratch/qr-menu/design.md ("Colours used in the mock"), converted to OKLCH. */
+:root {
+  /* The dish row: a solid warm-white card on the cream page, with a faint inner line. */
+  --rop-row-card: oklch(0.994 0.007 89);
+  --rop-row-line: oklch(0.873 0.035 85);
+  /* The one scroll ornament lying in each dish row: soft green, barely there. */
+  --rop-row-ornament: oklch(0.534 0.092 140);
+  --rop-row-ornament-opacity: 0.14;
+  /* The call-waiter button's edge: invisible on charcoal in light, a visible line in dark. */
+  --rop-charcoal-border: var(--rop-charcoal);
+  color-scheme: light dark;
+}
+
+/* The phone's dark setting. Charcoal paper, cream ink; terra cotta and copper stay as they are. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rop-bg: oklch(0.21 0.004 286);
+    --rop-raised: oklch(0.257 0.004 286);
+    --rop-surface: oklch(0.298 0.005 286);
+    --rop-surface-2: oklch(0.298 0.005 286);
+    --rop-border: oklch(0.353 0.005 286);
+    --rop-border-hover: oklch(0.465 0.012 88);
+    --rop-border-strong: oklch(0.557 0.013 85);
+    --rop-text: oklch(0.937 0.025 83);
+    --rop-text-muted: oklch(0.752 0.022 86);
+
+    /* Forest for selection; headings turn light copper. */
+    --rop-brand: oklch(0.437 0.059 166);
+    --rop-brand-ink: oklch(0.784 0.071 65);
+    --rop-on-brand: oklch(0.937 0.025 83);
+
+    /* Olive: in-order and good news. */
+    --rop-olive: oklch(0.742 0.116 115);
+    --rop-olive-tint: oklch(0.295 0.039 125);
+    --rop-success: var(--rop-olive);
+    --rop-success-text: oklch(0.21 0.004 286);
+    --rop-success-tint: oklch(0.295 0.039 125);
+    --rop-success-border: oklch(0.555 0.093 117);
+
+    /* Waiting strips. */
+    --rop-warning-tint: oklch(0.313 0.047 91);
+    --rop-warning-border: oklch(0.595 0.109 88);
+
+    /* The call-waiter button sits raised with a border instead of solid ink. */
+    --rop-charcoal: oklch(0.298 0.005 286);
+    --rop-on-charcoal: oklch(0.937 0.025 83);
+    --rop-charcoal-border: oklch(0.465 0.012 88);
+
+    --rop-row-card: oklch(0.261 0.004 286);
+    --rop-row-line: oklch(0.306 0.005 286);
+    --rop-row-ornament: oklch(0.742 0.116 115);
+    --rop-row-ornament-opacity: 0.1;
+
+    --rop-scrim: oklch(0.12 0.003 286 / 0.62);
+  }
+}
