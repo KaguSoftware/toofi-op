@@ -875,6 +875,47 @@ export const ar: Messages = {
       optionNotAvailable: 'أحد الخيارات التي اخترتها لم يعد متوفرًا. اختر من جديد ثم أرسل.',
       chooseOptions: 'اختر الخيارات المطلوبة لهذا الطبق.',
     },
+    // --- basket, options, sending and the order strips (QR menu ticket 05) ---
+    order: {
+      items: {
+        zero: 'لا أطباق',
+        one: 'طبق واحد',
+        two: 'طبقان',
+        few: '{count} أطباق',
+        many: '{count} طبقًا',
+        other: '{count} طبق',
+      },
+      barSub: '{items} · {total}',
+      empty: 'اضغط على + بجانب أي طبق في القائمة لإضافته، ثم أرسل طلبك من هنا.',
+      note: { label: 'ملاحظة (اختياري)', placeholder: 'مثال: بدون بصل', counter: 'المتبقي {remaining}' },
+      total: 'المجموع',
+      send: 'إرسال الطلب',
+      sending: 'جارٍ إرسال طلبك. أبقِ هذه الصفحة مفتوحة.',
+      unclear: 'لم نتأكد من وصول طلبك. اضغط «إرسال الطلب» مرة أخرى، ولن يُرسل مرتين.',
+      confirm: 'يؤكد أحد العاملين طلبك قبل تحضيره.',
+      fix: 'احذف الأطباق المعلَّمة ثم أرسل طلبك.',
+      line: { unavailable: 'لم يعد متوفرًا', options: 'تغيّرت الخيارات. احذفه وأضفه من جديد.', remove: 'حذف', removeLabel: 'احذف {name} من الطلب' },
+      ordersOff: {
+        title: 'الطلب غير متاح',
+        body: 'الطلب من الهاتف غير متاح الآن. يُرجى طلب أحد العاملين مباشرة. ما أضفته يبقى على هاتفك.',
+      },
+      options: {
+        choose: 'اختر خيارات {name}',
+        exact: 'اختر {n}',
+        range: 'اختر من {min} إلى {max}',
+        upTo: 'اختياري، حتى {max}',
+        quantity: 'الكمية',
+        add: 'أضف إلى الطلب',
+      },
+      strip: {
+        waiting: 'أُرسل طلبك. سيؤكده النادل بعد قليل.',
+        late: 'ما زلنا ننتظر تأكيد النادل لطلبك. يُرجى سؤال النادل.',
+        accepted: 'تم تأكيد طلبك.',
+        declined: 'لم يُقبل طلبك. يُرجى سؤال النادل.',
+        expired: 'لم يُؤكَّد طلبك قبل إغلاق المطعم. يُرجى سؤال النادل.',
+        dismiss: 'إخفاء',
+      },
+    },
   },
   // --- guestSetup (staff app: QR cards, guest switches, dish photos, category icons; ticket 07) ---
   guestSetup: {

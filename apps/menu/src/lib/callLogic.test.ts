@@ -11,6 +11,7 @@ const status = (patch: Partial<GuestStatus> = {}): GuestStatus => ({
   ordersEnabled: true,
   call: null,
   callAgainAt: null,
+  orders: [],
   ...patch,
 });
 const waiting: GuestCall = { id: 'c1', reason: 'bill', status: 'waiting', calledAt: T0, answeredAt: null };
@@ -34,6 +35,7 @@ describe('parseGuestStatus', () => {
       ordersEnabled: false,
       call: { id: 'c1', reason: 'water', status: 'answered', calledAt: T0, answeredAt: T0 + 5000 },
       callAgainAt: T0 + 120_000,
+      orders: [],
     });
   });
   it('treats no call and no cooldown as null', () => {

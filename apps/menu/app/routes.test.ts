@@ -9,6 +9,9 @@ import { idemKey } from '@rop/core';
 
 const rpc = vi.hoisted(() => ({ guestRpc: vi.fn() }));
 vi.mock('@/lib/server/guestRpc', () => rpc);
+// Outside Next there is no cache to expire; the order route's only use of it is revalidateTag.
+const cache = vi.hoisted(() => ({ revalidateTag: vi.fn(), unstable_cache: <F>(fn: F) => fn }));
+vi.mock('next/cache', () => cache);
 
 import { GET as openTable } from './t/[token]/route';
 import { GET as scanAgain } from './scan-again/route';
@@ -42,6 +45,7 @@ async function visible(res: Response): Promise<string> {
 
 beforeEach(() => {
   rpc.guestRpc.mockReset();
+  cache.revalidateTag.mockReset();
 });
 
 describe('GET /t/[token]', () => {
@@ -190,6 +194,24 @@ describe('POST /api/order', () => {
     rpc.guestRpc.mockResolvedValue({ ok: false, code });
     const res = await order(req('/api/order', { method: 'POST', body: { items: [line], key: KEY }, ...withSession }));
     expect(await res.json()).toEqual({ ok: false, result, code });
+  });
+
+  it('expires the cached menu when a dish or option changed, so the refresh that follows sees the server\'s view', async () => {
+    rpc.guestRpc.mockResolvedValue({ ok: false, code: 'ITEM_NOT_AVAILABLE' });
+    await order(req('/api/order', { method: 'POST', body: { items: [line], key: KEY }, ...withSession }));
+    expect(cache.revalidateTag).toHaveBeenCalledWith('guest-menu', { expire: 0 });
+  });
+
+  it.each(['TOO_MANY_PENDING_ORDERS', 'SESSION_EXPIRED', 'DAY_NOT_OPEN'])('leaves the cached menu alone for %s', async (code) => {
+    rpc.guestRpc.mockResolvedValue({ ok: false, code });
+    await order(req('/api/order', { method: 'POST', body: { items: [line], key: KEY }, ...withSession }));
+    expect(cache.revalidateTag).not.toHaveBeenCalled();
+  });
+
+  it('leaves the cached menu alone after a success', async () => {
+    rpc.guestRpc.mockResolvedValue({ ok: true, data: { guest_order_id: 'g1', status: 'pending', lines: [], total: 1, sent_at: 't' } });
+    await order(req('/api/order', { method: 'POST', body: { items: [line], key: KEY }, ...withSession }));
+    expect(cache.revalidateTag).not.toHaveBeenCalled();
   });
 });
 

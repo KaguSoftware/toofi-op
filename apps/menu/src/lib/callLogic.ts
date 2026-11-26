@@ -5,6 +5,7 @@
  * clock can be minutes off, and a countdown built on it would be wrong by the same amount.
  */
 import type { GuestAnswer } from './client/guestApi';
+import { parseOrders, type GuestOrder } from './orderLogic';
 import { CALL_REASONS, type CallReason } from './requestLogic';
 
 /** The phone asks again this often while a call is waiting, and not otherwise. */
@@ -20,7 +21,7 @@ export interface GuestCall {
   answeredAt: number | null;
 }
 
-/** `app.guest_status` as the screen reads it. Orders are ticket 05's and are not read here. */
+/** `app.guest_status` as the screen reads it. */
 export interface GuestStatus {
   tableLabel: string;
   dayOpen: boolean;
@@ -29,6 +30,8 @@ export interface GuestStatus {
   call: GuestCall | null;
   /** When the wait before calling again ends; null when there is none. */
   callAgainAt: number | null;
+  /** This phone's orders, newest first. */
+  orders: GuestOrder[];
 }
 
 /** `none`: browsing with no table. `expired`: there was a table, the session ended. */
@@ -57,6 +60,7 @@ export function parseGuestStatus(data: unknown): GuestStatus | null {
     ordersEnabled: data.orders_enabled === true,
     call: parseCall(data.call),
     callAgainAt: ms(data.call_again_at),
+    orders: parseOrders(data.orders),
   };
 }
 

@@ -881,6 +881,47 @@ const enLiteral = {
       optionNotAvailable: 'An option you chose is no longer available. Choose again and send.',
       chooseOptions: 'Choose the options this dish needs.',
     },
+    // --- basket, options, sending and the order strips (QR menu ticket 05) ---
+    order: {
+      items: {
+        zero: 'No dishes',
+        one: '1 dish',
+        two: '2 dishes',
+        few: '{count} dishes',
+        many: '{count} dishes',
+        other: '{count} dishes',
+      },
+      barSub: '{items} · {total}',
+      empty: 'Tap + beside a dish on the menu to add it, then send your order from here.',
+      note: { label: 'Note (optional)', placeholder: 'For example: no onions', counter: '{remaining} left' },
+      total: 'Total',
+      send: 'Send order',
+      sending: 'Sending your order. Please keep this page open.',
+      unclear: 'We could not tell whether your order was sent. Tap Send order again. It will not be sent twice.',
+      confirm: 'A member of staff confirms your order before it is prepared.',
+      fix: 'Remove the marked dishes, then send your order.',
+      line: { unavailable: 'No longer available', options: 'Options changed. Remove it and add it again.', remove: 'Remove', removeLabel: 'Remove {name} from the order' },
+      ordersOff: {
+        title: 'Ordering is not available',
+        body: 'Ordering from your phone is not available right now. Please ask a member of staff. What you added stays on this phone.',
+      },
+      options: {
+        choose: 'Choose options for {name}',
+        exact: 'Choose {n}',
+        range: 'Choose {min} to {max}',
+        upTo: 'Optional, up to {max}',
+        quantity: 'Quantity',
+        add: 'Add to order',
+      },
+      strip: {
+        waiting: 'Order sent. A waiter will confirm it shortly.',
+        late: 'Still waiting for a waiter to confirm your order. Please ask a waiter.',
+        accepted: 'Your order is confirmed.',
+        declined: 'Your order was not accepted. Please ask a waiter.',
+        expired: 'Your order was not confirmed before we closed. Please ask a waiter.',
+        dismiss: 'Dismiss',
+      },
+    },
   },
   // --- guestSetup (staff app: QR cards, guest switches, dish photos, category icons; ticket 07) ---
   guestSetup: {
