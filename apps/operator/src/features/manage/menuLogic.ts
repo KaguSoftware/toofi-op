@@ -1,6 +1,8 @@
 // Pure logic for menu, modifier and floor admin forms. Validation mirrors the server
 // (the server is still the authority); it only lets the form show a problem inline.
+import type { CategoryIcon } from '@rop/core';
 import type { MessageKey } from '@rop/i18n';
+import type { IconName } from '../../components';
 
 export type Problem = MessageKey | null;
 
@@ -98,4 +100,20 @@ export function moveId(ids: readonly string[], index: number, delta: -1 | 1): st
 /** Parse a typed integer; NaN for empty or fractional text. */
 export function parseIntStrict(text: string): number {
   return /^-?\d+$/.test(text.trim()) ? Number(text.trim()) : NaN;
+}
+
+const CATEGORY_ICON_NAMES: Record<CategoryIcon, IconName> = {
+  dish: 'catDish',
+  mezze: 'catMezze',
+  grill: 'catGrill',
+  main: 'catMain',
+  sandwich: 'catSandwich',
+  dessert: 'catDessert',
+  hot_drink: 'catHotDrink',
+  cold_drink: 'catColdDrink',
+};
+
+/** The staff app's drawing for a category's icon key; an unknown key reads as a plain dish. */
+export function categoryIconName(key: string): IconName {
+  return CATEGORY_ICON_NAMES[key as CategoryIcon] ?? 'catDish';
 }

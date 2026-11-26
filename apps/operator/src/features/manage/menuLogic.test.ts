@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { bpsToPercent, moveId, parseIntStrict, validateGroup, validateItem, validateTable, validateTaxGroup } from './menuLogic';
+import { CATEGORY_ICONS } from '@rop/core';
+import { bpsToPercent, categoryIconName, moveId, parseIntStrict, validateGroup, validateItem, validateTable, validateTaxGroup } from './menuLogic';
 
 const item = { nameEn: 'Tea', nameAr: 'شاي', price: 1500, categoryId: 'c', taxGroupId: 't', sort: 0 };
 
@@ -64,5 +65,15 @@ describe('number helpers', () => {
   it('bpsToPercent', () => {
     expect(bpsToPercent(1500)).toBe('15');
     expect(bpsToPercent(750)).toBe('7.5');
+  });
+});
+
+describe('categoryIconName', () => {
+  it('gives every category icon key its own drawing', () => {
+    const names = CATEGORY_ICONS.map((k) => categoryIconName(k));
+    expect(new Set(names).size).toBe(CATEGORY_ICONS.length);
+  });
+  it('falls back to the plain dish for a key it does not know', () => {
+    expect(categoryIconName('nope')).toBe(categoryIconName('dish'));
   });
 });
