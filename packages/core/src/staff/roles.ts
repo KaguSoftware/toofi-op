@@ -69,6 +69,13 @@ export const CAPABILITY_ROLES = {
   setStaffPin: OWNER,
   /** Answer a guest's waiter call, accept or decline a guest order (QR menu). */
   answerGuests: ALL,
+  // --- QR menu setup (ticket 07) ---
+  /** Read the tables' QR links and print the cards. */
+  printTableCodes: MANAGER_UP,
+  /** Switch guest calls and ordering on or off, for a table or the whole venue. */
+  setGuestSwitches: MANAGER_UP,
+  /** Replace a table's code: the printed card stops working. */
+  replaceTableCode: OWNER,
 } as const satisfies Record<string, readonly StaffRole[]>;
 
 export type Capability = keyof typeof CAPABILITY_ROLES;

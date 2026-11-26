@@ -91,6 +91,9 @@ describe('can / needsManagerPin (SPEC role table)', () => {
     ['editVenueSettings', ['owner'], []],
     ['setStaffPin', ['owner'], []],
     ['answerGuests', ['waiter', 'cashier', 'manager', 'owner'], []],
+    ['printTableCodes', ['manager', 'owner'], []],
+    ['setGuestSwitches', ['manager', 'owner'], []],
+    ['replaceTableCode', ['owner'], []],
   ];
 
   it('covers every capability', () => {
