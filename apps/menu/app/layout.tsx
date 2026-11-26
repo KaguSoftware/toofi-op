@@ -2,6 +2,7 @@ import '@rop/tokens/fonts.css';
 import '@rop/tokens/tokens.css';
 import '@rop/tokens/guest.css';
 import './globals.css';
+import './guest.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { dir, t } from '@rop/i18n';

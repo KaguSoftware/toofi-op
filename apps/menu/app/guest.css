@@ -1,0 +1,201 @@
+/* The guest screen: "white rows with green ornament" (.scratch/qr-menu/design.md).
+   Tokens only (@rop/tokens), logical properties only, no raw hex. Measurements come from the
+   approved mock; 1rem = 16px. Light and dark follow the phone (tokens/guest.css). */
+
+.guest {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; flex-direction: column;
+  block-size: 100dvh; max-inline-size: 30rem; margin-inline: auto;
+  background: var(--rop-bg); color: var(--rop-text);
+}
+.guest__body { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; min-block-size: 0; }
+.icon { flex: none; display: block; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --- the one corner ornament, behind the content ------------------------------------------ */
+.corner {
+  position: absolute; z-index: 0; inset-block-start: 0; inset-inline-end: 0; display: block; pointer-events: none;
+  fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.78;
+}
+:dir(rtl) > .corner { transform: scaleX(-1); }
+@media (prefers-color-scheme: dark) { .corner { opacity: 0.65; } }
+.o-olive { stroke: var(--rop-olive-line); }
+.o-olive-fill { fill: var(--rop-olive-line); fill-opacity: 0.28; }
+.o-olive-solid { fill: var(--rop-olive-line); stroke: none; }
+.o-copper { stroke: var(--rop-copper); }
+.o-soft { stroke: var(--rop-terra-soft); }
+.o-petal-fill { fill: var(--rop-terra); fill-opacity: 0.55; }
+.o-stamen { fill: var(--rop-copper-light); fill-opacity: 0.8; stroke: none; }
+
+/* --- top bar ------------------------------------------------------------------------------ */
+.top { flex: none; display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem 0.75rem; }
+.top__name { flex: 1; min-inline-size: 0; margin: 0; font-size: var(--rop-font-lg); font-weight: 600; line-height: 1.3; }
+.top__lang {
+  flex: none; inline-size: 2.875rem; block-size: 2.875rem; border-radius: 0.75rem; padding: 0; cursor: pointer;
+  background: var(--rop-raised); color: var(--rop-text); border: 1px solid var(--rop-border-strong);
+  font-size: 0.9375rem; font-weight: 600;
+}
+.top__lang:disabled { opacity: 0.6; cursor: default; }
+
+/* The doorplate: charcoal, a copper border and a second copper hairline inside. */
+.plate {
+  flex: none; inline-size: 3.375rem; block-size: 3.375rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  border-radius: 0.75rem; border: 1px solid var(--rop-copper); background: var(--rop-charcoal); color: var(--rop-on-charcoal);
+  box-shadow: inset 0 0 0 3px var(--rop-charcoal), inset 0 0 0 4px color-mix(in oklab, var(--rop-copper) 50%, transparent), var(--rop-shadow-md);
+}
+.plate__word { font-size: 0.625rem; font-weight: 600; line-height: 1.2; color: var(--rop-copper-light); text-transform: uppercase; letter-spacing: 0.08em; }
+:lang(ar) .plate__word { font-size: 0.6875rem; text-transform: none; letter-spacing: 0; }
+.plate__label { font-size: var(--rop-font-lg); font-weight: 600; line-height: 1; }
+
+/* --- the star strip under the top bar ----------------------------------------------------- */
+.strip { flex: none; display: flex; align-items: center; gap: 0.5rem; block-size: 0.875rem; padding-inline: 1rem; }
+.strip__rule { block-size: 1px; background: color-mix(in oklab, var(--rop-copper) 60%, transparent); }
+.strip__rule--in { flex: 1; background: linear-gradient(to var(--rop-end, right), transparent, color-mix(in oklab, var(--rop-copper) 60%, transparent)); }
+.strip__rule--short { flex: none; inline-size: 2.125rem; }
+.strip__rule--out { flex: 1; background: linear-gradient(to var(--rop-start, left), transparent, color-mix(in oklab, var(--rop-copper) 60%, transparent)); }
+:dir(rtl) { --rop-end: left; --rop-start: right; }
+.star { flex: none; display: block; }
+.star--copper { fill: var(--rop-copper); }
+.star--olive { fill: var(--rop-olive-line); }
+
+/* --- category rail ------------------------------------------------------------------------ */
+.rail { flex: none; display: flex; gap: 0.5rem; padding: 0.625rem 1rem 0.75rem; overflow-x: auto; scrollbar-width: none; }
+.rail::-webkit-scrollbar { display: none; }
+.tile {
+  flex: none; min-inline-size: 4.625rem; min-block-size: 4.375rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;
+  padding: 0.5rem 0.625rem; border-radius: 0.875rem; text-decoration: none; font-size: var(--rop-font-xs); font-weight: 600; line-height: 1.3; white-space: nowrap;
+  background: var(--rop-raised); color: var(--rop-text); border: 1px solid var(--rop-border-strong);
+}
+.tile .icon { color: var(--rop-brand-ink); }
+.tile--on { background: var(--rop-brand); color: var(--rop-on-brand); border-color: var(--rop-brand); }
+.tile--on .icon { color: var(--rop-copper-light); }
+
+/* --- the menu list ------------------------------------------------------------------------ */
+.list { position: relative; flex: 1; min-block-size: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 1rem 1.125rem; }
+.section { padding-block-start: 0.875rem; }
+.section__head {
+  display: flex; align-items: center; gap: 0.5rem; margin: 0;
+  font-size: 0.9375rem; font-weight: 600; color: var(--rop-brand-ink); text-transform: uppercase; letter-spacing: 0.08em;
+}
+:lang(ar) .section__head { text-transform: none; letter-spacing: 0; }
+.section__rule { flex: 1; block-size: 1px; background: color-mix(in oklab, var(--rop-copper) 55%, transparent); }
+.rows { list-style: none; margin: 0; padding: 0; }
+
+.row {
+  position: relative; overflow: hidden; display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.625rem; margin-block-start: 0.5rem; border-radius: 1rem;
+  background: var(--rop-row-card); box-shadow: inset 0 0 0 1px var(--rop-row-line), var(--rop-shadow-sm);
+}
+/* One scroll motif on its side, in the gap between the name and the plus. It never moves. */
+.row__orn {
+  position: absolute; inset-block: 0; inset-inline-end: 4rem; display: flex; align-items: center; pointer-events: none;
+  color: var(--rop-row-ornament); opacity: var(--rop-row-ornament-opacity);
+}
+.row-orn { flex: none; display: block; fill: currentColor; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.row__photo {
+  position: relative; flex: none; inline-size: 4.75rem; block-size: 4.75rem; border-radius: 0.875rem; object-fit: cover;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--rop-text) 8%, transparent);
+}
+.row__photo--none { display: grid; place-items: center; background: var(--rop-surface); color: var(--rop-text-muted); }
+.row__text { position: relative; flex: 1; min-inline-size: 0; display: flex; flex-direction: column; gap: 2px; }
+.row__name { font-size: var(--rop-font); font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.row__price { font-size: 0.9375rem; font-weight: 500; }
+.row__controls { position: relative; flex: none; display: flex; align-items: center; gap: 2px; }
+.row__qty { flex: none; min-inline-size: 1.5rem; text-align: center; font-size: var(--rop-font); font-weight: 600; color: var(--rop-olive); }
+
+.round {
+  flex: none; inline-size: 2.75rem; block-size: 2.75rem; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; cursor: pointer;
+  background: var(--rop-raised); color: var(--rop-text); border: 1px solid var(--rop-border-strong);
+}
+.round--plus { background: transparent; color: var(--rop-brand-ink); border: 1.5px solid var(--rop-brand-ink); }
+.round--filled { background: var(--rop-olive); color: var(--rop-success-text); border-color: var(--rop-olive); }
+
+/* Hover only where a pointer can hover; pressed feedback everywhere (transform only). */
+@media (hover: hover) {
+  .top__lang:hover:not(:disabled), .tile:not(.tile--on):hover, .reason:hover:not(:disabled), .round:hover { background: var(--rop-surface); }
+  .round--plus:hover { background: color-mix(in oklab, var(--rop-brand-ink) 10%, transparent); }
+  .round--filled:hover { background: var(--rop-olive); filter: brightness(1.08); }
+  .bar__call:hover { filter: brightness(1.12); }
+  .sheet__close:hover { background: var(--rop-surface); }
+  .state__retry:hover { background: var(--rop-surface); }
+}
+.top__lang:active:not(:disabled), .tile:active, .reason:active:not(:disabled), .round:active, .bar__call:active, .sheet__close:active, .state__retry:active { transform: scale(0.96); }
+.round, .tile, .reason, .bar__call, .top__lang { transition: transform var(--rop-fast) var(--rop-ease), background-color var(--rop-fast) var(--rop-ease), color var(--rop-fast) var(--rop-ease); }
+
+/* --- menu states -------------------------------------------------------------------------- */
+.state { margin: 0; padding-block: var(--rop-space-6); text-align: center; color: var(--rop-text-muted); }
+.state p { margin-block: 0 var(--rop-space-2); }
+.state__retry {
+  display: inline-flex; align-items: center; min-block-size: 2.75rem; padding-inline: var(--rop-space-3);
+  border-radius: 0.875rem; background: var(--rop-raised); border: 1px solid var(--rop-border-strong); color: var(--rop-brand-ink); font-weight: 600; text-decoration: none;
+}
+.skeleton { flex: 1; min-block-size: 0; padding-inline: 1rem; overflow: hidden; }
+.skeleton__rail { display: flex; gap: 0.5rem; padding-block: 0.625rem 0.75rem; }
+.skeleton__tile, .skeleton__photo, .skeleton__lines span { background: var(--rop-surface); animation: guest-pulse 1.4s var(--rop-ease) infinite alternate; }
+.skeleton__tile { flex: none; inline-size: 4.625rem; block-size: 4.375rem; border-radius: 0.875rem; }
+.skeleton__rows { list-style: none; margin: 0; padding: 0; }
+.skeleton__row { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem; margin-block-start: 0.5rem; border-radius: 1rem; background: var(--rop-row-card); box-shadow: inset 0 0 0 1px var(--rop-row-line); }
+.skeleton__photo { flex: none; inline-size: 4.75rem; block-size: 4.75rem; border-radius: 0.875rem; }
+.skeleton__lines { flex: 1; display: grid; gap: 0.5rem; }
+.skeleton__lines span { display: block; block-size: 0.875rem; border-radius: 0.375rem; }
+.skeleton__lines span:first-child { inline-size: 70%; }
+.skeleton__lines span:last-child { inline-size: 35%; }
+@keyframes guest-pulse { from { opacity: 0.55; } to { opacity: 1; } }
+
+/* --- status strips ------------------------------------------------------------------------ */
+.statuses { position: relative; z-index: 1; flex: none; display: flex; flex-direction: column; gap: 0.375rem; padding: 0.5rem 0.75rem 0; background: var(--rop-bg); }
+.statuses:empty { padding: 0; }
+.status {
+  display: flex; align-items: center; gap: 0.625rem; min-block-size: 2.75rem; padding: 0.375rem 0.75rem; border-radius: 0.625rem;
+  font-size: var(--rop-font-sm); font-weight: 500; animation: guest-rise var(--rop-base) var(--rop-ease);
+}
+.status--wait { background: var(--rop-warning-tint); border: 1px solid var(--rop-warning-border); }
+.status--good { background: var(--rop-success-tint); border: 1px solid var(--rop-success-border); }
+
+/* --- bottom bar --------------------------------------------------------------------------- */
+.bar {
+  position: relative; z-index: 1; flex: none; display: flex; gap: 0.625rem;
+  padding: 0.625rem 0.75rem max(0.875rem, env(safe-area-inset-bottom)); background: var(--rop-bg); border-block-start: 1px solid var(--rop-border-strong);
+}
+.bar__call {
+  flex: 0 0 8.5rem; min-block-size: 3.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding-inline: 0.625rem; border-radius: 0.875rem; cursor: pointer;
+  font-size: 0.9375rem; font-weight: 600; line-height: 1.25;
+  background: var(--rop-charcoal); color: var(--rop-on-charcoal); border: 1px solid var(--rop-charcoal-border);
+}
+.bar__call-text { display: flex; flex-direction: column; align-items: flex-start; text-align: start; }
+.bar__call-sub { font-size: var(--rop-font-xs); font-weight: 500; font-variant-numeric: tabular-nums; color: var(--rop-copper-light); }
+.bar__order {
+  flex: 1; min-inline-size: 0; min-block-size: 3.75rem; display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+  padding: 0.375rem 1rem; border: 0; border-radius: 0.875rem; text-align: start;
+  background: var(--rop-surface); color: var(--rop-text-muted);
+}
+.bar__order:disabled { cursor: default; }
+.bar__order-title { font-size: var(--rop-font); font-weight: 600; }
+.bar__order-sub { font-size: var(--rop-font-xs); }
+
+/* --- sheets ------------------------------------------------------------------------------- */
+.scrim { position: absolute; inset: 0; z-index: 2; inline-size: 100%; padding: 0; border: 0; cursor: pointer; background: var(--rop-scrim); animation: guest-fade var(--rop-base) var(--rop-ease); }
+.sheet {
+  position: absolute; z-index: 3; inset-inline: 0; inset-block-end: 0; max-block-size: 80%; overflow-y: auto; display: flex; flex-direction: column;
+  padding: 0.625rem 1.25rem max(1.375rem, env(safe-area-inset-bottom)); border-radius: 1.375rem 1.375rem 0 0;
+  background: var(--rop-raised); color: var(--rop-text); box-shadow: var(--rop-shadow-lg); outline: none;
+  animation: guest-slide var(--rop-base) var(--rop-ease);
+}
+.sheet__grip { align-self: center; inline-size: 2.5rem; block-size: 4px; border-radius: 2px; background: var(--rop-border-strong); }
+.sheet__head { display: flex; align-items: center; gap: 0.75rem; padding-block: 0.5rem 0.625rem; }
+.sheet__title { flex: 1; margin: 0; font-size: var(--rop-font-lg); font-weight: 600; }
+.sheet__close { flex: none; inline-size: 2.75rem; block-size: 2.75rem; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--rop-text); cursor: pointer; }
+.sheet__body { margin: 0 0 0.5rem; font-size: var(--rop-font); color: var(--rop-text); }
+.sheet__note { margin: 0.875rem 0 0; font-size: var(--rop-font-xs); text-align: center; color: var(--rop-text-muted); }
+.sheet__note--alert { padding: 0.5rem 0.75rem; border-radius: 0.625rem; font-size: var(--rop-font-sm); color: var(--rop-text); background: var(--rop-warning-tint); border: 1px solid var(--rop-warning-border); }
+
+.reasons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
+.reason {
+  min-block-size: 5.75rem; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 0.875rem; border-radius: 0.875rem; cursor: pointer;
+  background: var(--rop-bg); color: var(--rop-text); border: 1px solid var(--rop-border-strong); font-size: var(--rop-font); font-weight: 600; text-align: start;
+}
+.reason .icon { color: var(--rop-brand-ink); }
+.reason:disabled { opacity: 0.6; cursor: default; }
+
+@keyframes guest-slide { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes guest-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes guest-rise { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: none; } }
