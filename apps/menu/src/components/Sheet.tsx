@@ -9,8 +9,25 @@ const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), texta
  * The bottom sheet shell every sheet shares: scrim, grip, title, a 44 px close button.
  * Focus moves into the sheet when it opens, stays inside while it is open, and goes back to
  * whatever opened it. Escape and the scrim close it. The page behind is `inert` (the parent).
+ * `locked`: nothing closes it (an order is on its way and its outcome is not known yet).
+ * `aside` sits beside the title (the table, on the order sheet).
  */
-export function Sheet({ title, closeLabel, onClose, children }: { title: string; closeLabel: string; onClose: () => void; children: ReactNode }) {
+export function Sheet({
+  title,
+  closeLabel,
+  onClose: requestClose,
+  locked = false,
+  aside,
+  children,
+}: {
+  title: string;
+  closeLabel: string;
+  onClose: () => void;
+  locked?: boolean;
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
+  const onClose = locked ? () => undefined : requestClose;
   const titleId = useId();
   const panel = useRef<HTMLElement>(null);
 
@@ -55,7 +72,8 @@ export function Sheet({ title, closeLabel, onClose, children }: { title: string;
           <h2 id={titleId} className="sheet__title">
             {title}
           </h2>
-          <button type="button" className="sheet__close" aria-label={closeLabel} onClick={onClose}>
+          {aside}
+          <button type="button" className="sheet__close" aria-label={closeLabel} disabled={locked} onClick={onClose}>
             <Icon name="close" size={22} />
           </button>
         </div>

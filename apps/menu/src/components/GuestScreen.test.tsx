@@ -10,7 +10,7 @@ import { GuestScreen, type GuestScreenProps } from './GuestScreen';
 const refresh = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 
-const api = vi.hoisted(() => ({ call: vi.fn(), status: vi.fn(), setLocale: vi.fn() }));
+const api = vi.hoisted(() => ({ call: vi.fn(), order: vi.fn(), status: vi.fn(), setLocale: vi.fn() }));
 vi.mock('@/lib/client/guestApi', () => ({ guestApi: api }));
 
 const T0 = Date.parse('2026-11-26T12:00:00Z');
@@ -26,15 +26,15 @@ const MENU: MenuView = {
       name: 'Mezze',
       icon: 'mezze',
       items: [
-        { id: 'hummus', name: 'Hummus', price: '4,000', photoUrl: 'https://img.example/h.webp' },
-        { id: 'tabbouleh', name: 'Tabbouleh', price: '5,000', photoUrl: null },
+        { id: 'hummus', name: 'Hummus', price: '4,000', unitPrice: 4000, photoUrl: 'https://img.example/h.webp', groups: [] },
+        { id: 'tabbouleh', name: 'Tabbouleh', price: '5,000', unitPrice: 5000, photoUrl: null, groups: [] },
       ],
     },
-    { id: 'grills', name: 'Grills', icon: 'grill', items: [{ id: 'kebab', name: 'Lamb Kebab', price: '15,000', photoUrl: null }] },
+    { id: 'grills', name: 'Grills', icon: 'grill', items: [{ id: 'kebab', name: 'Lamb Kebab', price: '15,000', unitPrice: 15000, photoUrl: null, groups: [] }] },
   ],
 };
 
-const status = (patch: Partial<GuestStatus> = {}): GuestStatus => ({ tableLabel: '5', dayOpen: true, callsEnabled: true, ordersEnabled: true, call: null, callAgainAt: null, ...patch });
+const status = (patch: Partial<GuestStatus> = {}): GuestStatus => ({ tableLabel: '5', dayOpen: true, callsEnabled: true, ordersEnabled: true, call: null, callAgainAt: null, orders: [], ...patch });
 const waiting: GuestCall = { id: 'c1', reason: 'bill', status: 'waiting', calledAt: T0 - 5000, answeredAt: null };
 
 function setup(over: Partial<GuestScreenProps> = {}) {
@@ -49,6 +49,7 @@ const statusBody = (call: unknown = null, extra: Record<string, unknown> = {}) =
 const raisedBody = ok({ call_id: 'c1', status: 'waiting', reason: 'bill', called_at: iso(T0), already: false });
 
 beforeEach(() => {
+  window.localStorage.clear();
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'setTimeout', 'clearTimeout', 'Date'] });
   vi.setSystemTime(T0);
   api.status.mockResolvedValue(statusBody());
@@ -108,11 +109,11 @@ describe('the menu', () => {
 });
 
 describe('the bottom bar', () => {
-  it('has Call waiter and an empty, inactive Your order', () => {
+  it('has Call waiter and a recessed Your order that says nothing is added yet', () => {
     setup();
     const order = screen.getByRole('button', { name: /Your order/ }) as HTMLButtonElement;
     expect(order.textContent).toContain(en.bar.orderEmpty);
-    expect(order.disabled).toBe(true);
+    expect(order.className).not.toContain('bar__order--ready');
   });
   it('leaves Call waiter out when calls are switched off', () => {
     setup({ initialStatus: status({ callsEnabled: false }) });

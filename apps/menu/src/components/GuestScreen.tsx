@@ -1,15 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Locale } from '@rop/i18n';
+import { formatIQD } from '@rop/i18n/formatting';
 import { guestApi } from '@/lib/client/guestApi';
 import { guestKey } from '@/lib/client/stationLogic';
+import { addToBasket, capCode, changeLine, indexMenu, itemCountForm, qtyByItem, removeLine, removeOneOf, resolveLines, toRequest, totalsOf, type BasketChange, type BasketLine } from '@/lib/basketLogic';
 import { POLL_MS, callButton, callOutcome, callStrip, formatCountdown, needsClock, parseGuestStatus, serverNowOf, type GuestStatus, type SessionState } from '@/lib/callLogic';
 import { errorText, fill, type GuestCopy } from '@/lib/copyLogic';
 import type { MenuView } from '@/lib/menuViewLogic';
 import type { CallReason } from '@/lib/requestLogic';
+import { attemptFor, hasPendingOrder, orderStrips, sendGate, sendOutcome } from '@/lib/orderLogic';
 import { activeSectionIndex } from '@/lib/railLogic';
+import { useBasket } from '@/hooks/useBasket';
 import { useOnline } from '@/hooks/useOnline';
 import { usePolling } from '@/hooks/usePolling';
 import { useServerClock } from '@/hooks/useServerClock';
@@ -19,6 +23,8 @@ import { CategoryIcon } from './Icon';
 import { CategoryRail } from './CategoryRail';
 import { DishRow } from './DishRow';
 import { NoticeSheet, type NoticeKind } from './NoticeSheet';
+import { OptionsSheet } from './OptionsSheet';
+import { OrderSheet } from './OrderSheet';
 import { CornerOrnament, Star, StarStrip } from './Ornaments';
 import { StatusStrips, type NoticeStrip } from './StatusStrips';
 
@@ -35,7 +41,7 @@ export interface GuestScreenProps {
   serverNow: number;
 }
 
-type SheetKind = 'call' | NoticeKind;
+type SheetKind = 'call' | 'order' | 'options' | NoticeKind;
 
 function localStore(): Storage | null {
   try {
@@ -60,9 +66,26 @@ export function GuestScreen({ copy, locale, venueName, menuState, menu, initialS
   // One key per tap, kept for that tap's retries until the server has answered.
   const pendingKey = useRef<{ reason: CallReason; key: string } | null>(null);
 
+  // The order, kept on the phone. Prices here are a mirror of the menu; the server prices what is sent.
+  const [basket, setBasket] = useBasket();
+  const [optionsFor, setOptionsFor] = useState<string | null>(null);
+  const [orderSending, setOrderSending] = useState(false);
+  const sendLock = useRef(false);
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [limitNote, setLimitNote] = useState<string | null>(null);
+  const [dismissed, setDismissed] = useState<ReadonlySet<string>>(() => new Set());
+
   const now = clock.now;
   const button = callButton({ session, status, now });
-  const waiting = session === 'live' && status?.call?.status === 'waiting';
+  const orders = status?.orders ?? [];
+  const waiting = session === 'live' && (status?.call?.status === 'waiting' || hasPendingOrder(orders));
+
+  const index = useMemo(() => indexMenu(menu), [menu]);
+  const lineViews = useMemo(() => resolveLines(basket.lines, index), [basket.lines, index]);
+  const totals = totalsOf(lineViews);
+  const quantities = useMemo(() => qtyByItem(basket.lines), [basket.lines]);
+  // Without a menu the lines cannot be named or priced, so the order waits (it stays on the phone) until the menu is back.
+  const ordersOff = menuState !== 'ok' || (session === 'live' && status !== null && !status.ordersEnabled);
 
   const refresh = useCallback(async () => {
     const answer = await guestApi.status();
@@ -76,7 +99,7 @@ export function GuestScreen({ copy, locale, venueName, menuState, menu, initialS
     }
   }, [clock]);
 
-  // Ask the server only while a call is waiting; stop when it is answered. Tick while a countdown or timed strip shows.
+  // Ask the server only while a call or an order is waiting; stop when it is answered. Tick while a countdown or timed strip shows.
   usePolling(waiting, () => void refresh(), POLL_MS);
   usePolling(needsClock(status, now), clock.tick, 1000);
 
@@ -116,6 +139,112 @@ export function GuestScreen({ copy, locale, venueName, menuState, menu, initialS
         break;
       case 'message':
         setCallError(errorText(copy, outcome.code));
+        break;
+    }
+  }
+
+  // A refused change (20 of one dish, 40 lines) is said in the open sheet, or in a strip when none is open.
+  useEffect(() => {
+    if (!limitNote) return;
+    const id = setTimeout(() => setLimitNote(null), 5000);
+    return () => clearTimeout(id);
+  }, [limitNote]);
+
+  // The lines as of the latest tap, not the latest render: two taps in the same frame must both count.
+  const linesNow = useRef(basket.lines);
+  useEffect(() => {
+    linesNow.current = basket.lines;
+  }, [basket.lines]);
+
+  /** Applies a change computed from the latest lines; false when it was refused (the reason is shown). */
+  const commit = useCallback(
+    (change: (lines: BasketLine[]) => BasketChange): boolean => {
+      const result = change(linesNow.current);
+      const code = capCode(result.outcome);
+      setLimitNote(code ? errorText(copy, code) : null);
+      setSendError(null);
+      if (result.outcome !== 'added') return false;
+      linesNow.current = result.lines;
+      setBasket((b) => ({ ...b, lines: result.lines }));
+      return true;
+    },
+    [copy, setBasket],
+  );
+
+  const addDish = useCallback(
+    (id: string) => {
+      const found = index.get(id);
+      if (!found) return;
+      if (found.dish.groups.length > 0) {
+        setLimitNote(null);
+        setOptionsFor(id);
+        setSheet('options');
+        return;
+      }
+      commit((lines) => addToBasket(lines, id, [], 1, found.dish.name));
+    },
+    [index, commit],
+  );
+  const removeDish = useCallback((id: string) => void commit((lines) => ({ lines: removeOneOf(lines, id), outcome: 'added' })), [commit]);
+
+  function addWithOptions(modifierIds: string[], qty: number) {
+    if (optionsDish && commit((lines) => addToBasket(lines, optionsDish.id, modifierIds, qty, optionsDish.name))) setSheet(null);
+  }
+
+  async function sendOrder() {
+    if (sendLock.current) return;
+    const gate = sendGate(session, status);
+    if (gate !== 'ok') {
+      setSheet(gate === 'scan' ? 'scan' : gate === 'expired' ? 'expired' : gate === 'closed' ? 'closed' : 'ordersOff');
+      return;
+    }
+    if (!online || !totals.canSend) return;
+    sendLock.current = true;
+    setOrderSending(true);
+    setSendError(null);
+    setLimitNote(null);
+
+    // One key per attempt, held until the server answers: a double tap, a retry after a dropped reply
+    // or a refresh in between all send the same key, so the database holds one order.
+    const request = toRequest(basket.lines, basket.note);
+    const attempt = attemptFor(basket.attempt, request, () => guestKey('send_guest_order', localStore()));
+    setBasket((b) => ({ ...b, attempt }));
+    const answer = await guestApi.order(request, attempt.key);
+    sendLock.current = false;
+    setOrderSending(false);
+
+    const outcome = sendOutcome(answer);
+    // Anything but "unclear" is the server's own answer: the attempt is over, the next send gets a new key.
+    if (outcome.kind !== 'unclear') setBasket((b) => ({ ...b, attempt: null }));
+    switch (outcome.kind) {
+      case 'sent':
+        linesNow.current = [];
+        setBasket({ lines: [], note: '', attempt: null });
+        setSheet(null);
+        setStatus((prev) => (prev ? { ...prev, orders: [outcome.order, ...prev.orders.filter((o) => o.id !== outcome.order.id)] } : prev));
+        if (!status) void refresh();
+        break;
+      case 'unclear':
+        break; // the sheet says so and keeps its Send button: the same key goes again
+      case 'expired':
+        setSession('expired');
+        setSheet('expired');
+        break;
+      case 'closed':
+        setStatus((prev) => (prev ? { ...prev, dayOpen: false } : prev));
+        setSheet('closed');
+        break;
+      case 'off':
+        setStatus((prev) => (prev ? { ...prev, ordersEnabled: false } : prev));
+        setSheet('ordersOff');
+        break;
+      case 'stale-menu':
+        // The server expired its menu cache; this re-reads the page, and the changed line is marked.
+        setSendError(errorText(copy, outcome.code));
+        router.refresh();
+        break;
+      case 'message':
+        setSendError(errorText(copy, outcome.code));
         break;
     }
   }
@@ -179,6 +308,13 @@ export function GuestScreen({ copy, locale, venueName, menuState, menu, initialS
   const notice: NoticeStrip = session === 'expired' ? 'scan-again' : status && session === 'live' && !status.dayOpen ? 'closed' : null;
   const otherLocale: Locale = locale === 'ar' ? 'en' : 'ar';
   const countdown = button.kind === 'wait' ? formatCountdown(button.msLeft) : '';
+  const strips = session === 'live' ? orderStrips(orders, now, dismissed) : { waiting: null, decided: null };
+  const orderSub = totals.empty ? null : fill(copy.order.barSub, { items: fill(copy.order.items[itemCountForm(totals.count, locale)], { count: totals.count }), total: formatIQD(totals.total, locale) });
+  const optionsDish = optionsFor ? (index.get(optionsFor)?.dish ?? null) : null;
+  const closeSheet = () => {
+    setSheet(null);
+    setLimitNote(null);
+  };
 
   return (
     <div className="guest">
@@ -225,22 +361,74 @@ export function GuestScreen({ copy, locale, venueName, menuState, menu, initialS
                 </h2>
                 <ul className="rows">
                   {section.items.map((item) => (
-                    // Ordering is ticket 05's: the plus is drawn and focusable but adds nothing yet.
-                    <DishRow key={item.id} copy={copy} name={item.name} price={item.price} photoUrl={item.photoUrl} icon={section.icon} />
+                    <DishRow
+                      key={item.id}
+                      copy={copy}
+                      id={item.id}
+                      name={item.name}
+                      price={item.price}
+                      photoUrl={item.photoUrl}
+                      icon={section.icon}
+                      qty={quantities[item.id] ?? 0}
+                      hasOptions={item.groups.length > 0}
+                      readOnly={ordersOff}
+                      onAdd={addDish}
+                      onRemove={removeDish}
+                    />
                   ))}
                 </ul>
               </section>
             ))}
         </main>
 
-        <StatusStrips copy={copy} notice={notice} call={session === 'live' ? callStrip(status?.call ?? null, now) : null} offline={!online} />
-        <BottomBar copy={copy} call={button} onCall={openCall} />
+        <StatusStrips
+          copy={copy}
+          notice={notice}
+          call={session === 'live' ? callStrip(status?.call ?? null, now) : null}
+          orders={strips}
+          limit={sheet === null ? limitNote : null}
+          offline={!online}
+          onDismissOrder={(id) => setDismissed((prev) => new Set(prev).add(id))}
+        />
+        <BottomBar
+          copy={copy}
+          call={button}
+          orderSub={orderSub}
+          ordersOff={ordersOff}
+          onCall={openCall}
+          onOrder={() => {
+            setSendError(null);
+            setSheet('order');
+          }}
+        />
       </div>
 
       {sheet === 'call' && (
         <CallSheet copy={copy} tableLabel={tableLabel ?? ''} sending={sending} offline={!online} error={callError} onPick={(r) => void raise(r)} onClose={() => setSheet(null)} />
       )}
-      {sheet !== null && sheet !== 'call' && <NoticeSheet copy={copy} kind={sheet} time={countdown || formatCountdown(0)} onClose={() => setSheet(null)} />}
+      {sheet === 'order' && (
+        <OrderSheet
+          copy={copy}
+          locale={locale}
+          tableLabel={tableLabel}
+          lines={lineViews}
+          totals={totals}
+          note={basket.note}
+          sending={orderSending}
+          unclear={basket.attempt !== null}
+          offline={!online}
+          error={sendError ?? limitNote}
+          onNote={(note) => setBasket((b) => ({ ...b, note }))}
+          onStep={(id, delta) => void commit((lines) => changeLine(lines, id, delta))}
+          onRemove={(id) => void commit((lines) => ({ lines: removeLine(lines, id), outcome: 'added' }))}
+          onSend={() => void sendOrder()}
+          onClose={closeSheet}
+        />
+      )}
+      {sheet === 'options' && optionsDish && <OptionsSheet key={optionsDish.id} copy={copy} locale={locale} dish={optionsDish} error={limitNote} onAdd={addWithOptions} onClose={closeSheet} />}
+      {sheet !== null && sheet !== 'call' && sheet !== 'order' && sheet !== 'options' && (
+        <NoticeSheet copy={copy} kind={sheet} time={countdown || formatCountdown(0)} onClose={closeSheet} />
+      )}
     </div>
   );
 }

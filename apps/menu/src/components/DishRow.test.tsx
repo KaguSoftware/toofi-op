@@ -8,7 +8,7 @@ const copy = guestCopy('en');
 const row = (props: Partial<Parameters<typeof DishRow>[0]> = {}) =>
   render(
     <ul>
-      <DishRow copy={copy} name="Hummus" price="4,000" photoUrl={null} icon="mezze" {...props} />
+      <DishRow copy={copy} id="hummus" name="Hummus" price="4,000" photoUrl={null} icon="mezze" {...props} />
     </ul>,
   );
 
@@ -27,16 +27,26 @@ describe('DishRow', () => {
     expect(screen.getByText('2')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Remove one Hummus' }));
     fireEvent.click(screen.getByRole('button', { name: 'Add one Hummus' }));
-    expect(onRemove).toHaveBeenCalledTimes(1);
-    expect(onAdd).toHaveBeenCalledTimes(1);
+    expect(onRemove).toHaveBeenCalledWith('hummus');
+    expect(onAdd).toHaveBeenCalledWith('hummus');
     expect(screen.getByRole('button', { name: 'Add one Hummus' }).className).toContain('round--filled');
+  });
+  it('a dish with options says so on its plus, which opens the options sheet', () => {
+    row({ hasOptions: true });
+    const plus = screen.getByRole('button', { name: 'Choose options for Hummus' });
+    expect(plus.getAttribute('aria-haspopup')).toBe('dialog');
+  });
+  it('with ordering switched off, the row is a menu entry with no controls', () => {
+    row({ readOnly: true, qty: 2 });
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
+    expect(screen.getByText('Hummus')).toBeTruthy();
   });
   it('keeps the same ornament whether or not the dish is in the order', () => {
     const { container, rerender } = row();
     expect(container.querySelectorAll('.row__orn svg')).toHaveLength(1);
     rerender(
       <ul>
-        <DishRow copy={copy} name="Hummus" price="4,000" photoUrl={null} icon="mezze" qty={3} />
+        <DishRow copy={copy} id="hummus" name="Hummus" price="4,000" photoUrl={null} icon="mezze" qty={3} />
       </ul>,
     );
     expect(container.querySelectorAll('.row__orn svg')).toHaveLength(1);

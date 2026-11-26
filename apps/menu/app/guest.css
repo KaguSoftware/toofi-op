@@ -199,3 +199,87 @@
 @keyframes guest-slide { from { transform: translateY(100%); } to { transform: none; } }
 @keyframes guest-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes guest-rise { from { opacity: 0; transform: translateY(0.5rem); } to { opacity: 1; transform: none; } }
+
+/* --- ticket 05: Your order on the bottom bar ----------------------------------------------- */
+.bar__order { cursor: pointer; }
+.bar__order--ready { background: var(--rop-terra); color: var(--rop-on-terra); box-shadow: var(--rop-shadow-terra); }
+.bar__order--ready .bar__order-sub { font-variant-numeric: tabular-nums; }
+/* While a sheet is open (the page behind is inert), Send order is the one terra cotta control. */
+.guest__body[inert] .bar__order--ready { background: var(--rop-surface); color: var(--rop-text-muted); box-shadow: none; }
+@media (hover: hover) { .bar__order--ready:hover { filter: brightness(1.06); } }
+.bar__order:active { transform: scale(0.98); }
+.bar__order { transition: transform var(--rop-fast) var(--rop-ease), background-color var(--rop-fast) var(--rop-ease); }
+
+/* Strips that can be dismissed. */
+.status__text { flex: 1; min-inline-size: 0; }
+.status__dismiss {
+  flex: none; inline-size: 2.75rem; block-size: 2.75rem; margin-block: -0.375rem; margin-inline-end: -0.5rem; display: inline-flex; align-items: center; justify-content: center;
+  padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer;
+}
+
+/* --- sheets: the big buttons, option groups, the order's lines, the note, the total ---------- */
+.sheet__aside { font-size: var(--rop-font-sm); font-weight: 500; color: var(--rop-text-muted); }
+.action {
+  inline-size: 100%; min-block-size: 3.5rem; margin-block-start: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.625rem; padding: 0.5rem 1rem;
+  border: 0; border-radius: 0.875rem; cursor: pointer; font: inherit; font-size: var(--rop-font); font-weight: 600;
+  transition: transform var(--rop-fast) var(--rop-ease), filter var(--rop-fast) var(--rop-ease);
+}
+.action:active:not(:disabled) { transform: scale(0.98); }
+.action--terra { background: var(--rop-terra); color: var(--rop-on-terra); box-shadow: var(--rop-shadow-terra); }
+.action--brand { background: var(--rop-brand); color: var(--rop-on-brand); }
+.action:disabled { background: var(--rop-surface); color: var(--rop-text-muted); box-shadow: none; cursor: default; }
+@media (hover: hover) { .action:hover:not(:disabled) { filter: brightness(1.08); } }
+.action__sub { font-weight: 500; font-variant-numeric: tabular-nums; }
+.action + .sheet__note { margin-block-start: 0.5rem; }
+
+.group { min-inline-size: 0; margin: 0 0 1rem; padding: 0; border: 0; }
+.group__legend { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; inline-size: 100%; margin-block-end: 0.5rem; padding: 0; }
+.group__name { font-size: var(--rop-font); font-weight: 600; }
+.group__rule { font-size: var(--rop-font-xs); color: var(--rop-text-muted); }
+.group__tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: 0.5rem; }
+.opt {
+  min-block-size: 2.75rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem; cursor: pointer; text-align: start;
+  background: var(--rop-bg); color: var(--rop-text); border: 1px solid var(--rop-border-strong); font: inherit; font-size: var(--rop-font-sm); font-weight: 500;
+  transition: background-color var(--rop-fast) var(--rop-ease), color var(--rop-fast) var(--rop-ease);
+}
+.opt--on { background: var(--rop-brand); color: var(--rop-on-brand); border-color: var(--rop-brand); }
+.opt:disabled { opacity: 0.55; cursor: default; }
+.opt__name { flex: 1; min-inline-size: 0; overflow-wrap: anywhere; }
+.opt__delta { flex: none; font-size: var(--rop-font-xs); font-variant-numeric: tabular-nums; }
+
+.qty { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-block: 0.25rem 0.25rem; }
+.qty__label { font-weight: 600; }
+.qty__stepper { display: flex; align-items: center; gap: 2px; }
+.round:disabled { opacity: 0.45; cursor: default; }
+
+.lines { list-style: none; margin: 0; padding: 0; }
+.line {
+  display: grid; grid-template-columns: 2.75rem minmax(0, 1fr) auto; grid-template-areas: 'photo text total' '. step step'; align-items: center; column-gap: 0.625rem; row-gap: 0.25rem;
+  padding-block: 0.625rem; border-block-end: 1px solid var(--rop-row-line);
+}
+.line--marked { padding-inline: 0.5rem; border-radius: 0.75rem; background: var(--rop-warning-tint); box-shadow: inset 0 0 0 1px var(--rop-warning-border); border-block-end-color: transparent; }
+.line__photo { grid-area: photo; inline-size: 2.75rem; block-size: 2.75rem; border-radius: 0.625rem; object-fit: cover; }
+.line__photo--none { display: grid; place-items: center; background: var(--rop-surface); color: var(--rop-text-muted); }
+.line__text { grid-area: text; display: flex; flex-direction: column; gap: 1px; min-inline-size: 0; }
+.line__name { font-size: var(--rop-font-sm); font-weight: 600; overflow-wrap: anywhere; }
+.line__options { font-size: var(--rop-font-xs); color: var(--rop-text-muted); }
+.line__problem { font-size: var(--rop-font-xs); font-weight: 600; }
+.line__total { grid-area: total; font-size: var(--rop-font-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.line__stepper { grid-area: step; justify-self: end; display: flex; align-items: center; gap: 2px; }
+.line__remove {
+  grid-area: step; justify-self: end; min-block-size: 2.75rem; padding-inline: 1rem; border-radius: 0.875rem; cursor: pointer;
+  background: var(--rop-raised); color: var(--rop-text); border: 1px solid var(--rop-border-strong); font: inherit; font-size: var(--rop-font-sm); font-weight: 600;
+}
+.line__remove:disabled { opacity: 0.55; cursor: default; }
+
+.note { display: grid; gap: 0.25rem; margin-block-start: 1rem; }
+.note__label { font-size: var(--rop-font-sm); font-weight: 600; }
+.note__input {
+  inline-size: 100%; min-block-size: 4rem; padding: 0.625rem 0.75rem; border-radius: 0.75rem; resize: vertical;
+  background: var(--rop-bg); color: var(--rop-text); border: 1px solid var(--rop-border-strong); font: inherit; font-size: var(--rop-font); line-height: 1.5;
+}
+.note__input::placeholder { color: var(--rop-text-muted); opacity: 1; }
+.note__counter { justify-self: end; font-size: var(--rop-font-xs); font-variant-numeric: tabular-nums; color: var(--rop-text-muted); }
+.total { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-block: 1rem 0.25rem; }
+.total__label { font-size: var(--rop-font); font-weight: 500; }
+.total__amount { font-size: 1.75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
