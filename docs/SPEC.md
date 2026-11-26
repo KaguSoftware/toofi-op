@@ -8,7 +8,7 @@
 | Manager: business day open and close, discounts, refunds, analytics panel, menu/floor/staff admin | Offline mode (writes carry idempotency keys, so it can be added later) |
 | Stock: ingredients, recipes, sales deduct stock automatically, deliveries, waste, counts, low-stock list, margins | Batches/expiry, multiple stores, supplier ordering |
 | EN + AR (RTL), IQD, Asia/Baghdad | Multi-branch UI (the schema is ready for it) |
-| Guest QR menu: a guest scans the table's code, browses the menu, calls a waiter, or sends an order that staff accept | Paying from the phone, the guest seeing the bill, the guest cancelling an accepted order, photos and descriptions |
+| Guest QR menu: a guest scans the table's code, browses the menu, calls a waiter, or sends an order that staff accept | Paying from the phone, the guest seeing the bill, the guest cancelling an accepted order, dish descriptions |
 
 ## Roles
 `waiter`, `cashier`, `manager`, `owner`. Each listed role also gets everything granted to the roles to its left, except where noted.
@@ -21,7 +21,7 @@
 | Take payments, settle, split, drawer, own till shift | | ✓ | ✓ | ✓ |
 | Discount, refund, cancel a non-empty tab, close another person's shift | | PIN | ✓ | ✓ |
 | Open and close the business day, analytics, stock | | | ✓ | ✓ |
-| Admin for menu, floor and stock items | | | ✓ | ✓ |
+| Admin for menu, floor and stock items (including dish photos and category icons) | | | ✓ | ✓ |
 | Staff admin, venue settings, set PINs | | | | ✓ |
 | Answer a waiter call, accept or decline a guest order | ✓ | ✓ | ✓ | ✓ |
 | Print table QR cards, switch guest calls or guest ordering on and off (whole venue or one table) | | | ✓ | ✓ |
@@ -84,8 +84,8 @@ Unless noted, every table has `id uuid pk default gen_random_uuid()`, `venue_id 
   - `dining_tables` (area_id, label, seats, grid_x, grid_y, is_active). It is named `dining_tables` because `tables` is too generic.
 - **Menu:**
   - `tax_groups` (name, rate_bps).
-  - `menu_categories` (name_en, name_ar, sort, is_active).
-  - `menu_items` (category_id, name_en, name_ar, price iqd, tax_group_id, is_active, sort).
+  - `menu_categories` (name_en, name_ar, sort, is_active, icon text not null default `dish`, checked against `CATEGORY_ICONS` in `@rop/core`; added in 0150).
+  - `menu_items` (category_id, name_en, name_ar, price iqd, tax_group_id, is_active, sort, photo_path text null: the object's path in the `menu-photos` bucket, `{venue_id}/items/{item_id}/{file}`, never a URL; added in 0150).
   - `modifier_groups` (name_en, name_ar, min_select, max_select).
   - `modifiers` (group_id, name_en, name_ar, price_delta iqd_signed, is_active).
   - `menu_item_modifier_groups` (menu_item_id, group_id, pk both).
@@ -123,6 +123,8 @@ Every table has RLS enabled and a select policy for any active staff at the venu
 - `table_links.token`: not client-readable (a column grant leaves it out, like `staff.pin_hash`). Managers and owners read tokens only through `app.table_qr_tokens()`.
 - `app.guest_sessions`: no client grants at all, like `app.pin_grants`.
 
+**Storage, the one client write.** The public bucket `menu-photos` (1 MB, WebP or JPEG) holds dish photos. Anyone may read it. A manager or owner uploads, replaces and deletes objects straight through the Storage API, only under their own venue's folder (`{venue_id}/…`), because a file cannot go through a SQL function. `app.set_menu_item_photo` then records the path, and `app.set_menu_category_icon` sets a category's icon; both are manager and owner, audited.
+
 ## Migration number bands (filename `2026112000NNNN_<name>.sql`)
 | Band | Owner | Content |
 |---|---|---|
@@ -131,7 +133,7 @@ Every table has RLS enabled and a select policy for any active staff at the venu
 | 0040–0059 | backend-stock-analytics | Stock triggers, stock functions, views, analytics/report functions, realtime broadcast triggers |
 | 0060–0079 | backend-catalog-seed | Floor/menu/modifier/tax/staff admin functions, plus `supabase/seed.sql` |
 | 0080–0139 | fixes after Phase 1 | |
-| 0140+ | guest QR menu | Guest enums, `table_links`, `app.guest_sessions`, `waiter_calls`, `guest_orders`, guest and staff functions, realtime signals, housekeeping |
+| 0140+ | guest QR menu | Guest enums, `table_links`, `app.guest_sessions`, `waiter_calls`, `guest_orders`, guest and staff functions, realtime signals, housekeeping; from 0150 dish photos, category icons and the `menu-photos` bucket |
 
 Each agent also owns its own test files `packages/db/tests/<area>.test.ts` and appends its entries to `rls-matrix.ts` and `ERROR_CODE_KEYS`. Those last two are shared files: **append only**, under a comment header with the agent's name, and the orchestrator resolves merge conflicts.
 

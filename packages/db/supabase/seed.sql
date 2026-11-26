@@ -98,17 +98,17 @@ on conflict (id) do nothing;
 -- ---------------------------------------------------------------------------
 -- Menu categories
 -- ---------------------------------------------------------------------------
-insert into menu_categories (id, name_en, name_ar, sort)
-select md5('cat:' || c.k)::uuid, c.en, c.ar, c.sort
+insert into menu_categories (id, name_en, name_ar, sort, icon)
+select md5('cat:' || c.k)::uuid, c.en, c.ar, c.sort, c.icon
   from (values
-    ('mezze',     'Mezze',        'مقبلات',         1),
-    ('grills',    'Grills',       'مشاوي',          2),
-    ('mains',     'Main Dishes',  'أطباق رئيسية',   3),
-    ('sandwich',  'Sandwiches',   'سندويتشات',      4),
-    ('desserts',  'Desserts',     'حلويات',         5),
-    ('hot',       'Hot Drinks',   'مشروبات ساخنة',  6),
-    ('cold',      'Cold Drinks',  'مشروبات باردة',  7)
-  ) as c (k, en, ar, sort)
+    ('mezze',     'Mezze',        'مقبلات',         1, 'mezze'),
+    ('grills',    'Grills',       'مشاوي',          2, 'grill'),
+    ('mains',     'Main Dishes',  'أطباق رئيسية',   3, 'main'),
+    ('sandwich',  'Sandwiches',   'سندويتشات',      4, 'sandwich'),
+    ('desserts',  'Desserts',     'حلويات',         5, 'dessert'),
+    ('hot',       'Hot Drinks',   'مشروبات ساخنة',  6, 'hot_drink'),
+    ('cold',      'Cold Drinks',  'مشروبات باردة',  7, 'cold_drink')
+  ) as c (k, en, ar, sort, icon)
 on conflict (id) do nothing;
 
 -- ---------------------------------------------------------------------------

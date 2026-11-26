@@ -29,7 +29,7 @@ Start with `README.md` in this folder. The approved look is in `design.md`.
 | Step | Work | Ticket |
 |---|---|---|
 | 1 | Database for calls and guest orders, guardrails, error text, docs (the "Database" section below) | done, see `issues/01-commit-database-step.md` |
-| 2 | Dish photos and category icons in the database, file storage | `issues/02-photos-and-icons-db.md` |
+| 2 | Dish photos and category icons in the database, file storage | done, see `issues/02-photos-and-icons-db.md` and "As built (step 2)" |
 | 3 | Shared tokens; guest site `apps/menu` (Next.js, adapted from `../TouchPadel/apps/web`): session, routes, data | `issues/03-guest-site-foundation.md` |
 | 4 | Guest UI: menu and call waiter | `issues/04-guest-menu-and-call.md` |
 | 5 | Guest UI: basket, order, status | `issues/05-guest-basket-and-order.md` |
@@ -133,3 +133,15 @@ Migrations `0140_guest_enums`, `0141_guest_tables`, `0142_guest_functions`, `014
 - **Audit actions:** `guest_order.accept`, `guest_order.decline`, `table_link.read_tokens`, `table_link.set_guest_enabled`, `table_link.rotate`, `venue_settings.guest_service`. No audit row ever holds a token.
 - **Reused codes with staff wording.** Guests can meet `DAY_NOT_OPEN` ("Ask a manager to open it"), `INVALID_QTY` ("1 to 999"; the guest limit is 20), `ITEM_NOT_AVAILABLE`, `MODIFIER_*`, `INVALID_PRICE` ("Check the menu setup"), `IDEMPOTENCY_KEY_REQUIRED` and `INVALID_ARGUMENT`. Their catalogue text is unchanged because the operator app uses it; the guest site (step 2) should map them to diner wording with `errorMessageKey` overrides.
 - **Known edge.** If a waiter opens a tab on the table while an accept for a free table is running, the accept fails with `TABLE_OCCUPIED` (the waiter's `open_tab` does not take the table lock); a retry lands on the waiter's tab.
+
+### As built (step 2): photos and icons
+
+Migrations `0150_menu_photos_icons`, `0151_menu_photos_storage`, `0152_guest_menu_photos_icons`. Storage is on in `config.toml`.
+
+- `menu_categories.icon text not null default 'dish'`, constraint `menu_categories_icon_check` over the eight keys. `CATEGORY_ICONS` in `@rop/core` is the same list in the same order; a database test fails if they drift. The seed gives each category its icon (`mezze`, `grill`, `main`, `sandwich`, `dessert`, `hot_drink`, `cold_drink`).
+- `menu_items.photo_path text null`.
+- `app.set_menu_category_icon(p_category_id, p_icon)` → `{category_id, icon}`. Unknown category: `CATEGORY_NOT_FOUND` (checked before the icon). Unknown, blank or null key: `INVALID_ICON`. Audit `menu_category.set_icon` with `{icon}` before and after.
+- `app.set_menu_item_photo(p_item_id, p_photo_path)` → `{menu_item_id, photo_path}`. Unknown item: `ITEM_NOT_FOUND`. The path must be exactly `{venue_id}/items/{item_id}/{file}`, where `{file}` is one name of letters, digits, `.`, `_` and `-`, not starting with `.`, at most 128 characters. So no deeper folder, no `..`, no URL: the guest site can put it into a URL safely. Otherwise `PHOTO_PATH_INVALID`. Null clears. It does not check that the object exists and never deletes objects (the staff app removes the old object after a replace). Audit `menu_item.set_photo` with `{photo_path}` before and after.
+- Bucket `menu-photos`: public, `file_size_limit` 1 MB, `image/webp` and `image/jpeg`. Policies on `storage.objects`: `menu_photos_read` (select, anon and authenticated, the bucket), `menu_photos_insert`, `menu_photos_update`, `menu_photos_delete` (authenticated, `app.is_staff('manager','owner')`, first folder = `app.current_venue()`). The policies pin only the venue folder; the `items/{item_id}/` part is checked by `set_menu_item_photo`.
+- `guest_menu()` adds `icon` to each category and `photo_path` (null when none) to each item. Nothing else changed.
+

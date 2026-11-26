@@ -458,6 +458,16 @@ export const ERROR_CODE_KEYS = {
     en: 'The table is free. Enter the number of guests to open a tab.',
     ar: 'الطاولة فارغة. أدخل عدد الضيوف لفتح فاتورة.',
   },
+
+  // --- dish photos and category icons (0150+) ---
+  PHOTO_PATH_INVALID: {
+    en: 'This photo could not be saved. Upload it again.',
+    ar: 'تعذّر حفظ هذه الصورة. ارفعها مرة أخرى.',
+  },
+  INVALID_ICON: {
+    en: 'Pick an icon from the list.',
+    ar: 'اختر أيقونة من القائمة.',
+  },
 } as const satisfies Record<string, ErrorText>;
 
 export type ErrorCode = keyof typeof ERROR_CODE_KEYS;

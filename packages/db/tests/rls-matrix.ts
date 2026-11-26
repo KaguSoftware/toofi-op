@@ -246,4 +246,13 @@ export const RPC_MATRIX: readonly RpcRule[] = [
     note: 'INVALID_ARGUMENT',
   },
   { fn: 'rotate_table_token', args: { p_table_id: NO_ROW }, allow: OWNER_ONLY, note: 'TABLE_NOT_FOUND' },
+
+  // --- dish photos and category icons (0150+) ---
+  { fn: 'set_menu_item_photo', args: { p_item_id: NO_ROW, p_photo_path: null }, allow: MANAGER_UP, note: 'ITEM_NOT_FOUND' },
+  {
+    fn: 'set_menu_category_icon',
+    args: { p_category_id: NO_ROW, p_icon: 'dish' },
+    allow: MANAGER_UP,
+    note: 'CATEGORY_NOT_FOUND',
+  },
 ];

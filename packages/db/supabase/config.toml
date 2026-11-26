@@ -37,7 +37,7 @@ enabled = true
 port = 55424
 
 [storage]
-enabled = false
+enabled = true  # the menu-photos bucket (migration 0151)
 
 [auth]
 enabled = true
