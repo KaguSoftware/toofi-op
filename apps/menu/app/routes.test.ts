@@ -204,6 +204,7 @@ describe('GET /api/status', () => {
     expect(await visible(res)).not.toContain(SID);
     const body = await res.json();
     expect(body.data.orders).toEqual([{ id: 'o1', status: 'pending' }]);
+    expect(Date.parse(body.data.server_now)).not.toBeNaN();
   });
 
   it('answers expired and clears the cookie for an ended session', async () => {

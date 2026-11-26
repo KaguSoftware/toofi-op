@@ -5,31 +5,12 @@
  */
 import { isUuid } from './securityLogic';
 
-/** What a page needs about the table it is bound to. */
-export interface TableBinding {
-  tableLabel: string;
-  dayOpen: boolean;
-  callsEnabled: boolean;
-  ordersEnabled: boolean;
-}
-
 type Row = Record<string, unknown>;
 const isRow = (v: unknown): v is Row => typeof v === 'object' && v !== null && !Array.isArray(v);
 
 /** The session id from `open_table_session`, or null when the answer has none. */
 export function sessionIdOf(data: unknown): string | null {
   return isRow(data) && isUuid(data.session_id) ? data.session_id : null;
-}
-
-/** `guest_status` read for the page: the table label and the switches. */
-export function parseBinding(data: unknown): TableBinding | null {
-  if (!isRow(data) || typeof data.table_label !== 'string') return null;
-  return {
-    tableLabel: data.table_label,
-    dayOpen: data.day_open === true,
-    callsEnabled: data.calls_enabled === true,
-    ordersEnabled: data.orders_enabled === true,
-  };
 }
 
 /** Removes any key that could carry a credential before a database answer is sent on. */

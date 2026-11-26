@@ -32,6 +32,9 @@ const RESULT_BY_CODE: Readonly<Partial<Record<ErrorCode, GuestResult>>> = {
   INVALID_PRICE: 'stale-menu',
 };
 
+/** The codes the guest site maps to a result: the ones whose wording the screen carries. */
+export const GUEST_CODES = Object.keys(RESULT_BY_CODE);
+
 /** The result for a code; an unknown code or none at all is `error`. */
 export function guestResultOf(code: string | null | undefined): GuestResult {
   if (!code) return 'error';

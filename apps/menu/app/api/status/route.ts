@@ -11,5 +11,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!sessionId) return fail('SESSION_EXPIRED');
 
   const answer = await guestRpc('guest_status', { p_session_id: sessionId });
-  return answer.ok ? ok(withoutSecrets(answer.data)) : fail(answer.code);
+  // server_now lets the phone count down on the server's clock, not its own.
+  return answer.ok ? ok({ ...(withoutSecrets(answer.data) as object), server_now: new Date().toISOString() }) : fail(answer.code);
 }
