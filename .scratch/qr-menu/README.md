@@ -25,7 +25,27 @@ A guest scans a table's QR code, reads the menu, calls a waiter or sends an orde
 | Staff app: QR cards, switches, photo upload, icon picker | `issues/07-staff-setup-screens.md` | To do |
 | End-to-end tests, docs, CI, hosting notes | `issues/08-e2e-docs-hosting.md` | To do |
 
-Work the tickets in number order. 04 and 05 can run after 03; 06 and 07 only need 01 and 02, so they can run beside 03 to 05 if a second agent is available, as long as only one agent uses the local database at a time.
+Work the tickets in number order, or in parallel as below.
+
+## Running tickets in parallel
+
+Ticket 01 goes first, alone, on `main`. After that:
+
+| Wave | Tickets that can run at the same time | Each needs merged first |
+|---|---|---|
+| 1 | 02, 03, 06 | 01 |
+| 2 | 04, 07 | 03 for 04; 02 for 07 |
+| 3 | 05 | 04 |
+| 4 | 08 | everything |
+
+Rules for a session that runs beside others:
+
+- **Own worktree, own branch.** Create a git worktree outside this folder (for example `../toofi-op-wt/02`) on a branch named `qr/<ticket>` (for example `qr/02-photos-and-icons-db`), and do all work there. Run `pnpm install` in it and copy the untracked env files it needs (`apps/operator/.env.local`). Never commit to `main` and never merge; report when the ticket is done and the owner merges.
+- **One local database, shared by every worktree.** In wave 1 only the ticket 02 session may run `pnpm db:reset`, `pnpm db:types` or the `@rop/db` suite. Everyone else may read from the stack but must not reset it. In later waves, ask the owner before any reset.
+- **Ticket 03 beside 02.** Build against the `guest_menu()` shape that ticket 02 defines (`icon` on categories, `photo_path` on items). Finish its "done when" checks after 02 is merged.
+- **Shared files.** `packages/i18n` catalogs, `errors.ts`, `CLAUDE.md`, `lib/queryKeys.ts` and `rls-matrix.ts` are edited by several tickets. Add your lines in your own block; never reorder or reformat what is there.
+- **Ports.** The staff app's dev server is fixed to 5174 and the end-to-end suite uses it too. If a port is taken, another session has it: wait, or ask the owner.
+- **Merging.** Branches merge into `main` in ticket order. A ticket in a later wave starts from `main` after the tickets it needs are merged.
 
 ## Rules for the session that builds this
 
