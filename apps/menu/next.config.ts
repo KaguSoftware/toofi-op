@@ -17,7 +17,12 @@ const nextConfig: NextConfig = {
   async headers() {
     // Fixed headers on every response, static files and 404s included. The CSP needs a
     // per-request nonce, so proxy.ts sets it.
-    return [{ source: '/:path*', headers: [...STATIC_SECURITY_HEADERS] }];
+    return [
+      { source: '/:path*', headers: [...STATIC_SECURITY_HEADERS] },
+      // The QR address carries the token in its URL: never send it on as a Referer. Listed after the
+      // site-wide set so it wins (a route handler's own Referrer-Policy is overwritten by this list).
+      { source: '/t/:path*', headers: [{ key: 'Referrer-Policy', value: 'no-referrer' }] },
+    ];
   },
 };
 
