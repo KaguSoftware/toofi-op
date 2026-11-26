@@ -10,7 +10,8 @@ Read `docs/SPEC.md` (what we build, the schema contract, and who owns which file
 - pnpm 9 workspaces + turbo, Node ≥ 22, TypeScript strict (`noUncheckedIndexedAccess`).
 - `apps/operator`: Vite + React 19 + TanStack Router (code-based routes, hash history under Electron) + TanStack Query + Supabase JS.
 - `apps/operator-shell`: Electron 33, which loads the bundled `apps/operator/dist`. It auto-updates from GitHub releases through electron-updater.
-- `packages/core`: pure TS domain logic. `packages/i18n`: EN + AR text, formatters and error-code text. `packages/config`: eslint and tsconfig presets. `packages/db`: Supabase migrations, generated types and tests.
+- `apps/menu` (`@rop/menu`): the guest QR menu site, Next.js App Router. Only its server talks to Supabase (anon key, the five guest functions, server-only env `SUPABASE_URL` / `SUPABASE_ANON_KEY`); the table session id lives in the HttpOnly `rop-table` cookie. Dev server on port 5180.
+- `packages/core`: pure TS domain logic. `packages/i18n`: EN + AR text, formatters and error-code text. `packages/config`: eslint and tsconfig presets. `packages/tokens`: the shared `--rop-*` tokens, font faces and ornament assets (`tokens.css`, `fonts.css`; `guest.css` adds the guest site's dark set). `packages/db`: Supabase migrations, generated types and tests.
 - The backend is Supabase Postgres. Business logic lives in SQL functions in the `app` schema.
 
 ## Backend rules (non-negotiable)
@@ -34,9 +35,9 @@ Read `docs/SPEC.md` (what we build, the schema contract, and who owns which file
     - Run `pnpm db:types` after changing a migration, and commit the regenerated types in the same commit.
 
 ## Frontend rules
-- **Designed UI, small system.** Use semantic HTML, the kit in `apps/operator/src/components/`, and the tokens in `apps/operator/src/styles/base.css`. The direction is "ink and paper, colour only for state": read `PRODUCT.md` and `DESIGN.md` before changing how anything looks. New screens reuse the existing tokens and kit; do not add a second visual vocabulary.
+- **Designed UI, small system.** Use semantic HTML, the kit in `apps/operator/src/components/`, and the tokens in `packages/tokens/tokens.css` (`@rop/tokens`, imported first by `apps/operator/src/styles/base.css`). The direction is "ink and paper, colour only for state": read `PRODUCT.md` and `DESIGN.md` before changing how anything looks. New screens reuse the existing tokens and kit; do not add a second visual vocabulary.
 - `base.css` is imported first in `main.tsx`, before any feature CSS, so feature files can override it. Keep that order.
-- Use CSS logical properties only (`margin-inline-start`, not `margin-left`), because the app is RTL-safe for Arabic. No raw hex outside `base.css`.
+- Use CSS logical properties only (`margin-inline-start`, not `margin-left`), because the app is RTL-safe for Arabic. No raw hex outside `base.css` and `@rop/tokens`.
 - Every user-visible string goes through `tr()` with keys in both the `en` and `ar` catalogs. The AR catalog is typed against EN, so a missing key fails typecheck.
 - Each feature is split in two: `features/<x>/XScreen.tsx` holds the UI, and `features/<x>/xLogic.ts` holds pure logic with `xLogic.test.ts` next to it. Put logic in the logic file, not in components.
 - Reads use React Query with keys from `lib/queryKeys.ts`; writes use `appRpc()` from `lib/appRpc.ts`. Realtime messages are refetch signals only (`lib/realtime.ts`).
@@ -54,11 +55,12 @@ Read `docs/SPEC.md` (what we build, the schema contract, and who owns which file
 
 ## Commands
 - `pnpm install`
-- `pnpm typecheck && pnpm lint && pnpm test`: runs every package's tests, **including the `@rop/db` suite against the local stack on 55421 if it is up**. Never run it while another agent is using that database; use `pnpm --filter @rop/core --filter @rop/i18n --filter @rop/operator --filter @rop/operator-shell test` for unit tests only.
+- `pnpm typecheck && pnpm lint && pnpm test`: runs every package's tests, **including the `@rop/db` suite against the local stack on 55421 if it is up**. Never run it while another agent is using that database; use `pnpm --filter @rop/core --filter @rop/i18n --filter @rop/operator --filter @rop/operator-shell --filter @rop/menu test` for unit tests only.
 - `pnpm db:start` / `pnpm db:reset` / `pnpm db:types`: the local Supabase stack (needs Docker).
 - `pnpm --filter @rop/db test`: database tests against the local stack. They skip themselves if the stack is down, so **report a skip as a skip, not a pass**.
 - `pnpm --filter @rop/db check:error-codes`, `pnpm --filter @rop/db check:rpc-registry`
 - `pnpm --filter @rop/operator dev`
+- `pnpm --filter @rop/menu dev` (guest site, port 5180), `pnpm --filter @rop/menu build`
 - `pnpm --filter @rop/operator-shell check:electron`, `pnpm --filter @rop/operator-shell dist:dir`
 
 ## Agent skills

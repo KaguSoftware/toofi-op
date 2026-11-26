@@ -40,3 +40,7 @@ test-results/
 # Agent scratch (local issue tracker lives in .scratch/ and IS committed)
 .claude/worktrees/
 .claude/settings.local.json
+
+# Next.js (apps/menu)
+.next/
+next-env.d.ts

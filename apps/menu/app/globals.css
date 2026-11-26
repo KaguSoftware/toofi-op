@@ -1,0 +1,33 @@
+/* The guest site's global rules. Tokens only (@rop/tokens), logical properties only.
+   Ticket 04 builds the real screen; this is the plain server-rendered menu underneath it. */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0; min-block-size: 100dvh;
+  background: var(--rop-bg); color: var(--rop-text);
+  font: var(--rop-font) / var(--rop-leading) var(--rop-font-family);
+  font-variant-numeric: tabular-nums;
+  -webkit-text-size-adjust: 100%;
+}
+:focus-visible { outline: 3px solid var(--rop-terra); outline-offset: 2px; }
+
+.guest { max-inline-size: 30rem; margin-inline: auto; padding: var(--rop-space-3); }
+.guest__top { display: flex; align-items: center; gap: var(--rop-space-3); margin-block-end: var(--rop-space-3); }
+.guest__top h1 { margin: 0; font-size: var(--rop-font-lg); font-weight: 600; }
+.guest__table {
+  display: grid; place-items: center; min-inline-size: 3.375rem; min-block-size: 3.375rem; padding-inline: var(--rop-space-2);
+  border: 1px solid var(--rop-copper); border-radius: var(--rop-radius-lg);
+  background: var(--rop-charcoal); color: var(--rop-on-charcoal); font-weight: 600;
+}
+.guest__notice {
+  margin-block: 0 var(--rop-space-3); padding: var(--rop-space-2) var(--rop-space-3); min-block-size: var(--rop-target);
+  border: 1px solid var(--rop-warning-border); border-radius: var(--rop-radius); background: var(--rop-warning-tint);
+}
+.guest__section h2 { margin-block: var(--rop-space-4) var(--rop-space-2); font-size: var(--rop-font); font-weight: 600; color: var(--rop-brand-ink); }
+.guest__items { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--rop-space-2); }
+.guest__item {
+  display: flex; justify-content: space-between; gap: var(--rop-space-3); padding: var(--rop-space-3);
+  border: 1px solid var(--rop-row-line); border-radius: var(--rop-radius-xl); background: var(--rop-row-card);
+}
+.guest__item span:first-child { font-weight: 600; }
+.guest__state { padding-block: var(--rop-space-6); text-align: center; color: var(--rop-text-muted); }
+.guest__state a { display: inline-flex; align-items: center; min-block-size: var(--rop-target); color: var(--rop-brand-ink); }

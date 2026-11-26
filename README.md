@@ -216,6 +216,11 @@ flowchart TB
    ```bash
    pnpm --filter @rop/operator dev
    ```
+6. Optional: the guest QR menu site (port 5180). Its server needs `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
+   ```bash
+   cp apps/menu/.env.example apps/menu/.env.local   # then paste the local anon key
+   pnpm --filter @rop/menu dev
+   ```
 
 ### Demo logins
 
@@ -234,10 +239,12 @@ flowchart TB
 .
 ├── apps/
 │   ├── operator/          Vite + React 19 app: features/, components/, lib/, shell/
+│   ├── menu/              Next.js guest QR menu site: the browser talks only to its server
 │   └── operator-shell/    Electron 33 shell: kiosk window, ESC/POS printing, auto-update
 ├── packages/
 │   ├── core/              Pure TypeScript domain logic: roles, money, idempotency keys
 │   ├── i18n/              EN and AR catalogs, formatters, error-code text
+│   ├── tokens/            Shared --rop-* design tokens, font faces, ornament assets
 │   ├── db/                Supabase migrations, seed, edge functions, generated types, DB tests
 │   └── config/            Shared eslint and tsconfig presets
 ├── docs/                  SPEC, RELEASING, ADRs, agent notes
@@ -251,7 +258,8 @@ flowchart TB
 |---|---|
 | Typecheck | `pnpm typecheck` |
 | Lint | `pnpm lint` |
-| Unit tests (no database) | `pnpm --filter @rop/core --filter @rop/i18n --filter @rop/operator --filter @rop/operator-shell test` |
+| Unit tests (no database) | `pnpm --filter @rop/core --filter @rop/i18n --filter @rop/operator --filter @rop/operator-shell --filter @rop/menu test` |
+| Guest menu site | `pnpm --filter @rop/menu dev` (port 5180), `pnpm --filter @rop/menu build` |
 | Database tests | `pnpm --filter @rop/db test` |
 | Security and consistency checks | `pnpm security` |
 | Error-code and RPC registry checks | `pnpm --filter @rop/db check:error-codes` and `pnpm --filter @rop/db check:rpc-registry` |

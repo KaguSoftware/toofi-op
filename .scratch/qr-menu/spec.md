@@ -145,3 +145,16 @@ Migrations `0150_menu_photos_icons`, `0151_menu_photos_storage`, `0152_guest_men
 - Bucket `menu-photos`: public, `file_size_limit` 1 MB, `image/webp` and `image/jpeg`. Policies on `storage.objects`: `menu_photos_read` (select, anon and authenticated, the bucket), `menu_photos_insert`, `menu_photos_update`, `menu_photos_delete` (authenticated, `app.is_staff('manager','owner')`, first folder = `app.current_venue()`). The policies pin only the venue folder; the `items/{item_id}/` part is checked by `set_menu_item_photo`.
 - `guest_menu()` adds `icon` to each category and `photo_path` (null when none) to each item. Nothing else changed.
 
+### As built (step 3): guest site foundation
+
+- **Tokens.** `packages/tokens` (`@rop/tokens`): `tokens.css` (every `--rop-*` value, moved verbatim from `base.css`), `fonts.css` (the six bundled IBM Plex faces), `zakhrafa-page.svg`, and `guest.css`, which only the guest site imports: `--rop-row-card`, `--rop-row-line`, `--rop-row-ornament`, `--rop-row-ornament-opacity`, `--rop-charcoal-border`, and the dark set under `prefers-color-scheme: dark`. The staff app's built CSS is unchanged apart from a comment inside the inlined SVG.
+- **Next version.** `next@16.4.6`, not TouchPadel's 16.4.2: 16.4.2 has seven moderate advisories fixed in 16.4.5 (two touch this site: HttpOnly cookie exposure and `unstable_cache`), and `next build` refuses to finish on it.
+- **Port.** `pnpm --filter @rop/menu dev` serves on 5180.
+- **Env.** Server-only `SUPABASE_URL` and `SUPABASE_ANON_KEY` (`apps/menu/.env.example`).
+- **`GET /scan-again`** (not in the ticket's table). A page cannot clear a cookie, so when `/` gets `SESSION_EXPIRED` it redirects here; this route clears `rop-table` only after `guest_status` confirms `SESSION_EXPIRED` (a link from another site cannot unbind a live table), then 307s to `/?notice=scan-again`. `/` never redirects again while that notice is present.
+- **`/t/<token>` failures.** A bad shape, `TABLE_LINK_INVALID`, `TOO_MANY_REQUESTS` or no answer all go to `/?notice=scan-again` with no cookie set; an existing cookie is left alone.
+- **API answers.** Success: `200 {ok: true, data}`. Refusal: `{ok: false, result, code}`, where `result` is one of `expired`, `closed`, `off`, `too-soon`, `limit`, `stale-menu`, `error` and `code` is the database code (or null when it never answered). Statuses: expired 401, `TOO_MANY_REQUESTS` 429, other refusals 409, a bad body 400, no answer 502, missing `x-rop-guest` 403. An expired answer also clears the cookie. Any `session_id`, `guest_session_id` or `token` key is stripped from every body.
+- **Mapping** (`apps/menu/src/lib/guestErrorLogic.ts`): `limit` covers `TOO_MANY_PENDING_ORDERS`, `TOO_MANY_ITEMS`, `INVALID_QTY`, `ITEMS_REQUIRED`, `TOO_MANY_REQUESTS`; `stale-menu` covers `ITEM_NOT_AVAILABLE`, `MODIFIER_NOT_ALLOWED`, `MODIFIER_SELECTION_INVALID`, `INVALID_PRICE`. Diner wording for the reused staff codes is under `guest.errors.*`.
+- **Menu cache.** `unstable_cache`, 60 s, tag `guest-menu` (`MENU_TAG`). A failed read is not cached.
+- **Idempotency.** Station id `G-` + 10 Crockford characters per phone in `localStorage` (`rop.guest-station`); `guestKey(action)` in `src/lib/client/stationLogic.ts`.
+- **Logs.** Next's request log skips `/t/*`; `guestRpc` logs only the function name and the failure, never its arguments.

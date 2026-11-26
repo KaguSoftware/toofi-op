@@ -827,6 +827,28 @@ const enLiteral = {
       cashNone: 'No till shifts closed in this period.',
     },
   },
+  // --- guest QR menu site (apps/menu); read by a diner, never mentions staff tools ---
+  guest: {
+    meta: { description: 'Menu and table service' },
+    table: { label: 'Table {label}' },
+    notice: {
+      scanAgain: 'Scan the code on your table again.',
+      closed: 'The restaurant is not taking orders right now. You can still read the menu.',
+    },
+    menu: {
+      empty: 'Nothing on the menu yet.',
+      failed: 'The menu is taking a moment.',
+      retry: 'Try again',
+    },
+    errors: {
+      generic: 'Something went wrong. Please try again, or ask a waiter.',
+      closed: 'The restaurant is not taking orders right now. Please ask a waiter.',
+      tooManyOfOne: 'You can order up to 20 of one dish.',
+      itemNotAvailable: 'A dish in your order is no longer available. Remove it and send again.',
+      optionNotAvailable: 'An option you chose is no longer available. Choose again and send.',
+      chooseOptions: 'Choose the options this dish needs.',
+    },
+  },
   errors: {
     generic: 'Something went wrong. Try again.',
     network: 'No connection. Check the network and try again.',
