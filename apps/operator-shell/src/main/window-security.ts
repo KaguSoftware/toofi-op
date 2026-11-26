@@ -321,18 +321,23 @@ export const DEV_SUPABASE_ORIGINS = ['http://127.0.0.1:55421', 'ws://127.0.0.1:5
  * for file: loads and the meta tag is what covers that case.
  *
  * connect-src is the app's own origin plus the one Supabase project, https and
- * wss, taken from the build. Dev builds add the local stack and the Vite dev
+ * wss, taken from the build; img-src adds the same https origin so dish photos load.
+ * Dev builds add the local stack and the Vite dev
  * server (its HMR socket, and the inline preamble the React plugin injects).
  */
 export function buildCsp(opts: { supabaseUrl?: string; isDev: boolean; devServerUrl?: string }): string {
   const connect = ["'self'"];
   const script = ["'self'"];
+  // Dish photos are public files in the project's storage, so images may load from the same origin.
+  const img = ["'self'", 'data:', 'blob:'];
   const supabase = opts.supabaseUrl ? parse(opts.supabaseUrl) : null;
   if (supabase && supabase.protocol === 'https:') {
     connect.push(`https://${supabase.host}`, `wss://${supabase.host}`);
+    img.push(`https://${supabase.host}`);
   }
   if (opts.isDev) {
     connect.push(...DEV_SUPABASE_ORIGINS);
+    img.push('http://127.0.0.1:55421');
     const dev = opts.devServerUrl ? parse(opts.devServerUrl) : null;
     if (dev) {
       connect.push(dev.origin, `ws://${dev.host}`);
@@ -343,7 +348,7 @@ export function buildCsp(opts: { supabaseUrl?: string; isDev: boolean; devServer
     "default-src 'self'",
     `script-src ${script.join(' ')}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src ${img.join(' ')}`,
     "font-src 'self' data:",
     `connect-src ${connect.join(' ')}`,
   ].join('; ');

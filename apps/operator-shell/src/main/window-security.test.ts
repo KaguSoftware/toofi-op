@@ -275,7 +275,7 @@ describe('buildCsp', () => {
         "default-src 'self'",
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: blob:",
+        "img-src 'self' data: blob: https://abc.supabase.co",
         "font-src 'self' data:",
         "connect-src 'self' https://abc.supabase.co wss://abc.supabase.co",
       ].join('; '),
@@ -289,9 +289,16 @@ describe('buildCsp', () => {
     expect(buildCsp({ supabaseUrl, isDev: false })).not.toContain('127.0.0.1');
   });
 
+  it('lets dish photos load from the Supabase project, and from the local stack in dev only', () => {
+    expect(buildCsp({ supabaseUrl, isDev: false })).toContain('img-src \'self\' data: blob: https://abc.supabase.co;');
+    expect(buildCsp({ supabaseUrl, isDev: true })).toContain('img-src \'self\' data: blob: https://abc.supabase.co http://127.0.0.1:55421;');
+    expect(buildCsp({ isDev: false })).toContain("img-src 'self' data: blob:;");
+  });
+
   it('ignores a Supabase URL that is not https', () => {
     expect(buildCsp({ supabaseUrl: 'http://evil.test', isDev: false })).toContain("connect-src 'self'");
     expect(buildCsp({ supabaseUrl: 'http://evil.test', isDev: false })).not.toContain('evil');
+    expect(buildCsp({ supabaseUrl: 'http://evil.test', isDev: false })).toContain("img-src 'self' data: blob:;");
   });
 });
 

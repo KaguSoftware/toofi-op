@@ -906,7 +906,7 @@ const enLiteral = {
     replace: 'Replace code',
     replaceFor: 'Replace the code for table {label}',
     replaceTitle: 'Replace the code for table {label}?',
-    replaceMessage: 'The card printed for this table stops working, and guests at the table must scan the new one. Print the new card before you replace the old one.',
+    replaceMessage: 'The card printed for this table stops working, and guests at the table must scan the new one. Print the new card as soon as the code is replaced.',
     replaceConfirm: 'Replace code',
     replaced: 'Code replaced. Print the new card for table {label}.',
     siteMissing: 'The menu address is not set, so cards cannot be printed. Set VITE_MENU_URL to the public address of the guest menu and rebuild the app.',

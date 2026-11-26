@@ -15,6 +15,14 @@ export function connectSrc(supabaseUrl: string | undefined, dev: boolean): strin
   return parts.join(' ');
 }
 
+/** Origin(s) for img-src: the app, inline images, and the Supabase origin that serves dish photos. */
+export function imgSrc(supabaseUrl: string | undefined, dev: boolean): string {
+  const parts = ["'self'", 'data:', 'blob:'];
+  if (supabaseUrl) parts.push(new URL(supabaseUrl).origin);
+  if (dev) parts.push('http://127.0.0.1:55421');
+  return [...new Set(parts)].join(' ');
+}
+
 /** Fills the CSP meta in index.html. Build uses the env URL; dev adds the local stack and HMR. */
 function cspPlugin(supabaseUrl: string | undefined): Plugin {
   let dev = false;
@@ -24,7 +32,7 @@ function cspPlugin(supabaseUrl: string | undefined): Plugin {
       dev = c.command === 'serve';
     },
     transformIndexHtml: (html) =>
-      html.replace('__CONNECT_SRC__', connectSrc(supabaseUrl, dev)).replace(
+      html.replace('__CONNECT_SRC__', connectSrc(supabaseUrl, dev)).replace('__IMG_SRC__', imgSrc(supabaseUrl, dev)).replace(
         "script-src 'self'",
         // Vite's React refresh preamble is an inline script, dev only.
         dev ? "script-src 'self' 'unsafe-inline'" : "script-src 'self'",

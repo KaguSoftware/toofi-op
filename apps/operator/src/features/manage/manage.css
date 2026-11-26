@@ -145,3 +145,5 @@
   .qr-sheet__page { inline-size: 105mm; block-size: 148mm; break-after: page; overflow: hidden; }
   .qr-sheet__page:last-child { break-after: auto; }
 }
+/* In a table row the raised pill is the same cream as the panel, so the pressed side takes the selected tint. */
+.rop-table .rop-segmented > .rop-btn[aria-pressed='true'] { background: var(--rop-brand-tint); box-shadow: inset 0 0 0 1px var(--rop-brand-tint-2); }
