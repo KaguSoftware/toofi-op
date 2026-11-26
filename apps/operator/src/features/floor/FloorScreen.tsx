@@ -6,7 +6,6 @@ import {
   Button,
   EmptyState,
   ErrorState,
-  Field,
   Icon,
   Loading,
   Modal,
@@ -21,7 +20,6 @@ import { newIdem } from '../../lib/idem';
 import { useLocale } from '../../lib/i18n';
 import { QK, refreshTabs } from '../../lib/queryKeys';
 import { useBroadcast } from '../../lib/realtime';
-import { supabase } from '../../lib/supabase';
 import {
   clampCovers,
   columnCount,
@@ -33,26 +31,14 @@ import {
   splitMinutes,
   summarize,
   tableIsFree,
-  type FloorArea,
   type FloorRow,
 } from './floorLogic';
+import { CoversPicker } from './CoversPicker';
+import { fetchAreas, fetchStatus } from './floorData';
+import { INBOX_REFETCH_MS, fetchGuestInbox } from '../guest/guestData';
+import { callsByTable, waitedSeconds } from '../guest/guestLogic';
 import { FloorNav } from './FloorNav';
 import './floor.css';
-
-async function fetchAreas(): Promise<FloorArea[]> {
-  const { data, error } = await supabase
-    .from('floor_areas')
-    .select('id, name_en, name_ar, sort')
-    .order('sort');
-  if (error) throw error;
-  return (data ?? []) as FloorArea[];
-}
-
-async function fetchStatus(): Promise<FloorRow[]> {
-  const { data, error } = await supabase.from('v_floor_status').select('*');
-  if (error) throw error;
-  return (data ?? []) as unknown as FloorRow[];
-}
 
 export function FloorScreen() {
   const { tr, locale } = useLocale();
@@ -64,6 +50,7 @@ export function FloorScreen() {
 
   const areas = useQuery({ queryKey: QK.floorAreas(), queryFn: fetchAreas });
   const status = useQuery({ queryKey: QK.floorStatus(), queryFn: fetchStatus });
+  const inbox = useQuery({ queryKey: QK.guestInbox(), queryFn: fetchGuestInbox, refetchInterval: INBOX_REFETCH_MS });
 
   const [pending, setPending] = useState<FloorRow | null>(null);
   const [covers, setCovers] = useState('4');
@@ -79,6 +66,7 @@ export function FloorScreen() {
   // Minutes are recomputed on every render and refetch; no timer needed.
   const now = new Date();
   const summary = summarize(status.data ?? [], now);
+  const calling = callsByTable(inbox.data?.calls ?? []);
 
   function pick(row: FloorRow) {
     if (row.tab_id) {
@@ -185,6 +173,8 @@ export function FloorScreen() {
               const { hours, minutes } = splitMinutes(mins);
               const long = !free && isLongOpen(mins);
               const mine = !free && isMine(row, staff?.id);
+              const calledAt = calling.get(row.table_id);
+              const callMinutes = calledAt ? Math.floor(waitedSeconds(calledAt, now.getTime()) / 60) : 0;
               const time =
                 hours > 0
                   ? tr('floor.timeHours', { hours, minutes })
@@ -198,6 +188,8 @@ export function FloorScreen() {
                 ...(mine ? [tr('floor.yours')] : []),
                 ...(long ? [tr('floor.longOpen')] : []),
               ].join(', ');
+              const callLabel = calledAt ? tr('guestInbox.callingLabel', { minutes: callMinutes }) : null;
+              const tileLabel = free ? tr('floor.tableFree', { label: row.label, seats: row.seats }) : busyLabel;
               return (
                 <button
                   key={row.table_id}
@@ -207,9 +199,7 @@ export function FloorScreen() {
                   data-mine={mine || undefined}
                   data-long={long || undefined}
                   style={gridPlacement(row)}
-                  aria-label={
-                    free ? tr('floor.tableFree', { label: row.label, seats: row.seats }) : busyLabel
-                  }
+                  aria-label={callLabel ? `${tileLabel}, ${callLabel}` : tileLabel}
                   onClick={() => pick(row)}
                 >
                   <span className="floor__top">
@@ -221,6 +211,12 @@ export function FloorScreen() {
                       </span>
                     )}
                   </span>
+                  {calledAt && (
+                    <span className="rop-badge floor__calling" data-tone="warning">
+                      <Icon name="bell" />
+                      {tr('guestInbox.calling', { minutes: callMinutes })}
+                    </span>
+                  )}
                   {free ? (
                     <>
                       <span className="floor__meta">{tr('floor.seats', { count: row.seats })}</span>
@@ -275,30 +271,7 @@ export function FloorScreen() {
             void openTab();
           }}
         >
-          <div className="floor__covers" role="group" aria-label={tr('floor.coversLabel')}>
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-              <Button
-                key={n}
-                aria-pressed={covers === String(n)}
-                onClick={() => setCovers(String(n))}
-              >
-                {n}
-              </Button>
-            ))}
-          </div>
-          <Field label={tr('floor.coversLabel')} hint={tr('floor.coversHint')} error={openError}>
-            {(p) => (
-              <input
-                {...p}
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={99}
-                value={covers}
-                onChange={(e) => setCovers(e.target.value)}
-              />
-            )}
-          </Field>
+          <CoversPicker value={covers} onChange={setCovers} error={openError} />
         </form>
       </Modal>
     </section>

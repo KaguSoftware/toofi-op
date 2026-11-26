@@ -1,0 +1,71 @@
+/* Guest inbox: a solid panel fixed at the bottom inline-start corner, above the content and
+   below toasts (toasts sit at the inline end). It clears the bottom tab bar on tablets and the
+   icon rail on wide screens. Waiting time is in words; amber and red only support it. */
+.guest-inbox {
+  position: fixed; z-index: calc(var(--rop-z-toast) - 1);
+  inset-block-end: var(--rop-space-3); inset-inline-start: var(--rop-space-3);
+  inline-size: min(24rem, calc(100vw - 2 * var(--rop-space-3)));
+  max-block-size: min(70dvh, 40rem);
+  display: flex; flex-direction: column;
+  background: var(--rop-raised); color: var(--rop-text);
+  border: 1px solid var(--rop-border); border-radius: var(--rop-radius-lg); box-shadow: var(--rop-shadow-lg);
+  overflow: hidden;
+  animation: rop-toast-in var(--rop-slow) var(--rop-ease);
+}
+@media (max-width: 63.99rem) {
+  .rop-shell[data-nav='rail'] .guest-inbox { inset-block-end: calc(var(--rop-tabbar) + var(--rop-space-3)); }
+}
+@media (min-width: 64rem) {
+  .rop-shell[data-nav='rail'] .guest-inbox { inset-inline-start: calc(var(--rop-rail) + var(--rop-space-3)); }
+}
+
+.guest-inbox__head { margin: 0; flex: none; background: var(--rop-grad-charcoal); color: var(--rop-on-charcoal); }
+.rop-btn.guest-inbox__toggle {
+  inline-size: 100%; justify-content: flex-start; gap: var(--rop-space-2);
+  padding-inline: var(--rop-space-3); border-radius: 0; color: inherit; font-size: var(--rop-font-md); font-weight: 600;
+}
+.rop-btn.guest-inbox__toggle:hover { background: transparent; color: inherit; box-shadow: inset 0 -2px 0 var(--rop-copper); }
+.guest-inbox__toggle:focus-visible { outline-color: var(--rop-copper); outline-offset: -3px; }
+.guest-inbox__title { flex: 1; text-align: start; }
+.guest-inbox__count { color: var(--rop-on-charcoal-muted); font-weight: 500; font-size: var(--rop-font-sm); }
+
+.rop-btn.guest-inbox__sound {
+  flex-wrap: wrap; justify-content: flex-start; gap: var(--rop-space-1) var(--rop-space-2);
+  margin: var(--rop-space-2); text-align: start;
+}
+.guest-inbox__sound-hint { flex-basis: 100%; color: var(--rop-text-muted); font-size: var(--rop-font-sm); font-weight: 400; }
+
+.guest-inbox__list { list-style: none; margin: 0; padding: var(--rop-space-2); display: grid; gap: var(--rop-space-2); overflow-y: auto; }
+.guest-inbox__row {
+  display: grid; gap: var(--rop-space-2); padding: var(--rop-space-3);
+  background: var(--rop-surface); border: 1px solid var(--rop-border); border-radius: var(--rop-radius);
+  border-inline-start-width: 4px;
+}
+.guest-inbox__row[data-urgency='amber'] { border-inline-start-color: var(--rop-warning); }
+.guest-inbox__row[data-urgency='red'] { border-inline-start-color: var(--rop-danger); }
+
+.guest-inbox__who { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--rop-space-1) var(--rop-space-2); }
+.guest-inbox__table { font-size: var(--rop-font-lg); font-weight: 600; }
+.guest-inbox__mine { display: inline-flex; align-items: center; gap: var(--rop-space-1); color: var(--rop-brand-ink); font-size: var(--rop-font-sm); font-weight: 500; }
+.guest-inbox__wait { margin-inline-start: auto; }
+
+.guest-inbox__body { display: flex; align-items: center; justify-content: space-between; gap: var(--rop-space-2); }
+.guest-inbox__what { margin: 0; display: flex; align-items: center; gap: var(--rop-space-2); font-weight: 500; }
+
+.guest-inbox__lines { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--rop-space-1); font-size: var(--rop-font-sm); }
+.guest-inbox__lines > li { display: grid; grid-template-columns: auto 1fr auto; gap: var(--rop-space-2); align-items: baseline; }
+.guest-inbox__qty { font-weight: 600; }
+.guest-inbox__mods { color: var(--rop-text-muted); }
+.guest-inbox__line-note { display: block; color: var(--rop-text-muted); font-style: italic; }
+.guest-inbox__total {
+  margin: 0; display: flex; justify-content: space-between; align-items: baseline;
+  padding-block-start: var(--rop-space-2); border-block-start: 1px solid var(--rop-border); font-weight: 600;
+}
+.guest-inbox__total .rop-money { font-size: var(--rop-font-lg); }
+.guest-inbox__flag {
+  margin: 0; display: flex; align-items: flex-start; gap: var(--rop-space-2); padding: var(--rop-space-2);
+  background: var(--rop-warning-tint); color: var(--rop-warning-ink); border: 1px solid var(--rop-warning-border); border-radius: var(--rop-radius-sm);
+  font-size: var(--rop-font-sm);
+}
+.guest-inbox__actions { display: flex; justify-content: flex-end; gap: var(--rop-space-2); }
+.guest-inbox__actions .rop-btn--primary, .guest-inbox__body .rop-btn--primary { min-inline-size: 6rem; }

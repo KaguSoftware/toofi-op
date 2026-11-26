@@ -34,7 +34,7 @@ function safeStore(): Storage | null {
 const ACTIVITY_EVENTS = ['pointerdown', 'keydown', 'touchstart'] as const;
 
 /** After N idle minutes, covers the app with a PIN prompt (app.verify_own_pin). */
-export function IdleLock() {
+export function IdleLock({ onLockedChange }: { onLockedChange?: (locked: boolean) => void } = {}) {
   const { signOut } = useAuth();
   const { tr, locale } = useLocale();
   // Lazy: a reload with a saved lock (or a stale last activity) starts locked, on the first render.
@@ -47,6 +47,10 @@ export function IdleLock() {
     setLockedState(v);
     saveIdleState(safeStore(), { locked: v, lastActivityMs: last.current });
   };
+
+  const report = useRef(onLockedChange);
+  report.current = onLockedChange;
+  useEffect(() => report.current?.(locked), [locked]);
 
   useEffect(() => {
     if (locked) return;

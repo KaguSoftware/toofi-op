@@ -90,6 +90,7 @@ describe('can / needsManagerPin (SPEC role table)', () => {
     ['adminStaff', ['owner'], []],
     ['editVenueSettings', ['owner'], []],
     ['setStaffPin', ['owner'], []],
+    ['answerGuests', ['waiter', 'cashier', 'manager', 'owner'], []],
   ];
 
   it('covers every capability', () => {

@@ -81,3 +81,6 @@
 
 /* Tables and bills: the two views of the floor, under the title. */
 .floor__nav { justify-self: start; }
+
+/* A guest at this table is calling (QR menu). Amber supports the words "Calling · n min". */
+.floor__calling { align-self: flex-start; }

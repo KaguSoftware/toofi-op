@@ -25,11 +25,13 @@ export const QK = {
   manage: (...parts: readonly (string | number)[]) => ['manage', ...parts] as const,
   // --- stock ---
   stock: (...parts: readonly (string | number)[]) => ['stock', ...parts] as const,
+  // --- guest (QR menu calls and orders) ---
+  guestInbox: () => ['guest', 'inbox'] as const,
 } as const;
 
 /** Realtime topic area -> the query-key prefixes refetched when that topic signals. */
 export const TOPIC_PREFIXES: Readonly<Record<string, readonly (readonly string[])[]>> = {
-  tabs: [['floor'], ['tab'], ['till']],
+  tabs: [['floor'], ['tab'], ['till'], ['guest']],
   stock: [['stock']],
 };
 

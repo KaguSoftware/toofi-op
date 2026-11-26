@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, Outlet } from '@tanstack/react-router';
 import { BrandMark, Button, Icon, Loading, type IconName } from '../components';
 import { useAuth } from '../lib/auth';
@@ -5,6 +6,7 @@ import { productName } from '../lib/brand';
 import { isDesktop } from '../lib/bridge';
 import { useLocale } from '../lib/i18n';
 import { navGroupsFor, navLayoutFor } from '../lib/navLogic';
+import { GuestInbox } from '../features/guest/GuestInbox';
 import { IdleLock } from './IdleLock';
 import { KioskControls } from './KioskControls';
 
@@ -33,6 +35,8 @@ function initials(name: string): string {
 export function RootLayout() {
   const { status, staff, signOut } = useAuth();
   const { tr, toggle } = useLocale();
+  // The guest list hides while the idle lock is up; its chime keeps playing.
+  const [locked, setLocked] = useState(false);
 
   if (status === 'loading') {
     return (
@@ -109,7 +113,8 @@ export function RootLayout() {
       <main id="main" className="rop-main" tabIndex={-1}>
         <Outlet />
       </main>
-      {signedIn && <IdleLock />}
+      {signedIn && <GuestInbox hidden={locked} />}
+      {signedIn && <IdleLock onLockedChange={setLocked} />}
     </div>
   );
 }

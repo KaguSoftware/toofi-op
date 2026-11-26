@@ -67,6 +67,8 @@ export const CAPABILITY_ROLES = {
   editVenueSettings: OWNER,
   /** Set another staff member's PIN. */
   setStaffPin: OWNER,
+  /** Answer a guest's waiter call, accept or decline a guest order (QR menu). */
+  answerGuests: ALL,
 } as const satisfies Record<string, readonly StaffRole[]>;
 
 export type Capability = keyof typeof CAPABILITY_ROLES;
